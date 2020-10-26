@@ -18,8 +18,8 @@ class ValuableConsumer extends StatefulWidget {
       context?.findAncestorStateOfType<_ValuableConsumerState>();
 }
 
-class _ValuableConsumerState extends State<ValuableConsumer> {
-  final Map<Valuable, VoidCallback> _watched = <Valuable, VoidCallback>{};
+class _ValuableConsumerState extends State<ValuableConsumer>
+    with ValuableWatcherMixin {
   bool _markNeedBuild = false;
 
   @override
@@ -31,7 +31,7 @@ class _ValuableConsumerState extends State<ValuableConsumer> {
   Widget build(BuildContext context) {
     return Builder(
         builder: (BuildContext context) =>
-            widget.builder(context, _watch, widget.child));
+            widget.builder(context, watch, widget.child));
   }
 
   @override
@@ -39,34 +39,16 @@ class _ValuableConsumerState extends State<ValuableConsumer> {
     super.didUpdateWidget(old);
 
     // remove all previous watched Valuable
-    _cleanWatched();
+    cleanWatched();
   }
 
-  /// Watch a valuable, that eventually change
-  T _watch<T>(Valuable<T> valuable) {
-    if (valuable != null && !_watched.containsKey(valuable)) {
-      VoidCallback callback = _onValuableChange;
+  T _watch<T>(Valuable<T> valuable) => watch(valuable);
 
-      _watched.putIfAbsent(valuable, () => callback);
-      valuable.addListener(callback);
-      valuable.listenDispose(() {
-        _unwatch(valuable);
-      });
-    }
+  @override
+  ValuableContext get valuableContext => ValuableContext(context: context);
 
-    return valuable.getValue(context);
-  }
-
-  /// Remove listener on the valuable, that may change scope, or that about to be disposed
-  /// Internal purpose
-  void _unwatch(Valuable valuable) {
-    if (_watched.containsKey(valuable)) {
-      //valuable.removeListener(_watched[valuable]); Not necessary until dispose has been done
-      _watched.remove(valuable);
-    }
-  }
-
-  void _onValuableChange() {
+  @override
+  void onValuableChange() {
     if (_markNeedBuild == false) {
       _markNeedBuild = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -81,14 +63,7 @@ class _ValuableConsumerState extends State<ValuableConsumer> {
   void dispose() {
     super.dispose();
 
-    _cleanWatched();
-  }
-
-  void _cleanWatched() {
-    _watched.forEach((Valuable key, VoidCallback value) {
-      key?.removeListener(value);
-    });
-    _watched.clear();
+    cleanWatched();
   }
 }
 
@@ -98,6 +73,6 @@ extension WidgetValuable<T> on Valuable<T> {
 
     // If a consumer exists in the current UI tree, we make it watch the current Valuable
     state?._watch(this);
-    return getValue(context);
+    return getValue(ValuableContext(context: context));
   }
 }

@@ -16,7 +16,7 @@ class StatefulValuable<T> extends Valuable<T> {
     }
   }
 
-  T getValue(BuildContext context) => _state;
+  T getValue([ValuableContext context = const ValuableContext()]) => _state;
 }
 
 class StatefulValuableBool extends StatefulValuable<bool>

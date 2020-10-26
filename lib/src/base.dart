@@ -17,6 +17,60 @@ Valuable<int> intZero = ValuableInt(0);
 /// Shortcut to get a valuable with the double value 0.0
 Valuable<double> doubleZero = ValuableDouble(0.0);
 
+/// Immutable object that let transit informations about the current context of a valuable's value reading
+@immutable
+class ValuableContext {
+  final BuildContext context;
+
+  const ValuableContext({this.context});
+
+  bool get hasBuildContext => context != null;
+}
+
+mixin ValuableWatcherMixin {
+  final Map<Valuable, VoidCallback> _watched = <Valuable, VoidCallback>{};
+
+  /// Watch a valuable, that eventually change
+  @protected
+  T watch<T>(Valuable<T> valuable) {
+    if (valuable != null && !_watched.containsKey(valuable)) {
+      VoidCallback callback = onValuableChange;
+
+      _watched.putIfAbsent(valuable, () => callback);
+      valuable.addListener(callback);
+      valuable.listenDispose(() {
+        unwatch(valuable);
+      });
+    }
+
+    return valuable.getValue(valuableContext);
+  }
+
+  /// Remove listener on the valuable, that may change scope, or that about to be disposed
+  /// Internal purpose
+  @protected
+  void unwatch(Valuable valuable) {
+    if (_watched.containsKey(valuable)) {
+      //valuable.removeListener(_watched[valuable]); Not necessary until dispose has been done
+      _watched.remove(valuable);
+    }
+  }
+
+  @protected
+  void onValuableChange();
+
+  @protected
+  ValuableContext get valuableContext => null;
+
+  @protected
+  void cleanWatched() {
+    _watched.forEach((Valuable key, VoidCallback value) {
+      key?.removeListener(value);
+    });
+    _watched.clear();
+  }
+}
+
 abstract class Valuable<T> extends ChangeNotifier {
   final ValueNotifier<bool> _isMounted;
 
@@ -29,10 +83,11 @@ abstract class Valuable<T> extends ChangeNotifier {
     return _Valuable<T>(value);
   }
 
-  T getValue(BuildContext context);
+  T getValue([ValuableContext context = const ValuableContext()]);
 
   @protected
-  V readValuable<V>(Valuable<V> valuable, BuildContext context) {
+  V readValuable<V>(Valuable<V> valuable,
+      [ValuableContext context = const ValuableContext()]) {
     VoidCallback listen = () {
       this.notifyListeners();
     };
@@ -112,7 +167,7 @@ class _Valuable<T> extends Valuable<T> {
 
   _Valuable(this.value) : super();
 
-  T getValue(BuildContext context) => value;
+  T getValue([ValuableContext context = const ValuableContext()]) => value;
 }
 
 class ValuableBool extends _Valuable<bool> with ValuableBoolOperators {
@@ -132,7 +187,7 @@ class ValuableBoolGroup extends ValuableBool {
       : this._(_BoolGroupType.or, constraints);
 
   @override
-  bool getValue(BuildContext context) {
+  bool getValue([ValuableContext context = const ValuableContext()]) {
     bool retour = type == _BoolGroupType.and;
 
     for (Valuable<bool> constraint in constraints) {
@@ -169,10 +224,10 @@ class ValuableDouble extends ValuableNum<double> {
   ValuableDouble(double value) : super(value);
 }
 
-typedef ValuableGetFutureResult<T, Res> = T Function(BuildContext, Res);
+typedef ValuableGetFutureResult<T, Res> = T Function(ValuableContext, Res);
 typedef ValuableGetFutureError<T> = T Function(
-    BuildContext, Object, StackTrace);
-typedef ValuableGetFutureLoading<T> = T Function(BuildContext);
+    ValuableContext, Object, StackTrace);
+typedef ValuableGetFutureLoading<T> = T Function(ValuableContext);
 
 class FutureValuable<T, Res> extends Valuable<T> {
   final Future<Res> _future;
@@ -208,14 +263,14 @@ class FutureValuable<T, Res> extends Valuable<T> {
   /// Can be use only when [T] == [Res]
   FutureValuable.values(Future<Res> future, {T noDataValue, T errorValue})
       : this(future,
-            dataValue: (BuildContext context, Res result) => result as T,
-            noDataValue: (BuildContext context) => noDataValue,
-            errorValue:
-                (BuildContext context, Object error, StackTrace stackTrace) =>
-                    errorValue);
+            dataValue: (ValuableContext context, Res result) => result as T,
+            noDataValue: (ValuableContext context) => noDataValue,
+            errorValue: (ValuableContext context, Object error,
+                    StackTrace stackTrace) =>
+                errorValue);
 
   @override
-  T getValue(BuildContext context) {
+  T getValue([ValuableContext context = const ValuableContext()]) {
     T retour;
     if (_isComplete) {
       if (_isError) {
@@ -231,17 +286,17 @@ class FutureValuable<T, Res> extends Valuable<T> {
   }
 }
 
-typedef ValuableGetStreamData<T, Res> = T Function(BuildContext, Res);
+typedef ValuableGetStreamData<T, Res> = T Function(ValuableContext, Res);
 typedef ValuableGetStreamError<T> = T Function(
-    BuildContext, Object, StackTrace);
-typedef ValuableGetStreamDone<T> = T Function(BuildContext);
+    ValuableContext, Object, StackTrace);
+typedef ValuableGetStreamDone<T> = T Function(ValuableContext);
 
 class StreamValuable<T, Msg> extends Valuable<T> {
   final ValuableGetStreamData dataValue;
   final ValuableGetStreamError errorValue;
   final ValuableGetStreamDone doneValue;
 
-  T Function(BuildContext) _currentValuer;
+  T Function(ValuableContext) _currentValuer;
 
   StreamValuable(
     Stream<Msg> stream, {
@@ -254,20 +309,22 @@ class StreamValuable<T, Msg> extends Valuable<T> {
     _currentValuer = (_) => initialData;
     stream.listen((Msg data) {
       _changeCurrentValuer(
-          (BuildContext context) => dataValue?.call(context, data));
+          (ValuableContext context) => dataValue?.call(context, data));
     }, onError: (Object error, StackTrace stacktrace) {
-      _changeCurrentValuer((BuildContext context) =>
+      _changeCurrentValuer((ValuableContext context) =>
           errorValue?.call(context, error, stacktrace));
     }, onDone: () {
-      _changeCurrentValuer((BuildContext context) => doneValue?.call(context));
+      _changeCurrentValuer(
+          (ValuableContext context) => doneValue?.call(context));
     }, cancelOnError: cancelOnError);
   }
 
-  void _changeCurrentValuer(T Function(BuildContext) newValuer) {
+  void _changeCurrentValuer(T Function(ValuableContext) newValuer) {
     _currentValuer = newValuer;
     notifyListeners();
   }
 
   @override
-  T getValue(BuildContext context) => _currentValuer(context);
+  T getValue([ValuableContext context = const ValuableContext()]) =>
+      _currentValuer(context);
 }

@@ -39,11 +39,11 @@ class ValuableCompare<T> extends ValuableBool {
       : this(operand1, CompareOperator.different, operand2);
 
   @override
-  bool getValue(BuildContext context) {
+  bool getValue([ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
-  bool _compareWithOperator(BuildContext context) {
+  bool _compareWithOperator(ValuableContext context) {
     bool retour;
     dynamic fieldValue = readValuable(_operand1, context);
     dynamic compareValue = readValuable(_operand2, context);
@@ -123,11 +123,11 @@ class ValuableNumOperation extends ValuableNum {
       : this(operand1, NumOperator.sum, null);
 
   @override
-  num getValue(BuildContext context) {
+  num getValue([ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
-  num _compareWithOperator(BuildContext context) {
+  num _compareWithOperator(ValuableContext context) {
     num retour;
     num ope1 = readValuable(_operand1, context);
     num ope2 =
