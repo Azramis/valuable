@@ -1,7 +1,6 @@
 import 'base.dart';
 import 'package:flutter/material.dart';
 
-typedef ValuableWatcher<T> = T Function(Valuable);
 typedef ValuableConsumerBuilder = Widget Function(
     BuildContext, ValuableWatcher, Widget);
 
@@ -42,7 +41,8 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     cleanWatched();
   }
 
-  T _watch<T>(Valuable<T> valuable) => watch(valuable);
+  T _watch<T>(Valuable<T> valuable, [ValuableContext context]) =>
+      watch(valuable, context);
 
   @override
   ValuableContext get valuableContext => ValuableContext(context: context);
@@ -69,10 +69,12 @@ class _ValuableConsumerState extends State<ValuableConsumer>
 
 extension WidgetValuable<T> on Valuable<T> {
   T watch(BuildContext context) {
+    ValuableContext vContext = ValuableContext(context: context);
     _ValuableConsumerState state = ValuableConsumer.of(context);
 
     // If a consumer exists in the current UI tree, we make it watch the current Valuable
-    state?._watch(this);
-    return getValue(ValuableContext(context: context));
+    return state != null
+        ? state._watch(this, vContext)
+        : this.getValue(vContext);
   }
 }

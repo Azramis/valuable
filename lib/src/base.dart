@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
 
+typedef ValuableWatcher<T> = T Function(Valuable, [ValuableContext]);
+
 /// Shortcut to get a valuable with the value true
 Valuable<bool> boolTrue = ValuableBool(true);
 
@@ -32,7 +34,7 @@ mixin ValuableWatcherMixin {
 
   /// Watch a valuable, that eventually change
   @protected
-  T watch<T>(Valuable<T> valuable) {
+  T watch<T>(Valuable<T> valuable, [ValuableContext context]) {
     if (valuable != null && !_watched.containsKey(valuable)) {
       VoidCallback callback = onValuableChange;
 
@@ -43,7 +45,7 @@ mixin ValuableWatcherMixin {
       });
     }
 
-    return valuable.getValue(valuableContext);
+    return valuable.getValue(context ?? valuableContext);
   }
 
   /// Remove listener on the valuable, that may change scope, or that about to be disposed
