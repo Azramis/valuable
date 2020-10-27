@@ -1,5 +1,4 @@
 // Comparator
-import 'package:flutter/material.dart';
 import 'package:valuable/src/base.dart';
 
 enum CompareOperator {

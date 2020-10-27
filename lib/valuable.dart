@@ -1,6 +1,6 @@
 library valuable;
 
-export 'package:valuable/src/base.dart';
-export 'package:valuable/src/stateful.dart';
-export 'package:valuable/src/widgets.dart';
-export 'package:valuable/src/callable.dart';
+export 'src/base.dart';
+export 'src/stateful.dart';
+export 'src/widgets.dart';
+export 'src/callable.dart';
