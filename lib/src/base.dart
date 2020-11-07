@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
@@ -300,6 +302,8 @@ class StreamValuable<T, Msg> extends Valuable<T> {
 
   T Function(ValuableContext) _currentValuer;
 
+  StreamSubscription _subscription;
+
   StreamValuable(
     Stream<Msg> stream, {
     @required this.dataValue,
@@ -309,7 +313,7 @@ class StreamValuable<T, Msg> extends Valuable<T> {
     bool cancelOnError,
   }) : super() {
     _currentValuer = (_) => initialData;
-    stream.listen((Msg data) {
+    _subscription = stream.listen((Msg data) {
       _changeCurrentValuer(
           (ValuableContext context) => dataValue?.call(context, data));
     }, onError: (Object error, StackTrace stacktrace) {
@@ -329,4 +333,10 @@ class StreamValuable<T, Msg> extends Valuable<T> {
   @override
   T getValue([ValuableContext context = const ValuableContext()]) =>
       _currentValuer(context);
+
+  @override
+  void dispose() {
+    super.dispose();
+    _subscription?.cancel(); // Cancel subscription to free memory
+  }
 }
