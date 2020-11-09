@@ -1,5 +1,10 @@
+import 'package:valuable/src/mixins.dart';
+import 'package:valuable/valuable.dart';
+
 import 'base.dart';
 import 'package:flutter/material.dart';
+
+export 'widgets/text.dart';
 
 typedef ValuableConsumerBuilder = Widget Function(
     BuildContext, ValuableWatcher, Widget);

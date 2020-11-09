@@ -1,3 +1,4 @@
+import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: /*MyHomePage(title: 'Flutter Demo Home Page')*/ SampleTextWidget(),
     );
   }
 }

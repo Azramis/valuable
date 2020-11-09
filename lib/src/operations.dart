@@ -161,3 +161,42 @@ class ValuableNumOperation extends ValuableNum {
     return retour;
   }
 }
+
+enum StringOperator {
+  concate,
+}
+
+class ValuableStringOperation extends ValuableString {
+  final Valuable<String> _operand1;
+  final Valuable<String> _operand2;
+  final StringOperator _operator;
+
+  ValuableStringOperation(this._operand1, this._operator, this._operand2)
+      : super("");
+
+  /// Sum operation
+  ValuableStringOperation.concate(
+      Valuable<String> operand1, Valuable<String> operand2)
+      : this(operand1, StringOperator.concate, operand2);
+
+  @override
+  String getValue([ValuableContext context = const ValuableContext()]) {
+    return _compareWithOperator(context);
+  }
+
+  String _compareWithOperator(ValuableContext context) {
+    String retour;
+    String ope1 = readValuable(_operand1, context);
+    String ope2 = readValuable(_operand2, context);
+
+    switch (_operator) {
+      case StringOperator.concate:
+        retour = ope1 + ope2;
+        break;
+      default:
+        break;
+    }
+
+    return retour;
+  }
+}

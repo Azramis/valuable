@@ -7,19 +7,19 @@ import 'package:valuable/src/operations.dart';
 typedef ValuableWatcher<T> = T Function(Valuable, [ValuableContext]);
 
 /// Shortcut to get a valuable with the value true
-Valuable<bool> boolTrue = ValuableBool(true);
+final Valuable<bool> boolTrue = ValuableBool(true);
 
 /// Shortcut to get a valuable with the value false
-Valuable<bool> boolFalse = ValuableBool(false);
+final Valuable<bool> boolFalse = ValuableBool(false);
 
 /// Shortcut to get a valuable with the value of an empty string
-Valuable<String> stringEmpty = ValuableString("");
+final Valuable<String> stringEmpty = ValuableString("");
 
 /// Shortcut to get a valuable with the int value 0
-Valuable<int> intZero = ValuableInt(0);
+final Valuable<int> intZero = ValuableInt(0);
 
 /// Shortcut to get a valuable with the double value 0.0
-Valuable<double> doubleZero = ValuableDouble(0.0);
+final Valuable<double> doubleZero = ValuableDouble(0.0);
 
 /// Immutable object that let transit informations about the current context of a valuable's value reading
 @immutable
@@ -29,50 +29,6 @@ class ValuableContext {
   const ValuableContext({this.context});
 
   bool get hasBuildContext => context != null;
-}
-
-mixin ValuableWatcherMixin {
-  final Map<Valuable, VoidCallback> _watched = <Valuable, VoidCallback>{};
-
-  /// Watch a valuable, that eventually change
-  @protected
-  T watch<T>(Valuable<T> valuable, [ValuableContext context]) {
-    if (valuable != null && !_watched.containsKey(valuable)) {
-      VoidCallback callback = onValuableChange;
-
-      _watched.putIfAbsent(valuable, () => callback);
-      valuable.addListener(callback);
-      valuable.listenDispose(() {
-        unwatch(valuable);
-      });
-    }
-
-    return valuable.getValue(context ?? valuableContext);
-  }
-
-  /// Remove listener on the valuable, that may change scope, or that about to be disposed
-  /// Internal purpose
-  @protected
-  void unwatch(Valuable valuable) {
-    if (_watched.containsKey(valuable)) {
-      //valuable.removeListener(_watched[valuable]); Not necessary until dispose has been done
-      _watched.remove(valuable);
-    }
-  }
-
-  @protected
-  void onValuableChange();
-
-  @protected
-  ValuableContext get valuableContext => null;
-
-  @protected
-  void cleanWatched() {
-    _watched.forEach((Valuable key, VoidCallback value) {
-      key?.removeListener(value);
-    });
-    _watched.clear();
-  }
 }
 
 abstract class Valuable<T> extends ChangeNotifier {
