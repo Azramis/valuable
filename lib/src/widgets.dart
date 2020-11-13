@@ -5,6 +5,7 @@ import 'base.dart';
 import 'package:flutter/material.dart';
 
 export 'widgets/text.dart';
+export 'widgets/checkbox.dart';
 
 typedef ValuableConsumerBuilder = Widget Function(
     BuildContext, ValuableWatcher, Widget);

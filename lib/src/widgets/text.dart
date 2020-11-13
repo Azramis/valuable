@@ -8,9 +8,18 @@ import 'dart:ui' as ui show Shadow, FontFeature;
 /// Provide a simple Text widget that depends on a Valuable
 class ValuableText extends StatelessWidget {
   final Valuable<String> value;
-  final Valuable<TextStyle> style;
+  final TextStyle style;
+  final Valuable<TextStyle> styleValuable;
+  final int maxLines;
+  final Valuable<int> maxLinesValuable;
 
-  ValuableText(this.value, {Key key, this.style}) : super(key: key);
+  ValuableText(this.value,
+      {Key key,
+      this.style,
+      this.styleValuable,
+      this.maxLines,
+      this.maxLinesValuable})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +27,8 @@ class ValuableText extends StatelessWidget {
       builder: (BuildContext context, ValuableWatcher watch, Widget child) {
         return Text(
           watch(value),
-          style: watch(style),
+          style: styleValuable?.watch(context) ?? style,
+          maxLines: maxLinesValuable?.watch(context) ?? maxLines,
         );
       },
     );
