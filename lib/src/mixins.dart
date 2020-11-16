@@ -2,25 +2,47 @@ import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/operations.dart';
 
+class _ValuableWatchedInfos {
+  final VoidCallback callback;
+  dynamic oldValue;
+  ValuableWatcherSelector selector;
+
+  _ValuableWatchedInfos({this.callback, this.oldValue});
+}
+
 /// A mixin to provide extension of classes that might want to watch some valuable
 /// and take action on possible changes
 mixin ValuableWatcherMixin {
-  final Map<Valuable, VoidCallback> _watched = <Valuable, VoidCallback>{};
+  final Map<Valuable, _ValuableWatchedInfos> _watched =
+      <Valuable, _ValuableWatchedInfos>{};
 
   /// Watch a valuable, that eventually change
   @protected
-  T watch<T>(Valuable<T> valuable, [ValuableContext context]) {
-    if (valuable != null && !_watched.containsKey(valuable)) {
-      VoidCallback callback = onValuableChange;
+  T watch<T>(Valuable<T> valuable,
+      {ValuableContext valuableContext, ValuableWatcherSelector selector}) {
+    T result;
+    if (valuable != null) {
+      if (!_watched.containsKey(valuable)) {
+        VoidCallback callback = onValuableChange;
 
-      _watched.putIfAbsent(valuable, () => callback);
-      valuable.addListener(callback);
-      valuable.listenDispose(() {
-        unwatch(valuable);
-      });
+        _watched.putIfAbsent(
+            valuable, () => _ValuableWatchedInfos(callback: callback));
+        valuable.addListener(callback);
+        valuable.listenDispose(() {
+          unwatch(valuable);
+        });
+      }
+
+      result = valuable.getValue(valuableContext ?? this.valuableContext);
+
+      if (_watched.containsKey(valuable)) {
+        _watched[valuable].oldValue =
+            result; // Save value for future comparaison
+        _watched[valuable].selector = selector;
+      }
     }
 
-    return valuable?.getValue(context ?? valuableContext);
+    return result;
   }
 
   /// Remove listener on the valuable, that may change scope, or that about to be disposed
@@ -28,7 +50,7 @@ mixin ValuableWatcherMixin {
   @protected
   void unwatch(Valuable valuable) {
     if (_watched.containsKey(valuable)) {
-      //valuable.removeListener(_watched[valuable]); Not necessary until dispose has been done
+      _removeValuableListener(valuable);
       _watched.remove(valuable);
     }
   }
@@ -41,10 +63,18 @@ mixin ValuableWatcherMixin {
 
   @protected
   void cleanWatched() {
-    _watched.forEach((Valuable key, VoidCallback value) {
-      key?.removeListener(value);
+    _watched.forEach((Valuable key, _ValuableWatchedInfos value) {
+      _removeValuableListener(key);
     });
     _watched.clear();
+  }
+
+  void _removeValuableListener(Valuable valuable) {
+    if (valuable != null &&
+        _watched.containsKey(valuable) &&
+        valuable.isMounted) {
+      valuable.removeListener(_watched[valuable].callback);
+    }
   }
 }
 

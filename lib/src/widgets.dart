@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 
 export 'widgets/text.dart';
 export 'widgets/checkbox.dart';
+export 'widgets/dropdown.dart';
 
 typedef ValuableConsumerBuilder = Widget Function(
-    BuildContext, ValuableWatcher, Widget);
+    BuildContext context, ValuableWatcher watch, Widget child);
 
 class ValuableConsumer extends StatefulWidget {
   final Widget child;
@@ -47,8 +48,10 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     cleanWatched();
   }
 
-  T _watch<T>(Valuable<T> valuable, [ValuableContext context]) =>
-      watch(valuable, context);
+  T _watch<T>(Valuable<T> valuable,
+          {ValuableContext valuableContext,
+          ValuableWatcherSelector selector}) =>
+      watch(valuable, valuableContext: valuableContext, selector: selector);
 
   @override
   ValuableContext get valuableContext => ValuableContext(context: context);
@@ -74,13 +77,13 @@ class _ValuableConsumerState extends State<ValuableConsumer>
 }
 
 extension WidgetValuable<T> on Valuable<T> {
-  T watch(BuildContext context) {
+  T watchIt(BuildContext context, {ValuableWatcherSelector selector}) {
     ValuableContext vContext = ValuableContext(context: context);
     _ValuableConsumerState state = ValuableConsumer.of(context);
 
     // If a consumer exists in the current UI tree, we make it watch the current Valuable
     return state != null
-        ? state._watch(this, vContext)
+        ? state._watch(this, valuableContext: vContext, selector: selector)
         : this.getValue(vContext);
   }
 }

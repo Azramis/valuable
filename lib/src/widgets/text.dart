@@ -27,8 +27,8 @@ class ValuableText extends StatelessWidget {
       builder: (BuildContext context, ValuableWatcher watch, Widget child) {
         return Text(
           watch(value),
-          style: styleValuable?.watch(context) ?? style,
-          maxLines: maxLinesValuable?.watch(context) ?? maxLines,
+          style: styleValuable?.watchIt(context) ?? style,
+          maxLines: maxLinesValuable?.watchIt(context) ?? maxLines,
         );
       },
     );

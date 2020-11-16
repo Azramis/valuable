@@ -88,11 +88,11 @@ class DropdownButtonValuable<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValuableConsumer(
       builder: (BuildContext context, ValuableWatcher watch, Widget child) {
-        bool isDenseVal = isDenseValuable?.watch(context) ?? isDense;
-        bool isExpandedVal = isExpandedValuable?.watch(context) ?? isExpanded;
+        bool isDenseVal = isDenseValuable?.watchIt(context) ?? isDense;
+        bool isExpandedVal = isExpandedValuable?.watchIt(context) ?? isExpanded;
 
         return DropdownButton<T>(
-          items: itemsValuable?.watch(context) ?? itemsValuable,
+          items: itemsValuable?.watchIt(context) ?? itemsValuable,
           onChanged: (T value) {
             this.value.setValue(value);
           },
@@ -101,21 +101,22 @@ class DropdownButtonValuable<T> extends StatelessWidget {
           isDense: isDenseVal,
           isExpanded: isExpandedVal,
           autofocus: autofocus,
-          disabledHint: disabledHintValuable?.watch(context) ?? disabledHint,
-          dropdownColor: dropdownColorValuable?.watch(context) ?? dropdownColor,
-          elevation: elevationValuable?.watch(context) ?? elevation,
-          focusColor: focusColorValuable?.watch(context) ?? focusColor,
+          disabledHint: disabledHintValuable?.watchIt(context) ?? disabledHint,
+          dropdownColor:
+              dropdownColorValuable?.watchIt(context) ?? dropdownColor,
+          elevation: elevationValuable?.watchIt(context) ?? elevation,
+          focusColor: focusColorValuable?.watchIt(context) ?? focusColor,
           focusNode: focusNode,
-          hint: hintValuable?.watch(context) ?? hint,
-          icon: iconValuable?.watch(context) ?? icon,
+          hint: hintValuable?.watchIt(context) ?? hint,
+          icon: iconValuable?.watchIt(context) ?? icon,
           iconDisabledColor:
-              iconDisabledColorValuable?.watch(context) ?? iconDisabledColor,
+              iconDisabledColorValuable?.watchIt(context) ?? iconDisabledColor,
           iconEnabledColor:
-              iconEnabledColorValuable?.watch(context) ?? iconEnabledColor,
-          iconSize: iconSizeValuable?.watch(context) ?? iconSize,
-          itemHeight: itemHeightValuable?.watch(context) ?? itemHeight,
-          style: styleValuable?.watch(context) ?? style,
-          underline: underlineValuable?.watch(context) ?? underline,
+              iconEnabledColorValuable?.watchIt(context) ?? iconEnabledColor,
+          iconSize: iconSizeValuable?.watchIt(context) ?? iconSize,
+          itemHeight: itemHeightValuable?.watchIt(context) ?? itemHeight,
+          style: styleValuable?.watchIt(context) ?? style,
+          underline: underlineValuable?.watchIt(context) ?? underline,
         );
       },
     );

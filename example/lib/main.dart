@@ -1,3 +1,4 @@
+import 'package:example/src/home_menu.dart';
 import 'package:example/src/sample_checkbox.dart';
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: /*MyHomePage(title: 'Flutter Demo Home Page')*/ SampleCheckboxWidget(),
+      home: /*MyHomePage(title: 'Flutter Demo Home Page')*/ HomeMenu(),
     );
   }
 }

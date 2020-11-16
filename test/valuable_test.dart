@@ -7,8 +7,8 @@ void main() {
 class Test {
   final StatefulValuable<int> cpt = StatefulValuable<int>(0);
 
-  ValuableCallback get ecrire =>
-      ValuableCallback((ValuableWatcher watch, ValuableContext context) {
+  ValuableCallback get ecrire => ValuableCallback((ValuableWatcher watch,
+          {ValuableContext valuableContext}) {
         print(watch(cpt));
       });
 

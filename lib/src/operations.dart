@@ -1,4 +1,5 @@
 // Comparator
+import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 
 enum CompareOperator {
@@ -42,10 +43,10 @@ class ValuableCompare<T> extends ValuableBool {
     return _compareWithOperator(context);
   }
 
-  bool _compareWithOperator(ValuableContext context) {
+  bool _compareWithOperator(ValuableContext valuableContext) {
     bool retour;
-    dynamic fieldValue = readValuable(_operand1, context);
-    dynamic compareValue = readValuable(_operand2, context);
+    dynamic fieldValue = watch(_operand1, valuableContext: valuableContext);
+    dynamic compareValue = watch(_operand2, valuableContext: valuableContext);
 
     switch (_operator) {
       case CompareOperator.equals:
@@ -126,11 +127,12 @@ class ValuableNumOperation extends ValuableNum {
     return _compareWithOperator(context);
   }
 
-  num _compareWithOperator(ValuableContext context) {
+  num _compareWithOperator(ValuableContext valuableContext) {
     num retour;
-    num ope1 = readValuable(_operand1, context);
-    num ope2 =
-        _operator != NumOperator.negate ? readValuable(_operand2, context) : 0;
+    num ope1 = watch(_operand1, valuableContext: valuableContext);
+    num ope2 = _operator != NumOperator.negate
+        ? watch(_operand2, valuableContext: valuableContext)
+        : 0;
 
     switch (_operator) {
       case NumOperator.sum:
@@ -184,10 +186,10 @@ class ValuableStringOperation extends ValuableString {
     return _compareWithOperator(context);
   }
 
-  String _compareWithOperator(ValuableContext context) {
+  String _compareWithOperator(ValuableContext valuableContext) {
     String retour;
-    String ope1 = readValuable(_operand1, context);
-    String ope2 = readValuable(_operand2, context);
+    String ope1 = watch(_operand1, valuableContext: valuableContext);
+    String ope2 = watch(_operand2, valuableContext: valuableContext);
 
     switch (_operator) {
       case StringOperator.concate:
@@ -198,5 +200,59 @@ class ValuableStringOperation extends ValuableString {
     }
 
     return retour;
+  }
+}
+
+class ValuableCaseItem<Output> {
+  final dynamic caseValue;
+  final ValuableParentWatcher<Output> getValue;
+
+  ValuableCaseItem(this.caseValue, this.getValue);
+
+  ValuableCaseItem.value(dynamic caseValue, Output value)
+      : this(
+            caseValue,
+            (ValuableWatcher<Output> watch,
+                    {ValuableContext valuableContext}) =>
+                value);
+}
+
+class ValuableSwitch<Switch, Output> extends Valuable<Output> {
+  final Valuable<Switch> testable;
+  final List<ValuableCaseItem<Output>> cases;
+  final ValuableParentWatcher<Output> defaultCase;
+
+  ValuableSwitch(this.testable, {@required this.defaultCase, this.cases})
+      : assert(testable != null, "testable must not be null !"),
+        assert(defaultCase != null, "defaultCase must not be null !");
+
+  ValuableSwitch.value(Valuable<Switch> testable,
+      {@required Output value, List<ValuableCaseItem<Output>> cases})
+      : this(testable,
+            defaultCase: (ValuableWatcher<Output> watch,
+                    {ValuableContext valuableContext}) =>
+                value,
+            cases: cases);
+
+  @override
+  Output getValue([ValuableContext valuableContext = const ValuableContext()]) {
+    bool test = false;
+    Output value;
+    if (cases?.isNotEmpty ?? false) {
+      Iterator<ValuableCaseItem<Output>> iterator = cases.iterator;
+      while (iterator.moveNext() &&
+          (test = testable
+                  .equals(iterator.current.caseValue)
+                  .getValue(valuableContext) ==
+              false)) {
+        value =
+            iterator.current.getValue(watch, valuableContext: valuableContext);
+      }
+    }
+
+    if (test == false) {
+      value = defaultCase(watch, valuableContext: valuableContext);
+    }
+    return value;
   }
 }

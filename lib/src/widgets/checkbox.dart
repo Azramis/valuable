@@ -94,18 +94,18 @@ class ValuableCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValuableConsumer(
       builder: (BuildContext context, ValuableWatcher watch, Widget child) {
-        bool tristateVal = tristateValuable?.watch(context) ?? tristate;
+        bool tristateVal = tristateValuable?.watchIt(context) ?? tristate;
         bool value = tristateVal ? watch(valuable) : (watch(valuable) ?? false);
 
         return Checkbox(
           value: value,
           onChanged: (bool value) => valuable.setValue(value),
-          activeColor: activeColorValuable?.watch(context) ?? activeColor,
+          activeColor: activeColorValuable?.watchIt(context) ?? activeColor,
           autofocus: autofocus,
-          checkColor: checkColorValuable?.watch(context) ?? checkColor,
-          focusColor: focusColorValuable?.watch(context) ?? focusColor,
+          checkColor: checkColorValuable?.watchIt(context) ?? checkColor,
+          focusColor: focusColorValuable?.watchIt(context) ?? focusColor,
           focusNode: focusNode,
-          hoverColor: hoverColorValuable?.watch(context) ?? hoverColor,
+          hoverColor: hoverColorValuable?.watchIt(context) ?? hoverColor,
           tristate: tristateVal,
         );
       },

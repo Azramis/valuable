@@ -4,7 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
 
-typedef ValuableWatcher<T> = T Function(Valuable, [ValuableContext]);
+typedef ValuableWatcherSelector = bool Function<T>(
+    Valuable<T> valuable, T oldValue);
+typedef ValuableWatcher<T> = T Function(Valuable<T> valuable,
+    {ValuableContext valuableContext, ValuableWatcherSelector selector});
+typedef ValuableParentWatcher<T> = T Function(ValuableWatcher<T> watch,
+    {ValuableContext valuableContext});
 
 /// Shortcut to get a valuable with the value true
 final Valuable<bool> boolTrue = ValuableBool(true);
@@ -31,8 +36,9 @@ class ValuableContext {
   bool get hasBuildContext => context != null;
 }
 
-abstract class Valuable<T> extends ChangeNotifier {
+abstract class Valuable<T> extends ChangeNotifier with ValuableWatcherMixin {
   final ValueNotifier<bool> _isMounted;
+  bool get isMounted => _isMounted?.value ?? false;
 
   final Map<Valuable, VoidCallback> _removeListeners =
       <Valuable, VoidCallback>{};
@@ -45,9 +51,9 @@ abstract class Valuable<T> extends ChangeNotifier {
 
   T getValue([ValuableContext context = const ValuableContext()]);
 
-  @protected
+  /*@protected
   V readValuable<V>(Valuable<V> valuable,
-      [ValuableContext context = const ValuableContext()]) {
+      {ValuableContext valuableContext = const ValuableContext()}) {
     VoidCallback listen = () {
       this.notifyListeners();
     };
@@ -66,7 +72,12 @@ abstract class Valuable<T> extends ChangeNotifier {
           ifAbsent: () => remover);
     }
 
-    return valuable?.getValue(context);
+    return valuable?.getValue(valuableContext);
+  }*/
+
+  @override
+  void onValuableChange() {
+    this.notifyListeners();
   }
 
   void listenDispose(VoidCallback onDispose) {
@@ -147,17 +158,17 @@ class ValuableBoolGroup extends ValuableBool {
       : this._(_BoolGroupType.or, constraints);
 
   @override
-  bool getValue([ValuableContext context = const ValuableContext()]) {
+  bool getValue([ValuableContext valuableContext = const ValuableContext()]) {
     bool retour = type == _BoolGroupType.and;
 
     for (Valuable<bool> constraint in constraints) {
       if (type == _BoolGroupType.and) {
-        retour = retour && readValuable(constraint, context);
+        retour = retour && watch(constraint, valuableContext: valuableContext);
         if (retour == false) {
           break;
         }
       } else {
-        retour = retour || readValuable(constraint, context);
+        retour = retour || watch(constraint, valuableContext: valuableContext);
         if (retour == true) {
           break;
         }
