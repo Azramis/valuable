@@ -1,3 +1,4 @@
+import 'package:example/src/sample_bool_ope.dart';
 import 'package:example/src/sample_checkbox.dart';
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,13 @@ class HomeMenu extends StatelessWidget {
       icon: Icons.text_fields,
       callback: _callbackPush(
         (context) => SampleTextWidget(),
+      ),
+    ),
+    _MenuItem(
+      name: "Bool operation",
+      icon: Icons.account_tree,
+      callback: _callbackPush(
+        (context) => SampleBoolOpe(),
       ),
     ),
   ];

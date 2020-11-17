@@ -35,6 +35,9 @@ class _ValuableConsumerState extends State<ValuableConsumer>
 
   @override
   Widget build(BuildContext context) {
+    // remove all previous watched Valuable
+    cleanWatched();
+
     return Builder(
         builder: (BuildContext context) =>
             widget.builder(context, watch, widget.child));
@@ -45,7 +48,7 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     super.didUpdateWidget(old);
 
     // remove all previous watched Valuable
-    cleanWatched();
+    //cleanWatched();
   }
 
   T _watch<T>(Valuable<T> valuable,

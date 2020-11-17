@@ -39,7 +39,7 @@ class ValuableCompare<T> extends ValuableBool {
       : this(operand1, CompareOperator.different, operand2);
 
   @override
-  bool getValue([ValuableContext context = const ValuableContext()]) {
+  bool getValueDefinition([ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
@@ -123,7 +123,7 @@ class ValuableNumOperation extends ValuableNum {
       : this(operand1, NumOperator.sum, null);
 
   @override
-  num getValue([ValuableContext context = const ValuableContext()]) {
+  num getValueDefinition([ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
@@ -182,7 +182,8 @@ class ValuableStringOperation extends ValuableString {
       : this(operand1, StringOperator.concate, operand2);
 
   @override
-  String getValue([ValuableContext context = const ValuableContext()]) {
+  String getValueDefinition(
+      [ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
@@ -235,7 +236,8 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
             cases: cases);
 
   @override
-  Output getValue([ValuableContext valuableContext = const ValuableContext()]) {
+  Output getValueDefinition(
+      [ValuableContext valuableContext = const ValuableContext()]) {
     bool test = false;
     Output value;
     if (cases?.isNotEmpty ?? false) {

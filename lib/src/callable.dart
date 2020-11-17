@@ -9,6 +9,7 @@ class ValuableCallback with ValuableWatcherMixin {
   ValuableCallback(this._callback) : super();
 
   void call({ValuableContext valuableContext}) {
+    cleanWatched();
     _callback(watch, valuableContext: valuableContext ?? this.valuableContext);
   }
 

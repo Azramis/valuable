@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/operations.dart';
 
-class _ValuableWatchedInfos {
+class _ValuableWatchedInfos<T> {
   final VoidCallback callback;
-  dynamic oldValue;
-  ValuableWatcherSelector selector;
+  final List<ValuableWatcherSelector> selectors = <ValuableWatcherSelector>[];
+  T previousWatchedValue;
 
-  _ValuableWatchedInfos({this.callback, this.oldValue});
+  _ValuableWatchedInfos({this.callback, this.previousWatchedValue});
 }
 
 /// A mixin to provide extension of classes that might want to watch some valuable
@@ -18,27 +18,28 @@ mixin ValuableWatcherMixin {
 
   /// Watch a valuable, that eventually change
   @protected
+  @mustCallSuper
   T watch<T>(Valuable<T> valuable,
-      {ValuableContext valuableContext, ValuableWatcherSelector selector}) {
+      {ValuableContext valuableContext, ValuableWatcherSelector<T> selector}) {
     T result;
     if (valuable != null) {
+      result = valuable.getValue(valuableContext ?? this.valuableContext);
+
       if (!_watched.containsKey(valuable)) {
-        VoidCallback callback = onValuableChange;
+        VoidCallback callback = () => _callValuableChange<T>(valuable);
 
         _watched.putIfAbsent(
-            valuable, () => _ValuableWatchedInfos(callback: callback));
+            valuable, () => _ValuableWatchedInfos<T>(callback: callback));
         valuable.addListener(callback);
         valuable.listenDispose(() {
           unwatch(valuable);
         });
       }
 
-      result = valuable.getValue(valuableContext ?? this.valuableContext);
-
       if (_watched.containsKey(valuable)) {
-        _watched[valuable].oldValue =
+        _watched[valuable].previousWatchedValue =
             result; // Save value for future comparaison
-        _watched[valuable].selector = selector;
+        _watched[valuable].selectors.add(selector);
       }
     }
 
@@ -52,6 +53,39 @@ mixin ValuableWatcherMixin {
     if (_watched.containsKey(valuable)) {
       _removeValuableListener(valuable);
       _watched.remove(valuable);
+    }
+  }
+
+  void _callValuableChange<T>(Valuable<T> valuable) {
+    if (_watched.containsKey(valuable)) {
+      if (_watched[valuable] != null) {
+        bool selectOk;
+
+        List<ValuableWatcherSelector> selectors = _watched[valuable].selectors;
+
+        if (selectors?.isNotEmpty ?? false) {
+          // If there are available selectors, we must test them until [selectOk]
+          // is true, or we reach the end of the list
+
+          selectOk = false;
+          T previousWatchedValue = _watched[valuable].previousWatchedValue;
+          for (ValuableWatcherSelector selector in selectors) {
+            selectOk = selectOk ||
+                (selector?.call(valuable, previousWatchedValue) ?? true);
+
+            if (selectOk) {
+              break;
+            }
+          }
+        } else {
+          selectOk = true;
+        }
+
+        // valuable change will be dispatched only if all conditions are resolved
+        if (selectOk) {
+          onValuableChange();
+        }
+      }
     }
   }
 

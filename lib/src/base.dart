@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:valuable/src/exceptions.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
 
-typedef ValuableWatcherSelector = bool Function<T>(
-    Valuable<T> valuable, T oldValue);
+typedef ValuableWatcherSelector<T> = bool Function(
+    Valuable<T> valuable, T previousWatchedValue);
 typedef ValuableWatcher<T> = T Function(Valuable<T> valuable,
     {ValuableContext valuableContext, ValuableWatcherSelector selector});
 typedef ValuableParentWatcher<T> = T Function(ValuableWatcher<T> watch,
@@ -49,31 +50,24 @@ abstract class Valuable<T> extends ChangeNotifier with ValuableWatcherMixin {
     return _Valuable<T>(value);
   }
 
-  T getValue([ValuableContext context = const ValuableContext()]);
+  @mustCallSuper
+  T getValue([ValuableContext context = const ValuableContext()]) {
+    cleanWatched();
+    return getValueDefinition(context);
+  }
 
-  /*@protected
-  V readValuable<V>(Valuable<V> valuable,
-      {ValuableContext valuableContext = const ValuableContext()}) {
-    VoidCallback listen = () {
-      this.notifyListeners();
-    };
+  @protected
+  T getValueDefinition([ValuableContext context = const ValuableContext()]);
 
-    if (_removeListeners.containsKey(valuable) == false ||
-        _removeListeners[valuable] == null) {
-      VoidCallback remover = () {
-        if (valuable?._isMounted?.value ?? false) {
-          valuable.removeListener(listen);
-        }
-        _removeListeners.remove(valuable);
-      };
-      valuable?.listenDispose(remover);
-      valuable?.addListener(listen);
-      _removeListeners.update(valuable, (VoidCallback old) => remover,
-          ifAbsent: () => remover);
+  @override
+  T watch<T>(Valuable<T> valuable,
+      {ValuableContext valuableContext, ValuableWatcherSelector<T> selector}) {
+    if (valuable == this) {
+      throw ValuableIllegalUseException();
     }
-
-    return valuable?.getValue(valuableContext);
-  }*/
+    return super
+        .watch(valuable, valuableContext: valuableContext, selector: selector);
+  }
 
   @override
   void onValuableChange() {
@@ -138,7 +132,8 @@ class _Valuable<T> extends Valuable<T> {
 
   _Valuable(this.value) : super();
 
-  T getValue([ValuableContext context = const ValuableContext()]) => value;
+  T getValueDefinition([ValuableContext context = const ValuableContext()]) =>
+      value;
 }
 
 class ValuableBool extends _Valuable<bool> with ValuableBoolOperators {
@@ -158,7 +153,8 @@ class ValuableBoolGroup extends ValuableBool {
       : this._(_BoolGroupType.or, constraints);
 
   @override
-  bool getValue([ValuableContext valuableContext = const ValuableContext()]) {
+  bool getValueDefinition(
+      [ValuableContext valuableContext = const ValuableContext()]) {
     bool retour = type == _BoolGroupType.and;
 
     for (Valuable<bool> constraint in constraints) {
@@ -241,7 +237,7 @@ class FutureValuable<T, Res> extends Valuable<T> {
                 errorValue);
 
   @override
-  T getValue([ValuableContext context = const ValuableContext()]) {
+  T getValueDefinition([ValuableContext context = const ValuableContext()]) {
     T retour;
     if (_isComplete) {
       if (_isError) {
@@ -298,7 +294,7 @@ class StreamValuable<T, Msg> extends Valuable<T> {
   }
 
   @override
-  T getValue([ValuableContext context = const ValuableContext()]) =>
+  T getValueDefinition([ValuableContext context = const ValuableContext()]) =>
       _currentValuer(context);
 
   @override
