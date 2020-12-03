@@ -1,8 +1,8 @@
 name: valuable
-description: A new Flutter package project.
-version: 0.0.1
-author:
-homepage:
+description: Watch and provide values
+version: 0.0.3
+author: Maxime FAUBERTEAU
+homepage: https://github.com/Azramis/valuable
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
