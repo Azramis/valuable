@@ -1,3 +1,5 @@
+## [0.0.3+1] - 08/12/2020
+Fix null selector and setState that didn't be called
 ## [0.0.3] - 03/12/2020
 Licensing
 ## [0.0.2] - 03/12/2020

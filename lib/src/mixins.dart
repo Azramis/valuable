@@ -39,7 +39,9 @@ mixin ValuableWatcherMixin {
       if (_watched.containsKey(valuable)) {
         _watched[valuable].previousWatchedValue =
             result; // Save value for future comparaison
-        _watched[valuable].selectors.add(selector);
+        if (selector != null) {
+          _watched[valuable].selectors.add(selector);
+        }
       }
     }
 
