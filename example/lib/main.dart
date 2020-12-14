@@ -1,6 +1,5 @@
 import 'package:example/src/home_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:valuable/valuable.dart';
 
 void main() {
   runApp(MyApp());

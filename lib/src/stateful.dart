@@ -22,4 +22,9 @@ class StatefulValuable<T> extends Valuable<T> {
 class StatefulValuableBool extends StatefulValuable<bool>
     with ValuableBoolOperators {
   StatefulValuableBool(bool initialValue) : super(initialValue);
+
+  /// Reaffect the state value with the negated current value (true -> false)
+  void negate() {
+    setValue(!_state);
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
-import 'package:valuable/src/operations.dart';
 
 class _ValuableWatchedInfos<T> {
   final VoidCallback callback;
@@ -91,6 +90,9 @@ mixin ValuableWatcherMixin {
     }
   }
 
+  /// Called when a Valuable notify a change.
+  ///
+  /// This method should be overriden to define the implementor behavior
   @protected
   void onValuableChange();
 
@@ -115,16 +117,38 @@ mixin ValuableWatcherMixin {
 }
 
 mixin ValuableBoolOperators on Valuable<bool> {
-  ValuableBool operator &(Valuable<bool> other) {
+  /*ValuableBool operator &(Valuable<bool> other) {
     return ValuableBoolGroup.and(<Valuable<bool>>[this, other]);
   }
 
   ValuableBool operator |(Valuable<bool> other) {
     return ValuableBoolGroup.or(<Valuable<bool>>[this, other]);
   }
+
+  Valuable<bool> negation() {
+    return ValuableBool.byValuer((watch, {valuableContext}) => !watch(this));
+  }
+
+  Valuable<Output> then<Output>(Valuable<Output> value,
+      {Valuable<Output> elseValue}) {
+    return ValuableIf<Output>(
+        this,
+        (ValuableWatcher<Output> watch, {ValuableContext valuableContext}) =>
+            watch(value),
+        elseCase: (elseValue != null)
+            ? (ValuableWatcher<Output> watch,
+                    {ValuableContext valuableContext}) =>
+                watch(elseValue)
+            : null);
+  }
+
+  Valuable<Output> thenValue<Output>(Output value, {Output elseValue}) {
+    return ValuableIf<Output>.value(this, value, elseValue: elseValue);
+  }*/
 }
 
 mixin ValuableNumOperators on Valuable<num> {
+  /*
   /// Addition operator.
   ValuableNum operator +(Valuable<num> other) =>
       ValuableNumOperation.sum(this, other);
@@ -173,9 +197,11 @@ mixin ValuableNumOperators on Valuable<num> {
 
   /// Negate operator.
   ValuableNum operator -() => ValuableNumOperation.negate(this);
+  */
 }
 
 mixin ValuableStringOperator on Valuable<String> {
+  /*
   /// Addition operator.
   ValuableString operator +(Valuable<String> other) =>
       ValuableStringOperation.concate(this, other);
@@ -184,4 +210,5 @@ mixin ValuableStringOperator on Valuable<String> {
   String toString() {
     return this.getValue();
   }
+  */
 }
