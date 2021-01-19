@@ -1,3 +1,7 @@
+## [0.0.4] - 19/01/2021
+-   Add comments
+-   Remove useless classes (like ``StatefulValuableBool``) and move the method in extensions
+-   Extension to manage ``Valuable<List>`` 
 ## [0.0.3+1] - 08/12/2020
 Fix null selector and setState that didn't be called
 ## [0.0.3] - 03/12/2020
