@@ -1,8 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
-import 'package:valuable/src/mixins.dart';
 
+/// A Valuable that manage a state.
+///
+/// When the value of the state changes, the valuable notify all dependant components
+/// (other Valubales, Consumer, ...)
 class StatefulValuable<T> extends Valuable<T> {
   T _state;
+
+  @protected
+  T get state => _state;
 
   StatefulValuable(T initialState)
       : _state = initialState,
@@ -17,14 +24,4 @@ class StatefulValuable<T> extends Valuable<T> {
 
   T getValueDefinition([ValuableContext context = const ValuableContext()]) =>
       _state;
-}
-
-class StatefulValuableBool extends StatefulValuable<bool>
-    with ValuableBoolOperators {
-  StatefulValuableBool(bool initialValue) : super(initialValue);
-
-  /// Reaffect the state value with the negated current value (true -> false)
-  void negate() {
-    setValue(!_state);
-  }
 }
