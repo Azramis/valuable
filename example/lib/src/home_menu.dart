@@ -29,7 +29,7 @@ class HomeMenu extends StatelessWidget {
 
   static void Function(BuildContext context) _callbackPush(
       WidgetBuilder builder) {
-    return (BuildContext context) {
+    return (BuildContext context) async {
       Navigator.push(
         context,
         MaterialPageRoute(

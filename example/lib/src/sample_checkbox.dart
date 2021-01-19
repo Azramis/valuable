@@ -7,7 +7,7 @@ class SampleCheckboxWidget extends StatefulWidget {
 }
 
 class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget> {
-  final StatefulValuableBool checkValue = StatefulValuableBool(false);
+  final StatefulValuable<bool> checkValue = StatefulValuable<bool>(false);
   @override
   Widget build(BuildContext context) {
     return Scaffold(

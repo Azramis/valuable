@@ -20,10 +20,10 @@ class SampleBoolOpe extends StatefulWidget {
 }
 
 class _SampleBoolOpeState extends State<SampleBoolOpe> {
-  final StatefulValuableBool _cbCheckSuper = StatefulValuableBool(false);
-  final StatefulValuableBool _cbCheck1 = StatefulValuableBool(false);
-  final StatefulValuableBool _cbCheck2 = StatefulValuableBool(false);
-  final StatefulValuableBool _cbCheck3 = StatefulValuableBool(false);
+  final StatefulValuable<bool> _cbCheckSuper = StatefulValuable<bool>(false);
+  final StatefulValuable<bool> _cbCheck1 = StatefulValuable<bool>(false);
+  final StatefulValuable<bool> _cbCheck2 = StatefulValuable<bool>(false);
+  final StatefulValuable<bool> _cbCheck3 = StatefulValuable<bool>(false);
 
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
