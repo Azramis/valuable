@@ -79,6 +79,8 @@ abstract class Valuable<Output> extends ChangeNotifier
   final Map<Valuable, VoidCallback> _removeListeners =
       <Valuable, VoidCallback>{};
 
+  bool _reevaluatingNeeded = false;
+
   Valuable() : _isMounted = ValueNotifier(true);
 
   /// Returns if this object is still mounted
@@ -101,6 +103,9 @@ abstract class Valuable<Output> extends ChangeNotifier
     // Before reading/calculating the value, the watched Valuables tree is cleaned
     // in order to remove the dependencies that may disapear.
     cleanWatched();
+
+    // We are reevaluating the Valuable, so we can unmark it
+    _reevaluatingNeeded = false;
     // After we proceed to get the value, watched Valuables tree will be renewed
     return getValueDefinition(context);
   }
@@ -125,7 +130,17 @@ abstract class Valuable<Output> extends ChangeNotifier
   @protected
   @override
   void onValuableChange() {
-    this.notifyListeners();
+    markToReevaluate();
+  }
+
+  /// Mark the valuable to be reevaluated
+  ///
+  /// If it's the first time, then it notify listeners
+  void markToReevaluate() {
+    if (!_reevaluatingNeeded) {
+      _reevaluatingNeeded = true;
+      this.notifyListeners();
+    }
   }
 
   /// Allows to be notified when this Valuable is disposed
@@ -225,12 +240,6 @@ class _Valuable<Output> extends Valuable<Output> {
       valuer(watch, valuableContext: context);
 }
 
-/*class ValuableBool extends _Valuable<bool> with ValuableBoolOperators {
-  ValuableBool(bool value) : super(value);
-  ValuableBool.byValuer(ValuableParentWatcher<bool> valuer)
-      : super.byValuer(valuer);
-}*/
-
 enum _BoolGroupType { and, or }
 
 /// A class to make logical operations with Valuable<bool>
@@ -275,30 +284,6 @@ class ValuableBoolGroup extends Valuable<bool> {
     return retour;
   }
 }
-
-/*class ValuableString extends _Valuable<String> {
-  ValuableString(String value) : super(value);
-  ValuableString.byValuer(ValuableParentWatcher<String> valuer)
-      : super.byValuer(valuer);
-}
-
-abstract class ValuableNum<Output extends num> extends _Valuable<Output> {
-  ValuableNum(Output value) : super(value);
-  ValuableNum.byValuer(ValuableParentWatcher<Output> valuer)
-      : super.byValuer(valuer);
-}
-
-class ValuableInt extends ValuableNum<int> {
-  ValuableInt(int value) : super(value);
-  ValuableInt.byValuer(ValuableParentWatcher<int> valuer)
-      : super.byValuer(valuer);
-}
-
-class ValuableDouble extends ValuableNum<double> {
-  ValuableDouble(double value) : super(value);
-  ValuableDouble.byValuer(ValuableParentWatcher<double> valuer)
-      : super.byValuer(valuer);
-}*/
 
 /// Method prototype for a Future complete
 typedef ValuableGetFutureResult<Output, Res> = Output Function(

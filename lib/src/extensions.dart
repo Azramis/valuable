@@ -105,7 +105,7 @@ extension StringOperators on Valuable<String> {
 
 extension ListOperators<E> on Valuable<List<E>> {
   /// Notify listener that the list or its values have been updated
-  void listUpdated() => this.notifyListeners();
+  void listUpdated() => this.markToReevaluate();
 
   /// Returns the object at the given [index] in the list
   /// or throws a [RangeError] if [index] is out of bounds.
