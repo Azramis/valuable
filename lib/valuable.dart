@@ -6,3 +6,4 @@ export 'src/widgets.dart';
 export 'src/callable.dart';
 export 'src/exceptions.dart';
 export 'src/extensions.dart';
+export 'src/operations.dart';
