@@ -1,6 +1,6 @@
 name: valuable
 description: A library to simplify data binding and to allow rebuild just some part of your UI instead of separate your in multiple StatefulWidget.
-version: 0.0.4
+version: 0.0.4+1
 author: Maxime FAUBERTEAU
 homepage: https://github.com/Azramis/valuable
 

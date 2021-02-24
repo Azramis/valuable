@@ -1,3 +1,5 @@
+## [0.0.4+1] - 24/02/2021
+-   Add export operations.dart to library
 ## [0.0.4] - 19/01/2021
 -   Add comments
 -   Remove useless classes (like ``StatefulValuableBool``) and move the method in extensions
