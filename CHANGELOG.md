@@ -1,3 +1,5 @@
+## [0.0.4+2] - 18/03/2021
+-   Fix an issue with a wrong transitive type on ValuableParentWatcher typedef
 ## [0.0.4+1] - 24/02/2021
 -   Add export operations.dart to library
 ## [0.0.4] - 19/01/2021
