@@ -10,7 +10,7 @@ typedef ValuableWatcherSelector<T> = bool Function(
     Valuable<T> valuable, T previousWatchedValue);
 typedef ValuableWatcher<T> = T Function(Valuable<T> valuable,
     {ValuableContext valuableContext, ValuableWatcherSelector selector});
-typedef ValuableParentWatcher<T> = T Function(ValuableWatcher<T> watch,
+typedef ValuableParentWatcher<T> = T Function(ValuableWatcher<dynamic> watch,
     {ValuableContext valuableContext});
 
 /// Shortcut to get a valuable with the value true
@@ -230,7 +230,7 @@ class _Valuable<Output> extends Valuable<Output> {
 
   _Valuable.byValuer(this.valuer) : super();
   _Valuable(Output value)
-      : this.byValuer((ValuableWatcher<Output> watch,
+      : this.byValuer((ValuableWatcher<dynamic> watch,
                 {ValuableContext valuableContext}) =>
             value);
 

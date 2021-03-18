@@ -232,6 +232,7 @@ enum StringOperator {
   concate,
 }
 
+/// Operations for String
 class ValuableStringOperation extends Valuable<String> {
   final Valuable<String> _operand1;
   final Valuable<String> _operand2;
@@ -277,7 +278,7 @@ class ValuableCaseItem<Output> {
   ValuableCaseItem.value(dynamic caseValue, Output value)
       : this(
             caseValue,
-            (ValuableWatcher<Output> watch,
+            (ValuableWatcher<dynamic> watch,
                     {ValuableContext valuableContext}) =>
                 value);
 }
@@ -294,7 +295,7 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   ValuableSwitch.value(Valuable<Switch> testable,
       {@required Output defaultValue, List<ValuableCaseItem<Output>> cases})
       : this(testable,
-            defaultCase: (ValuableWatcher<Output> watch,
+            defaultCase: (ValuableWatcher<dynamic> watch,
                     {ValuableContext valuableContext}) =>
                 defaultValue,
             cases: cases);
@@ -336,9 +337,9 @@ class ValuableIf<Output> extends Valuable<Output> {
       {Output elseValue})
       : this(
           testable,
-          (ValuableWatcher<Output> watch, {ValuableContext valuableContext}) =>
+          (ValuableWatcher<dynamic> watch, {ValuableContext valuableContext}) =>
               thenValue,
-          elseCase: (ValuableWatcher<Output> watch,
+          elseCase: (ValuableWatcher<dynamic> watch,
                   {ValuableContext valuableContext}) =>
               elseValue,
         );
