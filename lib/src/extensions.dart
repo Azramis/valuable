@@ -29,10 +29,10 @@ extension BoolOperators on Valuable<bool> {
       {Valuable<Output> elseValue}) {
     return ValuableIf<Output>(
         this,
-        (ValuableWatcher<Output> watch, {ValuableContext valuableContext}) =>
+        (ValuableWatcher<dynamic> watch, {ValuableContext valuableContext}) =>
             watch(value),
         elseCase: (elseValue != null)
-            ? (ValuableWatcher<Output> watch,
+            ? (ValuableWatcher<dynamic> watch,
                     {ValuableContext valuableContext}) =>
                 watch(elseValue)
             : null);
@@ -393,6 +393,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   bool get isNotEmpty => this.getValue().isNotEmpty;
 }
 
+/// Available operations on StatefulValuable<bool>
 extension BoolStateOperations on StatefulValuable<bool> {
   /// Reassign the state value with the negated current value (true -> false)
   void negate() {
@@ -400,6 +401,7 @@ extension BoolStateOperations on StatefulValuable<bool> {
   }
 }
 
+/// Available operations on StatefulValuable<T extends num>
 extension NumStateOperations<T extends num> on StatefulValuable<T> {
   /// Reassign the state value with the negated current value (current * -1)
   void negate() {
@@ -422,6 +424,7 @@ extension NumStateOperations<T extends num> on StatefulValuable<T> {
   }
 }
 
+/// Available operations on StatefulValuable<int>
 extension IntStateOperations on StatefulValuable<int> {
   /// Reassign the state by adding 1
   void increment() {
@@ -439,6 +442,7 @@ extension IntStateOperations on StatefulValuable<int> {
   }
 }
 
+/// Available operations on StatefulValuable<double>
 extension DoubleStateOperations on StatefulValuable<double> {
   /// Reassign the state value by dividing with an other number
   void divide(num other) {
