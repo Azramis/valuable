@@ -4,50 +4,50 @@ import 'package:valuable/src/stateful.dart';
 import 'package:valuable/src/widgets.dart';
 
 class DropdownButtonValuable<T> extends StatelessWidget {
-  final StatefulValuable<T> value;
-  final List<DropdownMenuItem<T>> items;
-  final Valuable<List<DropdownMenuItem<T>>> itemsValuable;
+  final StatefulValuable<T?> value;
+  final List<DropdownMenuItem<T>>? items;
+  final Valuable<List<DropdownMenuItem<T>>>? itemsValuable;
 
-  final Widget hint;
-  final Valuable<Widget> hintValuable;
-  final Widget disabledHint;
-  final Valuable<Widget> disabledHintValuable;
-  final DropdownButtonBuilder selectedItemBuilder;
+  final Widget? hint;
+  final Valuable<Widget>? hintValuable;
+  final Widget? disabledHint;
+  final Valuable<Widget>? disabledHintValuable;
+  final DropdownButtonBuilder? selectedItemBuilder;
 
   final int elevation;
-  final Valuable<int> elevationValuable;
-  final TextStyle style;
-  final Valuable<TextStyle> styleValuable;
-  final Widget underline;
-  final Valuable<Widget> underlineValuable;
-  final Widget icon;
-  final Valuable<Widget> iconValuable;
-  final Color iconDisabledColor;
-  final Valuable<Color> iconDisabledColorValuable;
-  final Color iconEnabledColor;
-  final Valuable<Color> iconEnabledColorValuable;
+  final Valuable<int>? elevationValuable;
+  final TextStyle? style;
+  final Valuable<TextStyle>? styleValuable;
+  final Widget? underline;
+  final Valuable<Widget>? underlineValuable;
+  final Widget? icon;
+  final Valuable<Widget>? iconValuable;
+  final Color? iconDisabledColor;
+  final Valuable<Color>? iconDisabledColorValuable;
+  final Color? iconEnabledColor;
+  final Valuable<Color>? iconEnabledColorValuable;
   final double iconSize;
-  final Valuable<double> iconSizeValuable;
-  final bool isDense;
-  final Valuable<bool> isDenseValuable;
-  final bool isExpanded;
-  final Valuable<bool> isExpandedValuable;
+  final Valuable<double>? iconSizeValuable;
+  final bool? isDense;
+  final Valuable<bool>? isDenseValuable;
+  final bool? isExpanded;
+  final Valuable<bool>? isExpandedValuable;
 
-  final double itemHeight;
-  final Valuable<double> itemHeightValuable;
+  final double? itemHeight;
+  final Valuable<double>? itemHeightValuable;
 
-  final Color focusColor;
-  final Valuable<Color> focusColorValuable;
-  final FocusNode focusNode;
+  final Color? focusColor;
+  final Valuable<Color>? focusColorValuable;
+  final FocusNode? focusNode;
 
   final bool autofocus;
 
-  final Color dropdownColor;
-  final Valuable<Color> dropdownColorValuable;
+  final Color? dropdownColor;
+  final Valuable<Color>? dropdownColorValuable;
 
   DropdownButtonValuable({
-    @required this.value,
-    Key key,
+    required this.value,
+    Key? key,
     this.items,
     this.itemsValuable,
     this.hint,
@@ -55,7 +55,7 @@ class DropdownButtonValuable<T> extends StatelessWidget {
     this.disabledHint,
     this.disabledHintValuable,
     this.selectedItemBuilder,
-    this.elevation,
+    this.elevation = 8,
     this.elevationValuable,
     this.style,
     this.styleValuable,
@@ -67,7 +67,7 @@ class DropdownButtonValuable<T> extends StatelessWidget {
     this.iconDisabledColorValuable,
     this.iconEnabledColor,
     this.iconEnabledColorValuable,
-    this.iconSize,
+    this.iconSize = 24,
     this.iconSizeValuable,
     this.isDense,
     this.isDenseValuable,
@@ -78,7 +78,7 @@ class DropdownButtonValuable<T> extends StatelessWidget {
     this.focusColor,
     this.focusColorValuable,
     this.focusNode,
-    this.autofocus,
+    this.autofocus = false,
     this.dropdownColor,
     this.dropdownColorValuable,
   })  : assert(items != null || itemsValuable != null),
@@ -87,13 +87,14 @@ class DropdownButtonValuable<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValuableConsumer(
-      builder: (BuildContext context, ValuableWatcher watch, Widget child) {
-        bool isDenseVal = isDenseValuable?.watchIt(context) ?? isDense;
-        bool isExpandedVal = isExpandedValuable?.watchIt(context) ?? isExpanded;
+      builder: (BuildContext context, ValuableWatcher watch, Widget? child) {
+        bool isDenseVal = isDenseValuable?.watchIt(context) ?? isDense ?? false;
+        bool isExpandedVal =
+            isExpandedValuable?.watchIt(context) ?? isExpanded ?? false;
 
         return DropdownButton<T>(
-          items: itemsValuable?.watchIt(context) ?? itemsValuable,
-          onChanged: (T value) {
+          items: itemsValuable?.watchIt(context) ?? items,
+          onChanged: (T? value) {
             this.value.setValue(value);
           },
           value: watch(value),

@@ -1,3 +1,5 @@
+## [0.1.0-nullsafety] - 19/03/2021
+-   **BETA** Migration to null-safety
 ## [0.0.4+2] - 18/03/2021
 -   Fix an issue with a wrong transitive type on ValuableParentWatcher typedef
 ## [0.0.4+1] - 24/02/2021

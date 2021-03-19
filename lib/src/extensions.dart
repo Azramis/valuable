@@ -26,20 +26,21 @@ extension BoolOperators on Valuable<bool> {
   /// If current value is true then [value] is returned, else if [elseValue] is
   /// specified then it returned
   Valuable<Output> then<Output>(Valuable<Output> value,
-      {Valuable<Output> elseValue}) {
+      {Valuable<Output>? elseValue}) {
     return ValuableIf<Output>(
         this,
-        (ValuableWatcher<dynamic> watch, {ValuableContext valuableContext}) =>
+        (ValuableWatcher<dynamic> watch, {ValuableContext? valuableContext}) =>
             watch(value),
         elseCase: (elseValue != null)
             ? (ValuableWatcher<dynamic> watch,
-                    {ValuableContext valuableContext}) =>
+                    {ValuableContext? valuableContext}) =>
                 watch(elseValue)
             : null);
   }
 
   /// Same as [then] function, but with direct value as parameters
-  Valuable<Output> thenValue<Output>(Output value, {Output elseValue}) {
+  Valuable<Output> thenValue<Output>(Output value,
+      {required Output elseValue}) {
     return ValuableIf<Output>.value(this, value, elseValue: elseValue);
   }
 }
@@ -228,15 +229,13 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///     List<String> numbers = ['one', 'two', 'three', 'four'];
   ///     numbers.sort((a, b) => a.length.compareTo(b.length));
   ///     print(numbers);  // [one, two, four, three] OR [two, one, four, three]
-  // TODO(me): manage null safety
-  void sort([int compare(E a, E b) /*?*/]) {
+  void sort([int compare(E a, E b)?]) {
     this.getValue().sort(compare);
     listUpdated();
   }
 
   /// Shuffles the elements of this list randomly.
-  // TODO(me): manage null safety
-  void shuffle([Random /*?*/ random]) {
+  void shuffle([Random? random]) {
     this.getValue().shuffle(random);
     listUpdated();
   }
@@ -292,8 +291,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///     parts.join(', ');     // 'shoulders, knees, toes'
   ///
   /// An [UnsupportedError] occurs if the list is fixed-length.
-  // TODO(me): Manage null safety
-  bool remove(Object /*?*/ value) {
+  bool remove(Object? value) {
     bool result;
     result = this.getValue().remove(value);
     if (result) {
@@ -405,22 +403,22 @@ extension BoolStateOperations on StatefulValuable<bool> {
 extension NumStateOperations<T extends num> on StatefulValuable<T> {
   /// Reassign the state value with the negated current value (current * -1)
   void negate() {
-    setValue(this.getValue() * -1);
+    setValue((this.getValue() * -1) as T);
   }
 
   /// Reassign the state value by adding an other number
   void add(num other) {
-    setValue(this.getValue() + other);
+    setValue((this.getValue() + other) as T);
   }
 
   /// Reassign the state value by substracting an other number
   void substract(num other) {
-    setValue(this.getValue() - other);
+    setValue((this.getValue() - other) as T);
   }
 
   /// Reassign the state value by mutiplying with an other number
   void multiply(num other) {
-    setValue(this.getValue() * other);
+    setValue((this.getValue() * other) as T);
   }
 }
 

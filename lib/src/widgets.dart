@@ -10,19 +10,20 @@ export 'widgets/checkbox.dart';
 export 'widgets/dropdown.dart';
 
 typedef ValuableConsumerBuilder = Widget Function(
-    BuildContext context, ValuableWatcher watch, Widget child);
+    BuildContext context, ValuableWatcher watch, Widget? child);
 
 class ValuableConsumer extends StatefulWidget {
-  final Widget child;
+  final Widget? child;
   final ValuableConsumerBuilder builder;
 
-  const ValuableConsumer({this.child, this.builder, Key key}) : super(key: key);
+  const ValuableConsumer({this.child, required this.builder, Key? key})
+      : super(key: key);
 
   @override
   _ValuableConsumerState createState() => _ValuableConsumerState();
 
-  static _ValuableConsumerState of(BuildContext context) =>
-      context?.findAncestorStateOfType<_ValuableConsumerState>();
+  static _ValuableConsumerState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_ValuableConsumerState>();
 }
 
 class _ValuableConsumerState extends State<ValuableConsumer>
@@ -53,8 +54,8 @@ class _ValuableConsumerState extends State<ValuableConsumer>
   }
 
   T _watch<T>(Valuable<T> valuable,
-          {ValuableContext valuableContext,
-          ValuableWatcherSelector selector}) =>
+          {ValuableContext? valuableContext,
+          ValuableWatcherSelector? selector}) =>
       watch(valuable, valuableContext: valuableContext, selector: selector);
 
   @override
@@ -65,9 +66,9 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     if (_markNeedBuild == false) {
       _markNeedBuild = true;
 
-      if (SchedulerBinding.instance.schedulerPhase ==
+      if (SchedulerBinding.instance?.schedulerPhase ==
           SchedulerPhase.persistentCallbacks) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance?.addPostFrameCallback((_) {
           setState(() {
             _markNeedBuild = false;
           });
@@ -89,9 +90,9 @@ class _ValuableConsumerState extends State<ValuableConsumer>
 }
 
 extension WidgetValuable<T> on Valuable<T> {
-  T watchIt(BuildContext context, {ValuableWatcherSelector selector}) {
+  T watchIt(BuildContext context, {ValuableWatcherSelector? selector}) {
     ValuableContext vContext = ValuableContext(context: context);
-    _ValuableConsumerState state = ValuableConsumer.of(context);
+    _ValuableConsumerState? state = ValuableConsumer.of(context);
 
     // If a consumer exists in the current UI tree, we make it watch the current Valuable
     return state != null

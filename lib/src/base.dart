@@ -9,9 +9,9 @@ import 'package:valuable/src/operations.dart';
 typedef ValuableWatcherSelector<T> = bool Function(
     Valuable<T> valuable, T previousWatchedValue);
 typedef ValuableWatcher<T> = T Function(Valuable<T> valuable,
-    {ValuableContext valuableContext, ValuableWatcherSelector selector});
+    {ValuableContext? valuableContext, ValuableWatcherSelector? selector});
 typedef ValuableParentWatcher<T> = T Function(ValuableWatcher<dynamic> watch,
-    {ValuableContext valuableContext});
+    {ValuableContext? valuableContext});
 
 /// Shortcut to get a valuable with the value true
 final Valuable<bool> boolTrue = Valuable<bool>.value(true);
@@ -34,7 +34,7 @@ class ValuableContext {
   /// BuildContext that can be attached to a ValuableContext
   ///
   /// [ValuableConsumer] passes a BuildContext when it get values through [watch] method
-  final BuildContext context;
+  final BuildContext? context;
 
   /// Constructor
   ///
@@ -84,7 +84,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   Valuable() : _isMounted = ValueNotifier(true);
 
   /// Returns if this object is still mounted
-  bool get isMounted => _isMounted?.value ?? false;
+  bool get isMounted => _isMounted.value;
 
   /// Factory [Valuable.value] to build a simple Valuable on a final value
   factory Valuable.value(Output value) {
@@ -99,7 +99,7 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Get the current value of the Valuable
   @mustCallSuper
-  Output getValue([ValuableContext context = const ValuableContext()]) {
+  Output getValue([ValuableContext? context = const ValuableContext()]) {
     // Before reading/calculating the value, the watched Valuables tree is cleaned
     // in order to remove the dependencies that may disapear.
     cleanWatched();
@@ -114,12 +114,13 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// the method [getValue]
   @protected
   Output getValueDefinition(
-      [ValuableContext context = const ValuableContext()]);
+      [ValuableContext? context = const ValuableContext()]);
 
   @protected
   @override
   T watch<T>(Valuable<T> valuable,
-      {ValuableContext valuableContext, ValuableWatcherSelector<T> selector}) {
+      {ValuableContext? valuableContext,
+      ValuableWatcherSelector<T>? selector}) {
     if (valuable == this) {
       throw ValuableIllegalUseException();
     }
@@ -147,7 +148,6 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// [onDispose] will be called when this Valuable is disposed
   void listenDispose(VoidCallback onDispose) {
-    assert(onDispose != null, "onDispose should not be null !");
     _isMounted.addListener(onDispose);
   }
 
@@ -157,12 +157,12 @@ abstract class Valuable<Output> extends ChangeNotifier
     _isMounted.value = false;
     _isMounted.dispose();
     List<VoidCallback> removers = _removeListeners.values.toList();
-    removers.forEach((VoidCallback remover) => remover?.call());
+    removers.forEach((VoidCallback remover) => remover());
 
     super.dispose();
   }
 
-  Valuable<bool> _getCompare(dynamic other, CompareOperator ope) {
+  Valuable<bool> _getCompare(dynamic? other, CompareOperator ope) {
     Valuable compare;
 
     if (other is Output) {
@@ -170,7 +170,7 @@ abstract class Valuable<Output> extends ChangeNotifier
     } else if (other is Valuable) {
       compare = other;
     } else {
-      throw UnmatchTypeValuableError(this, other?.runtimeType);
+      throw UnmatchTypeValuableError(this, other?.runtimeType ?? Null);
     }
 
     return ValuableCompare(this, ope, compare);
@@ -180,7 +180,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator >(dynamic other) {
+  Valuable<bool> operator >(dynamic? other) {
     return _getCompare(other, CompareOperator.greater_than);
   }
 
@@ -188,7 +188,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator >=(dynamic other) {
+  Valuable<bool> operator >=(dynamic? other) {
     return _getCompare(other, CompareOperator.greater_or_equals);
   }
 
@@ -196,7 +196,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator <(dynamic other) {
+  Valuable<bool> operator <(dynamic? other) {
     return _getCompare(other, CompareOperator.smaller_than);
   }
 
@@ -204,7 +204,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator <=(dynamic other) {
+  Valuable<bool> operator <=(dynamic? other) {
     return _getCompare(other, CompareOperator.smaller_or_equals);
   }
 
@@ -212,7 +212,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> equals(dynamic other) {
+  Valuable<bool> equals(dynamic? other) {
     return _getCompare(other, CompareOperator.equals);
   }
 
@@ -220,7 +220,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> notEquals(dynamic other) {
+  Valuable<bool> notEquals(dynamic? other) {
     return _getCompare(other, CompareOperator.different);
   }
 }
@@ -231,12 +231,12 @@ class _Valuable<Output> extends Valuable<Output> {
   _Valuable.byValuer(this.valuer) : super();
   _Valuable(Output value)
       : this.byValuer((ValuableWatcher<dynamic> watch,
-                {ValuableContext valuableContext}) =>
+                {ValuableContext? valuableContext}) =>
             value);
 
   @override
   Output getValueDefinition(
-          [ValuableContext context = const ValuableContext()]) =>
+          [ValuableContext? context = const ValuableContext()]) =>
       valuer(watch, valuableContext: context);
 }
 
@@ -264,7 +264,7 @@ class ValuableBoolGroup extends Valuable<bool> {
 
   @override
   bool getValueDefinition(
-      [ValuableContext valuableContext = const ValuableContext()]) {
+      [ValuableContext? valuableContext = const ValuableContext()]) {
     bool retour = type == _BoolGroupType.and;
 
     for (Valuable<bool> constraint in constraints) {
@@ -287,15 +287,15 @@ class ValuableBoolGroup extends Valuable<bool> {
 
 /// Method prototype for a Future complete
 typedef ValuableGetFutureResult<Output, Res> = Output Function(
-    ValuableContext context, Res result);
+    ValuableContext? context, Res? result);
 
 /// Method prototype for a Future error
 typedef ValuableGetFutureError<Output> = Output Function(
-    ValuableContext context, Object error, StackTrace stackTrace);
+    ValuableContext? context, Object error, StackTrace stackTrace);
 
 /// Method prototype to get a value while a Future is not complete/in error
 typedef ValuableGetFutureLoading<Output> = Output Function(
-    ValuableContext context);
+    ValuableContext? context);
 
 /// A Valuable that depends on a Future
 ///
@@ -320,19 +320,18 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
   /// A function to return a value when the future is complete on error
   final ValuableGetFutureError<Output> errorValue;
 
-  bool _isComplete;
-  bool _isError;
-  Res _resultValue;
-  Object _error;
-  StackTrace _stackTrace;
+  bool _isComplete = false;
+  bool _isError = false;
+  Res? _resultValue;
+  Object? _error;
+  StackTrace? _stackTrace;
 
   /// Constructor to provide each functions
   FutureValuable(Future<Res> future,
-      {@required this.dataValue,
-      @required this.noDataValue,
-      @required this.errorValue})
-      : assert(future != null, "future should not be null"),
-        _future = future,
+      {required this.dataValue,
+      required this.noDataValue,
+      required this.errorValue})
+      : _future = future,
         super() {
     _future.then((Res value) {
       _isComplete = true;
@@ -350,27 +349,27 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
   ///
   /// [Output] must be super type or type of [Res]
   FutureValuable.values(Future<Res> future,
-      {Output noDataValue, Output errorValue})
+      {required Output noDataValue, required Output errorValue})
       : this(future,
-            dataValue: (ValuableContext context, Res result) =>
+            dataValue: (ValuableContext? context, Res? result) =>
                 result as Output,
-            noDataValue: (ValuableContext context) => noDataValue,
-            errorValue: (ValuableContext context, Object error,
-                    StackTrace stackTrace) =>
+            noDataValue: (ValuableContext? context) => noDataValue,
+            errorValue: (ValuableContext? context, Object error,
+                    StackTrace? stackTrace) =>
                 errorValue);
 
   @override
   Output getValueDefinition(
-      [ValuableContext context = const ValuableContext()]) {
+      [ValuableContext? context = const ValuableContext()]) {
     Output retour;
     if (_isComplete) {
       if (_isError) {
-        retour = errorValue?.call(context, _error, _stackTrace);
+        retour = errorValue.call(context, _error!, _stackTrace!);
       } else {
-        retour = dataValue?.call(context, _resultValue);
+        retour = dataValue.call(context, _resultValue);
       }
     } else {
-      retour = noDataValue?.call(context);
+      retour = noDataValue.call(context);
     }
 
     return retour;
@@ -379,58 +378,58 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
 
 /// Method prototype for onData of the Stream
 typedef ValuableGetStreamData<Output, Res> = Output Function(
-    ValuableContext, Res);
+    ValuableContext?, Res);
 
 /// Method prototype for onError of the Stream
 typedef ValuableGetStreamError<Output> = Output Function(
-    ValuableContext, Object, StackTrace);
+    ValuableContext?, Object, StackTrace);
 
 /// Method prototype for onDone of the Stream
-typedef ValuableGetStreamDone<Output> = Output Function(ValuableContext);
+typedef ValuableGetStreamDone<Output> = Output Function(ValuableContext?);
 
 class StreamValuable<Output, Msg> extends Valuable<Output> {
   final ValuableGetStreamData dataValue;
   final ValuableGetStreamError errorValue;
   final ValuableGetStreamDone doneValue;
 
-  Output Function(ValuableContext) _currentValuer;
+  late Output Function(ValuableContext?) _currentValuer;
 
-  StreamSubscription _subscription;
+  late final StreamSubscription _subscription;
 
   StreamValuable(
     Stream<Msg> stream, {
-    @required this.dataValue,
-    @required this.errorValue,
-    @required this.doneValue,
-    Output initialData,
-    bool cancelOnError,
+    required this.dataValue,
+    required this.errorValue,
+    required this.doneValue,
+    required Output initialData,
+    bool? cancelOnError,
   }) : super() {
     _currentValuer = (_) => initialData;
     _subscription = stream.listen((Msg data) {
       _changeCurrentValuer(
-          (ValuableContext context) => dataValue?.call(context, data));
+          (ValuableContext? context) => dataValue.call(context, data));
     }, onError: (Object error, StackTrace stacktrace) {
-      _changeCurrentValuer((ValuableContext context) =>
-          errorValue?.call(context, error, stacktrace));
+      _changeCurrentValuer((ValuableContext? context) =>
+          errorValue.call(context, error, stacktrace));
     }, onDone: () {
       _changeCurrentValuer(
-          (ValuableContext context) => doneValue?.call(context));
+          (ValuableContext? context) => doneValue.call(context));
     }, cancelOnError: cancelOnError);
   }
 
-  void _changeCurrentValuer(Output Function(ValuableContext) newValuer) {
+  void _changeCurrentValuer(Output Function(ValuableContext?) newValuer) {
     _currentValuer = newValuer;
     notifyListeners();
   }
 
   @override
   Output getValueDefinition(
-          [ValuableContext context = const ValuableContext()]) =>
+          [ValuableContext? context = const ValuableContext()]) =>
       _currentValuer(context);
 
   @override
   void dispose() {
     super.dispose();
-    _subscription?.cancel(); // Cancel subscription to free memory
+    _subscription.cancel(); // Cancel subscription to free memory
   }
 }

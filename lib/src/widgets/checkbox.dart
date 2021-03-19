@@ -5,7 +5,7 @@ import 'package:valuable/src/widgets.dart';
 
 class ValuableCheckbox extends StatelessWidget {
   /// Valuable to manage checkbox value
-  final StatefulValuable<bool> valuable;
+  final StatefulValuable<bool?> valuable;
 
   /* ********************************* */
   /*        Checkbox properties        */
@@ -14,22 +14,22 @@ class ValuableCheckbox extends StatelessWidget {
   /// The color to use when this checkbox is checked.
   ///
   /// Defaults to [ThemeData.toggleableActiveColor].
-  final Color activeColor;
+  final Color? activeColor;
 
   /// See [activeColor]
   ///
   /// Priority if not null
-  final Valuable<Color> activeColorValuable;
+  final Valuable<Color>? activeColorValuable;
 
   /// The color to use for the check icon when this checkbox is checked.
   ///
   /// Defaults to Color(0xFFFFFFFF)
-  final Color checkColor;
+  final Color? checkColor;
 
   /// See [checkColor]
   ///
   /// Priority if not null
-  final Valuable<Color> checkColorValuable;
+  final Valuable<Color>? checkColorValuable;
 
   /// If true the checkbox's [value] can be true, false, or null.
   ///
@@ -46,33 +46,33 @@ class ValuableCheckbox extends StatelessWidget {
   /// See [tristate]
   ///
   /// Priority if not null
-  final Valuable<bool> tristateValuable;
+  final Valuable<bool>? tristateValuable;
 
   /// The color for the checkbox's [Material] when it has the input focus.
-  final Color focusColor;
+  final Color? focusColor;
 
   /// See [focusColor]
   ///
   /// Priority if not null
-  final Valuable<Color> focusColorValuable;
+  final Valuable<Color>? focusColorValuable;
 
   /// The color for the checkbox's [Material] when a pointer is hovering over it.
-  final Color hoverColor;
+  final Color? hoverColor;
 
   /// See [hoverColor]
   ///
   /// Priority if not null
-  final Valuable<Color> hoverColorValuable;
+  final Valuable<Color>? hoverColorValuable;
 
   /// {@macro flutter.widgets.Focus.focusNode}
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
 
   /// {@macro flutter.widgets.Focus.autofocus}
   final bool autofocus;
 
   const ValuableCheckbox(
-      {Key key,
-      @required this.valuable,
+      {Key? key,
+      required this.valuable,
       this.activeColor,
       this.activeColorValuable,
       this.autofocus = false,
@@ -85,21 +85,18 @@ class ValuableCheckbox extends StatelessWidget {
       this.hoverColorValuable,
       this.tristate = false,
       this.tristateValuable})
-      : assert(valuable != null, "valuable must be non-null !"),
-        assert(autofocus != null, "autofocus must be non-null !"),
-        assert(tristate != null, "tristate must be non-null !"),
-        super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ValuableConsumer(
-      builder: (BuildContext context, ValuableWatcher watch, Widget child) {
+      builder: (BuildContext context, ValuableWatcher watch, Widget? child) {
         bool tristateVal = tristateValuable?.watchIt(context) ?? tristate;
         bool value = tristateVal ? watch(valuable) : (watch(valuable) ?? false);
 
         return Checkbox(
           value: value,
-          onChanged: (bool value) => valuable.setValue(value),
+          onChanged: (bool? value) => valuable.setValue(value),
           activeColor: activeColorValuable?.watchIt(context) ?? activeColor,
           autofocus: autofocus,
           checkColor: checkColorValuable?.watchIt(context) ?? checkColor,

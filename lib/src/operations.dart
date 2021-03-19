@@ -47,11 +47,12 @@ class ValuableCompare<T> extends Valuable<bool> {
       : this(operand1, CompareOperator.different, operand2);
 
   @override
-  bool getValueDefinition([ValuableContext context = const ValuableContext()]) {
+  bool getValueDefinition(
+      [ValuableContext? context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
-  bool _compareWithOperator(ValuableContext valuableContext) {
+  bool _compareWithOperator(ValuableContext? valuableContext) {
     bool retour;
     dynamic fieldValue = watch(_operand1, valuableContext: valuableContext);
     dynamic compareValue = watch(_operand2, valuableContext: valuableContext);
@@ -99,7 +100,7 @@ enum NumOperator {
 /// When one of its operands changes, this Valuable notify its listeners
 class ValuableNumOperation<Output extends num> extends Valuable<Output> {
   final Valuable<num> _operand1;
-  final Valuable<num> _operand2;
+  final Valuable<num>? _operand2;
   final NumOperator _operator;
 
   ValuableNumOperation._(this._operand1, this._operator, this._operand2)
@@ -141,15 +142,15 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
 
   @override
   Output getValueDefinition(
-      [ValuableContext context = const ValuableContext()]) {
+      [ValuableContext? context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
-  Output _compareWithOperator(ValuableContext valuableContext) {
+  Output _compareWithOperator(ValuableContext? valuableContext) {
     num retour;
     num ope1 = watch(_operand1, valuableContext: valuableContext);
     num ope2 = _operator != NumOperator.negate
-        ? watch(_operand2, valuableContext: valuableContext)
+        ? watch(_operand2!, valuableContext: valuableContext)
         : 0;
 
     switch (_operator) {
@@ -175,7 +176,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
         retour = 0.0;
         break;
     }
-    return retour;
+    return retour as Output;
   }
 }
 
@@ -184,11 +185,11 @@ class _ValuableIntOperation extends ValuableNumOperation<int> {
       Valuable<num> operand1, NumOperator operat, Valuable<num> operand2)
       : super._(operand1, operat, operand2);
 
-  int _compareWithOperator(ValuableContext valuableContext) {
+  int _compareWithOperator(ValuableContext? valuableContext) {
     int retour;
     num ope1 = watch(_operand1, valuableContext: valuableContext);
     num ope2 = _operator != NumOperator.negate
-        ? watch(_operand2, valuableContext: valuableContext)
+        ? watch(_operand2!, valuableContext: valuableContext)
         : 0;
 
     switch (_operator) {
@@ -208,11 +209,11 @@ class _ValuableDoubleOperation extends ValuableNumOperation<double> {
       Valuable<num> operand1, NumOperator operat, Valuable<num> operand2)
       : super._(operand1, operat, operand2);
 
-  double _compareWithOperator(ValuableContext valuableContext) {
+  double _compareWithOperator(ValuableContext? valuableContext) {
     double retour;
     num ope1 = watch(_operand1, valuableContext: valuableContext);
     num ope2 = _operator != NumOperator.negate
-        ? watch(_operand2, valuableContext: valuableContext)
+        ? watch(_operand2!, valuableContext: valuableContext)
         : 0;
 
     switch (_operator) {
@@ -248,11 +249,11 @@ class ValuableStringOperation extends Valuable<String> {
 
   @override
   String getValueDefinition(
-      [ValuableContext context = const ValuableContext()]) {
+      [ValuableContext? context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
-  String _compareWithOperator(ValuableContext valuableContext) {
+  String _compareWithOperator(ValuableContext? valuableContext) {
     String retour;
     String ope1 = watch(_operand1, valuableContext: valuableContext);
     String ope2 = watch(_operand2, valuableContext: valuableContext);
@@ -262,6 +263,7 @@ class ValuableStringOperation extends Valuable<String> {
         retour = ope1 + ope2;
         break;
       default:
+        retour = "";
         break;
     }
 
@@ -279,35 +281,34 @@ class ValuableCaseItem<Output> {
       : this(
             caseValue,
             (ValuableWatcher<dynamic> watch,
-                    {ValuableContext valuableContext}) =>
+                    {ValuableContext? valuableContext}) =>
                 value);
 }
 
 class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   final Valuable<Switch> testable;
-  final List<ValuableCaseItem<Output>> cases;
+  final List<ValuableCaseItem<Output>>? cases;
   final ValuableParentWatcher<Output> defaultCase;
 
-  ValuableSwitch(this.testable, {@required this.defaultCase, this.cases})
-      : assert(testable != null, "testable must not be null !"),
-        assert(defaultCase != null, "defaultCase must not be null !");
+  ValuableSwitch(this.testable, {required this.defaultCase, this.cases});
 
   ValuableSwitch.value(Valuable<Switch> testable,
-      {@required Output defaultValue, List<ValuableCaseItem<Output>> cases})
+      {required Output defaultValue, List<ValuableCaseItem<Output>>? cases})
       : this(testable,
             defaultCase: (ValuableWatcher<dynamic> watch,
-                    {ValuableContext valuableContext}) =>
+                    {ValuableContext? valuableContext}) =>
                 defaultValue,
             cases: cases);
 
   @override
   Output getValueDefinition(
-      [ValuableContext valuableContext = const ValuableContext()]) {
+      [ValuableContext? valuableContext = const ValuableContext()]) {
     bool test = false;
-    Output value;
+    late Output value;
     if (cases?.isNotEmpty ?? false) {
-      Iterator<ValuableCaseItem<Output>> iterator = cases.iterator;
-      while (iterator.moveNext() &&
+      Iterator<ValuableCaseItem<Output>>? iterator = cases?.iterator;
+      while (iterator != null &&
+          iterator.moveNext() &&
           (test = testable
                   .equals(iterator.current.caseValue)
                   .getValue(valuableContext) ==
@@ -327,36 +328,36 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
 class ValuableIf<Output> extends Valuable<Output> {
   final Valuable<bool> testable;
   final ValuableParentWatcher<Output> thenCase;
-  final ValuableParentWatcher<Output> elseCase;
+  final ValuableParentWatcher<Output>? elseCase;
 
-  ValuableIf(this.testable, this.thenCase, {this.elseCase})
-      : assert(testable != null, "testable must not be null !"),
-        assert(thenCase != null, "thenCase must not be null !");
+  ValuableIf(this.testable, this.thenCase, {this.elseCase});
 
   ValuableIf.value(Valuable<bool> testable, Output thenValue,
-      {Output elseValue})
+      {required Output elseValue})
       : this(
           testable,
-          (ValuableWatcher<dynamic> watch, {ValuableContext valuableContext}) =>
+          (ValuableWatcher<dynamic> watch,
+                  {ValuableContext? valuableContext}) =>
               thenValue,
           elseCase: (ValuableWatcher<dynamic> watch,
-                  {ValuableContext valuableContext}) =>
+                  {ValuableContext? valuableContext}) =>
               elseValue,
         );
 
   @override
   Output getValueDefinition(
-      [ValuableContext valuableContext = const ValuableContext()]) {
+      [ValuableContext? valuableContext = const ValuableContext()]) {
     bool test = false;
-    Output value;
+    late Output value;
 
     test = watch(testable);
 
     if (test) {
       value = thenCase(watch, valuableContext: valuableContext);
-    } else {
-      value = elseCase?.call(watch, valuableContext: valuableContext);
+    } else if (elseCase != null) {
+      value = elseCase!.call(watch, valuableContext: valuableContext);
     }
+
     return value;
   }
 }
