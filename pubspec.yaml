@@ -1,12 +1,11 @@
 name: valuable
 description: A library to simplify data binding and to allow rebuild just some part of your UI instead of separate your in multiple StatefulWidget.
 version: 0.1.0-nullsafety
-author: Maxime FAUBERTEAU
 homepage: https://github.com/Azramis/valuable
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=2.0.0 <3.0.0"
+  flutter: ">=2.0.0"
 
 dependencies:
   flutter:
