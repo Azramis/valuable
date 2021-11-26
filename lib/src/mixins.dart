@@ -3,10 +3,12 @@ import 'package:valuable/src/base.dart';
 
 class _ValuableWatchedInfos<T> {
   final VoidCallback callback;
-  final List<ValuableWatcherSelector> selectors = <ValuableWatcherSelector>[];
+  final List<ValuableWatcherSelector<T>?> selectors =
+      <ValuableWatcherSelector<T>?>[];
   T previousWatchedValue;
 
-  _ValuableWatchedInfos({this.callback, this.previousWatchedValue});
+  _ValuableWatchedInfos(
+      {required this.callback, required this.previousWatchedValue});
 }
 
 /// A mixin to provide extension of classes that might want to watch some valuable
@@ -19,28 +21,31 @@ mixin ValuableWatcherMixin {
   @protected
   @mustCallSuper
   T watch<T>(Valuable<T> valuable,
-      {ValuableContext valuableContext, ValuableWatcherSelector<T> selector}) {
+      {ValuableContext? valuableContext,
+      ValuableWatcherSelector<T>? selector}) {
     T result;
-    if (valuable != null) {
-      result = valuable.getValue(valuableContext ?? this.valuableContext);
 
-      if (!_watched.containsKey(valuable)) {
-        VoidCallback callback = () => _callValuableChange<T>(valuable);
+    result = valuable.getValue(valuableContext ?? this.valuableContext);
 
-        _watched.putIfAbsent(
-            valuable, () => _ValuableWatchedInfos<T>(callback: callback));
-        valuable.addListener(callback);
-        valuable.listenDispose(() {
-          unwatch(valuable);
-        });
-      }
+    if (!_watched.containsKey(valuable)) {
+      VoidCallback callback = () => _callValuableChange<T>(valuable);
 
-      if (_watched.containsKey(valuable)) {
-        _watched[valuable].previousWatchedValue =
-            result; // Save value for future comparaison
-        if (selector != null) {
-          _watched[valuable].selectors.add(selector);
-        }
+      _watched.putIfAbsent(
+          valuable,
+          () => _ValuableWatchedInfos<T>(
+              callback: callback, previousWatchedValue: result));
+      valuable.addListener(callback);
+      valuable.listenDispose(() {
+        unwatch(valuable);
+      });
+    }
+
+    if (_watched.containsKey(valuable)) {
+      _ValuableWatchedInfos<T> infos =
+          _watched[valuable] as _ValuableWatchedInfos<T>;
+      infos.previousWatchedValue = result; // Save value for future comparaison
+      if (selector != null) {
+        infos.selectors.add(selector);
       }
     }
 
@@ -60,19 +65,22 @@ mixin ValuableWatcherMixin {
   void _callValuableChange<T>(Valuable<T> valuable) {
     if (_watched.containsKey(valuable)) {
       if (_watched[valuable] != null) {
+        _ValuableWatchedInfos<T> infos =
+            _watched[valuable] as _ValuableWatchedInfos<T>;
+
         bool selectOk;
 
-        List<ValuableWatcherSelector> selectors = _watched[valuable].selectors;
+        List<ValuableWatcherSelector<T>?> selectors = infos.selectors;
 
-        if (selectors?.isNotEmpty ?? false) {
+        if (selectors.isNotEmpty) {
           // If there are available selectors, we must test them until [selectOk]
           // is true, or we reach the end of the list
 
           selectOk = false;
-          T previousWatchedValue = _watched[valuable].previousWatchedValue;
-          for (ValuableWatcherSelector selector in selectors) {
+          T previousWatchedValue = infos.previousWatchedValue;
+          for (ValuableWatcherSelector<T>? selector in selectors) {
             selectOk = selectOk ||
-                (selector?.call(valuable, previousWatchedValue) ?? true);
+                (selector?.call(valuable, previousWatchedValue) ?? false);
 
             if (selectOk) {
               break;
@@ -97,7 +105,7 @@ mixin ValuableWatcherMixin {
   void onValuableChange();
 
   @protected
-  ValuableContext get valuableContext => null;
+  ValuableContext? get valuableContext => null;
 
   @protected
   void cleanWatched() {
@@ -108,107 +116,9 @@ mixin ValuableWatcherMixin {
   }
 
   void _removeValuableListener(Valuable valuable) {
-    if (valuable != null &&
-        _watched.containsKey(valuable) &&
-        valuable.isMounted) {
-      valuable.removeListener(_watched[valuable].callback);
+    if (_watched.containsKey(valuable) && valuable.isMounted) {
+      _ValuableWatchedInfos infos = _watched[valuable]!;
+      valuable.removeListener(infos.callback);
     }
   }
-}
-
-mixin ValuableBoolOperators on Valuable<bool> {
-  /*ValuableBool operator &(Valuable<bool> other) {
-    return ValuableBoolGroup.and(<Valuable<bool>>[this, other]);
-  }
-
-  ValuableBool operator |(Valuable<bool> other) {
-    return ValuableBoolGroup.or(<Valuable<bool>>[this, other]);
-  }
-
-  Valuable<bool> negation() {
-    return ValuableBool.byValuer((watch, {valuableContext}) => !watch(this));
-  }
-
-  Valuable<Output> then<Output>(Valuable<Output> value,
-      {Valuable<Output> elseValue}) {
-    return ValuableIf<Output>(
-        this,
-        (ValuableWatcher<Output> watch, {ValuableContext valuableContext}) =>
-            watch(value),
-        elseCase: (elseValue != null)
-            ? (ValuableWatcher<Output> watch,
-                    {ValuableContext valuableContext}) =>
-                watch(elseValue)
-            : null);
-  }
-
-  Valuable<Output> thenValue<Output>(Output value, {Output elseValue}) {
-    return ValuableIf<Output>.value(this, value, elseValue: elseValue);
-  }*/
-}
-
-mixin ValuableNumOperators on Valuable<num> {
-  /*
-  /// Addition operator.
-  ValuableNum operator +(Valuable<num> other) =>
-      ValuableNumOperation.sum(this, other);
-
-  /// Subtraction operator.
-  ValuableNum operator -(Valuable<num> other) =>
-      ValuableNumOperation.substract(this, other);
-
-  /// Multiplication operator.
-  ValuableNum operator *(Valuable<num> other) =>
-      ValuableNumOperation.multiply(this, other);
-
-  ///
-  /// Euclidean modulo operator.
-  ///
-  /// Returns the remainder of the Euclidean division. The Euclidean division of
-  /// two integers `a` and `b` yields two integers `q` and `r` such that
-  /// `a == b * q + r` and `0 <= r < b.abs()`.
-  ///
-  /// The Euclidean division is only defined for integers, but can be easily
-  /// extended to work with doubles. In that case `r` may have a non-integer
-  /// value, but it still verifies `0 <= r < |b|`.
-  ///
-  /// The sign of the returned value `r` is always positive.
-  ///
-  /// See [remainder] for the remainder of the truncating division.
-  ///
-  ValuableNum operator %(Valuable<num> other) =>
-      ValuableNumOperation.modulo(this, other);
-
-  /// Division operator.
-  ValuableNum operator /(Valuable<num> other) =>
-      ValuableNumOperation.divide(this, other);
-
-  ///
-  /// Truncating division operator.
-  ///
-  /// If either operand is a [double] then the result of the truncating division
-  /// `a ~/ b` is equivalent to `(a / b).truncate().toInt()`.
-  ///
-  /// If both operands are [int]s then `a ~/ b` performs the truncating
-  /// integer division.
-  ///
-  ValuableNum operator ~/(Valuable<num> other) =>
-      ValuableNumOperation.truncDivide(this, other);
-
-  /// Negate operator.
-  ValuableNum operator -() => ValuableNumOperation.negate(this);
-  */
-}
-
-mixin ValuableStringOperator on Valuable<String> {
-  /*
-  /// Addition operator.
-  ValuableString operator +(Valuable<String> other) =>
-      ValuableStringOperation.concate(this, other);
-
-  @override
-  String toString() {
-    return this.getValue();
-  }
-  */
 }

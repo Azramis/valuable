@@ -4,7 +4,7 @@ import 'package:valuable/src/mixins.dart';
 /// User-defined callback that can watch Valuable to be automatically re-call
 class ValuableCallback with ValuableWatcherMixin {
   /// The real callback to execute
-  final void Function(ValuableWatcher watch, {ValuableContext valuableContext})
+  final void Function(ValuableWatcher watch, {ValuableContext? valuableContext})
       _callback;
 
   ///
@@ -24,7 +24,7 @@ class ValuableCallback with ValuableWatcherMixin {
   /// printTrace(); /// OUPUT : init
   /// tracer.setValue("newValue"); /// Automatically OUTPUT : newValue
   /// ```
-  void call({ValuableContext valuableContext}) {
+  void call({ValuableContext? valuableContext}) {
     cleanWatched();
     _callback(watch, valuableContext: valuableContext ?? this.valuableContext);
   }
