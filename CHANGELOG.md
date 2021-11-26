@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.1.0+1] - 26/11/2021
+
+- Empty .pubignore to gain pub points on pub.dev
+
 ## [0.1.0] - 26/11/2021
 
 - Fix version to null-safety
