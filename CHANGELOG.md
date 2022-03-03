@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.1.1] - 03/03/2022
+
+- Fix warnings  
+- Mechamisms to avoid reevaluating values too often  
+- Fix issue with generic type on ValuableWatcher  
+
 ## [0.1.0+1] - 26/11/2021
 
 - Empty .pubignore to gain pub points on pub.dev
