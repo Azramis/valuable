@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 
 /// Comparison operator
@@ -47,7 +46,7 @@ class ValuableCompare<T> extends Valuable<bool> {
       : this(operand1, CompareOperator.different, operand2);
 
   @override
-  bool getValueDefinition(
+  bool getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
@@ -141,7 +140,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
       ValuableNumOperation._(operand1, NumOperator.sum, null);
 
   @override
-  Output getValueDefinition(
+  Output getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
@@ -248,7 +247,7 @@ class ValuableStringOperation extends Valuable<String> {
       : this(operand1, StringOperator.concate, operand2);
 
   @override
-  String getValueDefinition(
+  String getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
@@ -280,8 +279,7 @@ class ValuableCaseItem<Output> {
   ValuableCaseItem.value(dynamic caseValue, Output value)
       : this(
             caseValue,
-            (ValuableWatcher<dynamic> watch,
-                    {ValuableContext? valuableContext}) =>
+            (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
                 value);
 }
 
@@ -295,13 +293,13 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   ValuableSwitch.value(Valuable<Switch> testable,
       {required Output defaultValue, List<ValuableCaseItem<Output>>? cases})
       : this(testable,
-            defaultCase: (ValuableWatcher<dynamic> watch,
+            defaultCase: (ValuableWatcher watch,
                     {ValuableContext? valuableContext}) =>
                 defaultValue,
             cases: cases);
 
   @override
-  Output getValueDefinition(
+  Output getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? valuableContext = const ValuableContext()]) {
     bool test = false;
     late Output value;
@@ -336,16 +334,15 @@ class ValuableIf<Output> extends Valuable<Output> {
       {required Output elseValue})
       : this(
           testable,
-          (ValuableWatcher<dynamic> watch,
-                  {ValuableContext? valuableContext}) =>
+          (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
               thenValue,
-          elseCase: (ValuableWatcher<dynamic> watch,
+          elseCase: (ValuableWatcher watch,
                   {ValuableContext? valuableContext}) =>
               elseValue,
         );
 
   @override
-  Output getValueDefinition(
+  Output getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? valuableContext = const ValuableContext()]) {
     bool test = false;
     late Output value;

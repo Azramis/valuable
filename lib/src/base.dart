@@ -5,12 +5,13 @@ import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/exceptions.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
+import 'package:valuable/src/widgets.dart';
 
 typedef ValuableWatcherSelector<T> = bool Function(
     Valuable<T> valuable, T previousWatchedValue);
-typedef ValuableWatcher<T> = T Function(Valuable<T> valuable,
+typedef ValuableWatcher = T Function<T>(Valuable<T> valuable,
     {ValuableContext? valuableContext, ValuableWatcherSelector? selector});
-typedef ValuableParentWatcher<T> = T Function(ValuableWatcher<dynamic> watch,
+typedef ValuableParentWatcher<T> = T Function(ValuableWatcher watch,
     {ValuableContext? valuableContext});
 
 /// Shortcut to get a valuable with the value true
@@ -43,6 +44,15 @@ class ValuableContext {
 
   /// Get if the BuildContext [context] is present
   bool get hasBuildContext => context != null;
+
+  /// Redefine equality operator
+  @override
+  bool operator ==(Object other) {
+    return other is ValuableContext && (other.context == context);
+  }
+
+  @override
+  int get hashCode => super.hashCode;
 }
 
 /// Main class Valuable
@@ -74,6 +84,15 @@ class ValuableContext {
 /// where the value is needed.
 abstract class Valuable<Output> extends ChangeNotifier
     with ValuableWatcherMixin {
+  @protected
+  final _ValueCache valueCache = _ValueCache();
+
+  /// Determines if the valuable use the cache or not
+  ///
+  /// If the valuable depends on the ValuableContext provide in the [getValue] method
+  /// then it's not possible to use the cache, because of the volability of the value
+  final bool _evaluateWithContext;
+
   final ValueNotifier<bool> _isMounted;
 
   final Map<Valuable, VoidCallback> _removeListeners =
@@ -81,7 +100,9 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   bool _reevaluatingNeeded = false;
 
-  Valuable() : _isMounted = ValueNotifier(true);
+  Valuable({bool evaluateWithContext = false})
+      : _isMounted = ValueNotifier(true),
+        _evaluateWithContext = evaluateWithContext;
 
   /// Returns if this object is still mounted
   bool get isMounted => _isMounted.value;
@@ -93,27 +114,43 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Factory [Valuable.valuer] to build a Valuable that calculate its own value
   /// through a function.
-  factory Valuable.byValuer(ValuableParentWatcher<Output> valuer) {
+  factory Valuable.byValuer(ValuableParentWatcher<Output> valuer,
+      {bool evaluateWithContext = false}) {
     return _Valuable<Output>.byValuer(valuer);
   }
 
   /// Get the current value of the Valuable
   @mustCallSuper
   Output getValue([ValuableContext? context = const ValuableContext()]) {
+    // Check if the valuable is dependent of the ValuableContext to evaluate
+    // If not, check if it's invalidation phase
+    // If not, check for the cache to be provided
+    // in that case, return cached value rather than reevaluate it
+    if (!_evaluateWithContext &&
+        !_reevaluatingNeeded &&
+        valueCache.isProvided) {
+      return valueCache.currentValue;
+    }
     // Before reading/calculating the value, the watched Valuables tree is cleaned
     // in order to remove the dependencies that may disapear.
     cleanWatched();
 
+    Output value = getValueDefinition(_reevaluatingNeeded, context);
+
+    //
+    if (!_evaluateWithContext) {
+      valueCache.currentValue = value;
+    }
     // We are reevaluating the Valuable, so we can unmark it
     _reevaluatingNeeded = false;
     // After we proceed to get the value, watched Valuables tree will be renewed
-    return getValueDefinition(context);
+    return value;
   }
 
   /// This method should be redefined in ever sub-classes to determine how works
   /// the method [getValue]
   @protected
-  Output getValueDefinition(
+  Output getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? context = const ValuableContext()]);
 
   @protected
@@ -162,7 +199,7 @@ abstract class Valuable<Output> extends ChangeNotifier
     super.dispose();
   }
 
-  Valuable<bool> _getCompare(dynamic? other, CompareOperator ope) {
+  Valuable<bool> _getCompare(dynamic other, CompareOperator ope) {
     Valuable compare;
 
     if (other is Output) {
@@ -180,7 +217,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator >(dynamic? other) {
+  Valuable<bool> operator >(dynamic other) {
     return _getCompare(other, CompareOperator.greater_than);
   }
 
@@ -188,7 +225,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator >=(dynamic? other) {
+  Valuable<bool> operator >=(dynamic other) {
     return _getCompare(other, CompareOperator.greater_or_equals);
   }
 
@@ -196,7 +233,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator <(dynamic? other) {
+  Valuable<bool> operator <(dynamic other) {
     return _getCompare(other, CompareOperator.smaller_than);
   }
 
@@ -204,7 +241,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> operator <=(dynamic? other) {
+  Valuable<bool> operator <=(dynamic other) {
     return _getCompare(other, CompareOperator.smaller_or_equals);
   }
 
@@ -212,7 +249,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> equals(dynamic? other) {
+  Valuable<bool> equals(dynamic other) {
     return _getCompare(other, CompareOperator.equals);
   }
 
@@ -220,22 +257,35 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
-  Valuable<bool> notEquals(dynamic? other) {
+  Valuable<bool> notEquals(dynamic other) {
     return _getCompare(other, CompareOperator.different);
   }
+}
+
+class _ValueCache<Output> {
+  late Output _currentValue;
+  bool _isProvided = false;
+  Output get currentValue => _currentValue;
+  set currentValue(Output value) {
+    _currentValue = value;
+    _isProvided = true;
+  }
+
+  bool get isProvided => _isProvided;
 }
 
 class _Valuable<Output> extends Valuable<Output> {
   final ValuableParentWatcher<Output> valuer;
 
-  _Valuable.byValuer(this.valuer) : super();
+  _Valuable.byValuer(this.valuer, {bool evaluateWithContext = false})
+      : super(evaluateWithContext: evaluateWithContext);
   _Valuable(Output value)
-      : this.byValuer((ValuableWatcher<dynamic> watch,
+      : this.byValuer((ValuableWatcher watch,
                 {ValuableContext? valuableContext}) =>
             value);
 
   @override
-  Output getValueDefinition(
+  Output getValueDefinition(bool reevaluatingNeeded,
           [ValuableContext? context = const ValuableContext()]) =>
       valuer(watch, valuableContext: context);
 }
@@ -252,7 +302,10 @@ class ValuableBoolGroup extends Valuable<bool> {
   /// All the constraints to be used in the group to determine the value
   final List<Valuable<bool>> constraints;
 
-  ValuableBoolGroup._(this.type, this.constraints) : super();
+  ValuableBoolGroup._(this.type, this.constraints)
+      : super(
+            evaluateWithContext:
+                true /* Needed because of the parameter passed to children */);
 
   /// Constructor for an AND logical group
   ValuableBoolGroup.and(List<Valuable<bool>> constraints)
@@ -263,7 +316,7 @@ class ValuableBoolGroup extends Valuable<bool> {
       : this._(_BoolGroupType.or, constraints);
 
   @override
-  bool getValueDefinition(
+  bool getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? valuableContext = const ValuableContext()]) {
     bool retour = type == _BoolGroupType.and;
 
@@ -330,9 +383,12 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
   FutureValuable(Future<Res> future,
       {required this.dataValue,
       required this.noDataValue,
-      required this.errorValue})
+      required this.errorValue,
+      bool evaluateWithContext = false})
       : _future = future,
-        super() {
+        super(
+          evaluateWithContext: evaluateWithContext,
+        ) {
     _future.then((Res value) {
       _isComplete = true;
       _resultValue = value;
@@ -359,7 +415,7 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
                 errorValue);
 
   @override
-  Output getValueDefinition(
+  Output getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? context = const ValuableContext()]) {
     Output retour;
     if (_isComplete) {
@@ -396,14 +452,14 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
 
   late final StreamSubscription _subscription;
 
-  StreamValuable(
-    Stream<Msg> stream, {
-    required this.dataValue,
-    required this.errorValue,
-    required this.doneValue,
-    required Output initialData,
-    bool? cancelOnError,
-  }) : super() {
+  StreamValuable(Stream<Msg> stream,
+      {required this.dataValue,
+      required this.errorValue,
+      required this.doneValue,
+      required Output initialData,
+      bool? cancelOnError,
+      bool evaluateWithContext = false})
+      : super(evaluateWithContext: evaluateWithContext) {
     _currentValuer = (_) => initialData;
     _subscription = stream.listen((Msg data) {
       _changeCurrentValuer(
@@ -423,7 +479,7 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
   }
 
   @override
-  Output getValueDefinition(
+  Output getValueDefinition(bool reevaluatingNeeded,
           [ValuableContext? context = const ValuableContext()]) =>
       _currentValuer(context);
 

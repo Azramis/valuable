@@ -92,7 +92,8 @@ class ValuableCheckbox extends StatelessWidget {
     return ValuableConsumer(
       builder: (BuildContext context, ValuableWatcher watch, Widget? child) {
         bool tristateVal = tristateValuable?.watchIt(context) ?? tristate;
-        bool value = tristateVal ? watch(valuable) : (watch(valuable) ?? false);
+        bool? value =
+            tristateVal ? watch(valuable) : (watch(valuable) ?? false);
 
         return Checkbox(
           value: value,
