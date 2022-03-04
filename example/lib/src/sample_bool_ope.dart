@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
 class SampleBoolOpe extends StatefulWidget {
-  SampleBoolOpe({Key key, this.title}) : super(key: key);
+  const SampleBoolOpe({Key? key, required this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -25,6 +25,7 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
   final StatefulValuable<bool> _cbCheck2 = StatefulValuable<bool>(false);
   final StatefulValuable<bool> _cbCheck3 = StatefulValuable<bool>(false);
 
+  @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -36,7 +37,7 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
         appBar: AppBar(
           // Here we take the value from the SampleBoolOpe object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title ?? ""),
+          title: Text(widget.title),
         ),
         body: Column(
           children: <Widget>[
@@ -44,32 +45,32 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
               builder: (context, watch, _) {
                 return CheckboxListTile(
                     value: watch(_cbCheckSuper),
-                    title: Text("Case Super"),
-                    onChanged: (bool value) => _cbCheckSuper.setValue(value));
+                    title: const Text("Case Super"),
+                    onChanged: (value) => _cbCheckSuper.setValue(value!));
               },
             ),
             ValuableConsumer(
               builder: (context, watch, _) {
                 return CheckboxListTile(
                     value: watch(_cbCheck1 | _cbCheckSuper),
-                    title: Text("Case 1"),
-                    onChanged: (bool value) => _cbCheck1.setValue(value));
+                    title: const Text("Case 1"),
+                    onChanged: (value) => _cbCheck1.setValue(value!));
               },
             ),
             ValuableConsumer(
               builder: (context, watch, _) {
                 return CheckboxListTile(
                     value: watch(_cbCheck2 | _cbCheckSuper),
-                    title: Text("Case 2"),
-                    onChanged: (bool value) => _cbCheck2.setValue(value));
+                    title: const Text("Case 2"),
+                    onChanged: (value) => _cbCheck2.setValue(value!));
               },
             ),
             ValuableConsumer(
               builder: (context, watch, _) {
                 return CheckboxListTile(
                     value: watch(_cbCheck3 | _cbCheckSuper),
-                    title: Text("Case 3"),
-                    onChanged: (bool value) => _cbCheck3.setValue(value));
+                    title: const Text("Case 3"),
+                    onChanged: (value) => _cbCheck3.setValue(value!));
               },
             ),
             ValuableConsumer(builder: (context, watch, _) {

@@ -4,25 +4,26 @@ import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
 
 class HomeMenu extends StatelessWidget {
+  HomeMenu({Key? key}) : super(key: key);
   final List<_MenuItem> menus = <_MenuItem>[
     _MenuItem(
         name: "Checkbox",
         icon: Icons.check_box,
         callback: _callbackPush(
-          (context) => SampleCheckboxWidget(),
+          (context) => const SampleCheckboxWidget(),
         )),
     _MenuItem(
       name: "Text",
       icon: Icons.text_fields,
       callback: _callbackPush(
-        (context) => SampleTextWidget(),
+        (context) => const SampleTextWidget(),
       ),
     ),
     _MenuItem(
       name: "Bool operation",
       icon: Icons.account_tree,
       callback: _callbackPush(
-        (context) => SampleBoolOpe(),
+        (context) => const SampleBoolOpe(title: "Bool operation"),
       ),
     ),
   ];
@@ -46,7 +47,7 @@ class HomeMenu extends StatelessWidget {
       body: GridView.builder(
         itemCount: menus.length,
         gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
         itemBuilder: (BuildContext context, int index) {
           return Card(
             color: Colors.indigoAccent.shade100,
@@ -71,5 +72,9 @@ class _MenuItem {
   final IconData icon;
   final void Function(BuildContext context) callback;
 
-  const _MenuItem({this.name, this.icon, this.callback});
+  const _MenuItem({
+    required this.name,
+    required this.icon,
+    required this.callback,
+  });
 }
