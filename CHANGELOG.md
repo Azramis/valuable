@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.1.2] - 04/03/2022
+
+- Fix an issue that avoid StatefulValuable to provide correct current value
+- Update linter in example, and support windows
+
 ## [0.1.1] - 03/03/2022
 
 - Fix warnings  
