@@ -392,12 +392,12 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
     _future.then((Res value) {
       _isComplete = true;
       _resultValue = value;
-      notifyListeners();
+      markToReevaluate();
     }, onError: (Object error, StackTrace stackTrace) {
       _error = error;
       _stackTrace = stackTrace;
       _isComplete = _isError = true;
-      notifyListeners();
+      markToReevaluate();
     });
   }
 
@@ -475,7 +475,7 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
 
   void _changeCurrentValuer(Output Function(ValuableContext?) newValuer) {
     _currentValuer = newValuer;
-    notifyListeners();
+    markToReevaluate();
   }
 
   @override

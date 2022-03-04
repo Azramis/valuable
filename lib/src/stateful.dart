@@ -18,7 +18,7 @@ class StatefulValuable<T> extends Valuable<T> {
   void setValue(T value) {
     if (_state != value) {
       _state = value;
-      notifyListeners();
+      markToReevaluate();
     }
   }
 
