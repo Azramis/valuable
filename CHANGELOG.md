@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.2.0] - 21/05/2022
+
+- Upgrade Flutter framework minimum version to 3.0.0
+- Upgrade Dart framework minimum version to 2.15.0
+
 ## [0.1.2] - 04/03/2022
 
 - Fix an issue that avoid StatefulValuable to provide correct current value

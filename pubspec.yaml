@@ -1,15 +1,16 @@
 name: valuable
 description: A library to simplify data binding and to allow rebuild just some part of your UI instead of separate your in multiple StatefulWidget.
-version: 0.1.2
+version: 0.2.0
 homepage: https://github.com/Azramis/valuable
 
 environment:
-  sdk: ">=2.14.0 <3.0.0"
-  flutter: ">=2.0.0"
+  sdk: ">=2.15.0 <3.0.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  meta: ^1.7.0
 
 dev_dependencies:
   flutter_test:
