@@ -3,8 +3,8 @@ import 'package:valuable/src/base.dart';
 
 class _ValuableWatchedInfos<T> {
   final VoidCallback callback;
-  final List<ValuableWatcherSelector<T>?> selectors =
-      <ValuableWatcherSelector<T>?>[];
+  final List<ValuableWatcherSelector<T>> selectors =
+      <ValuableWatcherSelector<T>>[];
   T previousWatchedValue;
 
   _ValuableWatchedInfos(
@@ -70,7 +70,7 @@ mixin ValuableWatcherMixin {
 
         bool selectOk;
 
-        List<ValuableWatcherSelector<T>?> selectors = infos.selectors;
+        List<ValuableWatcherSelector<T>> selectors = infos.selectors;
 
         if (selectors.isNotEmpty) {
           // If there are available selectors, we must test them until [selectOk]
@@ -78,9 +78,9 @@ mixin ValuableWatcherMixin {
 
           selectOk = false;
           T previousWatchedValue = infos.previousWatchedValue;
-          for (ValuableWatcherSelector<T>? selector in selectors) {
-            selectOk = selectOk ||
-                (selector?.call(valuable, previousWatchedValue) ?? false);
+          for (ValuableWatcherSelector<T> selector in selectors) {
+            selectOk =
+                selectOk || selector.call(valuable, previousWatchedValue);
 
             if (selectOk) {
               break;
@@ -105,7 +105,7 @@ mixin ValuableWatcherMixin {
   void onValuableChange();
 
   @protected
-  ValuableContext? get valuableContext => null;
+  ValuableContext get valuableContext => const ValuableContext();
 
   @protected
   void cleanWatched() {

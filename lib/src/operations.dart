@@ -47,7 +47,7 @@ class ValuableCompare<T> extends Valuable<bool> {
 
   @override
   bool getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? context = const ValuableContext()]) {
+      [ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
@@ -141,7 +141,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
 
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? context = const ValuableContext()]) {
+      [ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
@@ -248,7 +248,7 @@ class ValuableStringOperation extends Valuable<String> {
 
   @override
   String getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? context = const ValuableContext()]) {
+      [ValuableContext context = const ValuableContext()]) {
     return _compareWithOperator(context);
   }
 
@@ -300,7 +300,7 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
 
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? valuableContext = const ValuableContext()]) {
+      [ValuableContext valuableContext = const ValuableContext()]) {
     bool test = false;
     late Output value;
     if (cases?.isNotEmpty ?? false) {
@@ -343,7 +343,7 @@ class ValuableIf<Output> extends Valuable<Output> {
 
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? valuableContext = const ValuableContext()]) {
+      [ValuableContext valuableContext = const ValuableContext()]) {
     bool test = false;
     late Output value;
 

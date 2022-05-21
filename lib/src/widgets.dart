@@ -48,9 +48,6 @@ class _ValuableConsumerState extends State<ValuableConsumer>
   @override
   void didUpdateWidget(ValuableConsumer old) {
     super.didUpdateWidget(old);
-
-    // remove all previous watched Valuable
-    //cleanWatched();
   }
 
   T _watch<T>(Valuable<T> valuable,

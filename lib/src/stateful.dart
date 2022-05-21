@@ -23,6 +23,6 @@ class StatefulValuable<T> extends Valuable<T> {
   }
 
   T getValueDefinition(bool reevaluatingNeeded,
-          [ValuableContext? context = const ValuableContext()]) =>
+          [ValuableContext context = const ValuableContext()]) =>
       _state;
 }

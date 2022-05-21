@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/exceptions.dart';
 import 'package:valuable/src/mixins.dart';
@@ -40,7 +42,11 @@ class ValuableContext {
   /// Constructor
   ///
   /// [context] is optional
-  const ValuableContext({this.context});
+  const ValuableContext({this.context}) : _callTree = const <Valuable>[];
+
+  const ValuableContext._hierarchy(
+      {required List<Valuable> callTree, this.context})
+      : _callTree = callTree;
 
   /// Get if the BuildContext [context] is present
   bool get hasBuildContext => context != null;
@@ -53,6 +59,8 @@ class ValuableContext {
 
   @override
   int get hashCode => super.hashCode;
+
+  final List<Valuable> _callTree;
 }
 
 /// Main class Valuable
@@ -119,9 +127,15 @@ abstract class Valuable<Output> extends ChangeNotifier
     return _Valuable<Output>.byValuer(valuer);
   }
 
+  ValuableContext generateValuableContext(
+      [ValuableContext context = const ValuableContext()]) {
+    return ValuableContext._hierarchy(
+        callTree: const [], context: context.context);
+  }
+
   /// Get the current value of the Valuable
   @mustCallSuper
-  Output getValue([ValuableContext? context = const ValuableContext()]) {
+  Output getValue([ValuableContext context = const ValuableContext()]) {
     // Check if the valuable is dependent of the ValuableContext to evaluate
     // If not, check if it's invalidation phase
     // If not, check for the cache to be provided
@@ -151,7 +165,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// the method [getValue]
   @protected
   Output getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? context = const ValuableContext()]);
+      [ValuableContext context = const ValuableContext()]);
 
   @protected
   @override
@@ -286,7 +300,7 @@ class _Valuable<Output> extends Valuable<Output> {
 
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
-          [ValuableContext? context = const ValuableContext()]) =>
+          [ValuableContext context = const ValuableContext()]) =>
       valuer(watch, valuableContext: context);
 }
 
@@ -317,7 +331,7 @@ class ValuableBoolGroup extends Valuable<bool> {
 
   @override
   bool getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? valuableContext = const ValuableContext()]) {
+      [ValuableContext valuableContext = const ValuableContext()]) {
     bool retour = type == _BoolGroupType.and;
 
     for (Valuable<bool> constraint in constraints) {
@@ -416,7 +430,7 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
 
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? context = const ValuableContext()]) {
+      [ValuableContext context = const ValuableContext()]) {
     Output retour;
     if (_isComplete) {
       if (_isError) {
@@ -480,7 +494,7 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
 
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
-          [ValuableContext? context = const ValuableContext()]) =>
+          [ValuableContext context = const ValuableContext()]) =>
       _currentValuer(context);
 
   @override
