@@ -1,5 +1,6 @@
 import 'package:example/src/sample_bool_ope.dart';
 import 'package:example/src/sample_checkbox.dart';
+import 'package:example/src/sample_color_picker_widget.dart';
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,13 @@ class HomeMenu extends StatelessWidget {
       icon: Icons.account_tree,
       callback: _callbackPush(
         (context) => const SampleBoolOpe(title: "Bool operation"),
+      ),
+    ),
+    _MenuItem(
+      name: "Color Picker",
+      icon: Icons.account_tree,
+      callback: _callbackPush(
+        (context) => SampleColorPickerWidget(),
       ),
     ),
   ];

@@ -9,9 +9,14 @@ export 'widgets/text.dart';
 export 'widgets/checkbox.dart';
 export 'widgets/dropdown.dart';
 
+/// Contract for the implementation function needed to build [Widget] for a [ValuableConsumer]
 typedef ValuableConsumerBuilder = Widget Function(
     BuildContext context, ValuableWatcher watch, Widget? child);
 
+/// A widget that is used to watch [Valuable] inside a widget tree
+///
+/// It allows to re-build only certain part of a complete widget tree, instead
+/// of calling [State.setState] and re-execute all of the [State.build] method
 class ValuableConsumer extends StatefulWidget {
   final Widget? child;
   final ValuableConsumerBuilder builder;
@@ -98,5 +103,26 @@ extension WidgetValuable<T> on Valuable<T> {
     return state != null
         ? state._watch(this, valuableContext: vContext, selector: selector)
         : this.getValue(vContext);
+  }
+}
+
+abstract class ValuableWidget extends Widget {
+  const ValuableWidget({Key? key}) : super(key: key);
+  @override
+  Element createElement() => ValuableWidgetElement(this);
+
+  Widget build(BuildContext context, ValuableWatcher watch);
+}
+
+class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
+  /// Creates an element that uses the given widget as its configuration.
+  ValuableWidgetElement(ValuableWidget widget) : super(widget);
+
+  @override
+  Widget build() => (widget as ValuableWidget).build(this, this.watch);
+
+  @override
+  void onValuableChange() {
+    markNeedsBuild();
   }
 }
