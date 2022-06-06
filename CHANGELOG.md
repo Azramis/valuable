@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.2.1] - 06/06/2022
+
+- Add a fresh new ValuableWidget which provide a build method with a ValuableWatcher as parameter
+- Downgrade Flutter framework minimum version to 2.0.0 to provide larger compatibility
+- Move on FVM
+
 ## [0.2.0] - 21/05/2022
 
 - Upgrade Flutter framework minimum version to 3.0.0

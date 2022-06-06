@@ -1,5 +1,6 @@
 import 'package:flutter/scheduler.dart';
 import 'package:valuable/src/mixins.dart';
+import 'package:valuable/src/utils.dart';
 import 'package:valuable/valuable.dart';
 
 import 'base.dart';
@@ -71,9 +72,9 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     if (_markNeedBuild == false) {
       _markNeedBuild = true;
 
-      if (SchedulerBinding.instance.schedulerPhase ==
+      if (mitigate(SchedulerBinding.instance)?.schedulerPhase ==
           SchedulerPhase.persistentCallbacks) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        mitigate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
           setState(() {
             _markNeedBuild = false;
           });
