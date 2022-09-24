@@ -22,6 +22,8 @@ class StatefulValuable<T> extends Valuable<T> {
     }
   }
 
+  @override
+  @protected
   T getValueDefinition(bool reevaluatingNeeded,
           [ValuableContext? context = const ValuableContext()]) =>
       _state;

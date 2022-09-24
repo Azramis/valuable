@@ -316,6 +316,7 @@ class ValuableBoolGroup extends Valuable<bool> {
       : this._(_BoolGroupType.or, constraints);
 
   @override
+  @protected
   bool getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? valuableContext = const ValuableContext()]) {
     bool retour = type == _BoolGroupType.and;
@@ -415,6 +416,7 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
                 errorValue);
 
   @override
+  @protected
   Output getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? context = const ValuableContext()]) {
     Output retour;
@@ -479,6 +481,7 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
   }
 
   @override
+  @protected
   Output getValueDefinition(bool reevaluatingNeeded,
           [ValuableContext? context = const ValuableContext()]) =>
       _currentValuer(context);
