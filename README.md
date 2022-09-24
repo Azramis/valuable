@@ -98,6 +98,25 @@ Whenever ``a`` or ``b`` change, ``equality`` is notified, and notify itself all 
     Valuable<bool> equality = a.equals(b);
 ```
 
-It also works, but ``equality`` can only change on ``a`` changes.
+It also works, but ``equality`` notifies only on ``a`` changes.
 
 ### ``StatefulValuable<T>``
+
+As it was said, ``StatefulValuable<T>`` are the most used _Valuable_ as it's the only one we can directly affect.  
+It's instanciated with a value, and can be changed at anytime and anywhere we can access it.  
+At any change, all listeners are notified.
+
+#### Instanciate it
+
+```dart
+    StatefulValuable<int> counter = StatefulValuable<int>(0);
+```
+
+_That's all !_
+
+#### Set it
+
+```dart
+    counter.setValue(1);
+```
+
