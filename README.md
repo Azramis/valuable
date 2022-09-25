@@ -126,7 +126,7 @@ _That's all !_
 
 There are 2 constructors that can be written.
 
-#### Computing one
+#### FutureValuable computing constructor
 
 ```dart
     late final Future<int> distantCounter = ...
@@ -140,7 +140,7 @@ There are 2 constructors that can be written.
 
 This way, we can provide a value, depending of the ``Future<Res>`` state and value.
 
-#### Providing one
+#### FutureValuable providing constructor
 
 This constructor is the simpliest for the case ``Res == Output``, and provide value for waiting and error states.
 
@@ -157,3 +157,21 @@ Then the _Valuable_ always have a correct runtime value, without error managemen
 
 ### ``StreamValuable<Output, Msg>``
 
+``StreamValuable<Output, Msg>`` works exactly the same as ``FutureValuable<Output, Msg>``, but remains on a ``Stream`` instead a ``Future``.
+
+Let show the code directly !
+
+#### StreamValuable computing constructor
+
+```dart
+    late final Stream<int> continuousCounter = ...
+    late final StreamValuable<String, int> continuousCounterStr = StreamValuable<String, int>(
+            continuousCounter,
+            dataValue: (ValuableContext? context, int result) => "$result", // Stream data
+            doneValue: (ValuableContext? context) => "Done.", // Stream done
+            errorValue: (ValuableContext? context, Object error, StackTrace st) => "On error !", // Stream in error
+            initialValue: "0",
+        );
+```
+
+### ```Valuable<T>```
