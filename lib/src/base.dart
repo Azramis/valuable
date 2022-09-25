@@ -360,8 +360,6 @@ typedef ValuableGetFutureLoading<Output> = Output Function(
 /// response of the future
 /// - [noDataValue] will return an [Output] value while the future is still incomplete
 /// - [errorValue] will return an [Output] when the future complete on error
-///
-/// If a function is not provide, then a null value is returned at its place
 class FutureValuable<Output, Res> extends Valuable<Output> {
   final Future<Res> _future;
 
@@ -445,22 +443,33 @@ typedef ValuableGetStreamError<Output> = Output Function(
 /// Method prototype for onDone of the Stream
 typedef ValuableGetStreamDone<Output> = Output Function(ValuableContext?);
 
+/// A Valuable that remains on a Stream<Msg>
+/// 
+/// This object provide a valuer function, for each possible state of the Stream
+/// 
+/// - [dataValue] while the Stream messaging without error
+/// - [errorValue] when the Stream get an error
+/// - [doneValue] when the Stream closes and is done
 class StreamValuable<Output, Msg> extends Valuable<Output> {
+  /// A function to provide an [Output] value on a [Msg] message
   final ValuableGetStreamData<Output, Msg> dataValue;
+  /// A function to provide an [Output] value on an error in the Stream
   final ValuableGetStreamError<Output> errorValue;
+  /// A function to provide an [Output] value when the Stream closes
   final ValuableGetStreamDone<Output> doneValue;
 
   late Output Function(ValuableContext?) _currentValuer;
 
   late final StreamSubscription _subscription;
 
+  /// Constructor to provide each functions
   StreamValuable(Stream<Msg> stream,
       {required this.dataValue,
       required this.errorValue,
       required this.doneValue,
       required Output initialData,
       bool? cancelOnError,
-      bool evaluateWithContext = false})
+      bool evaluateWithContext = false,})
       : super(evaluateWithContext: evaluateWithContext) {
     _currentValuer = (_) => initialData;
     _subscription = stream.listen((Msg data) {
@@ -474,6 +483,25 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
           (ValuableContext? context) => doneValue.call(context));
     }, cancelOnError: cancelOnError);
   }
+
+  /// Constructor to simplify the case when [Output] == [Msg]
+  StreamValuable.values(
+    Stream<Msg> stream,
+    {
+      required Output errorValue,
+      required Output doneValue,
+      required Output initialData,
+      bool? cancelOnError,
+      bool evaluateWithContext = false,
+    }
+  ) : this(stream, 
+    dataValue: (ValuableContext? context, Msg msg) => msg as Output, 
+    errorValue: (ValuableContext? context, Object error, StackTrace st,) => errorValue,
+    doneValue: (ValuableContext? context,) => doneValue,
+    initialData: initialData,
+    cancelOnError: cancelOnError,
+    evaluateWithContext: evaluateWithContext,
+  );
 
   void _changeCurrentValuer(Output Function(ValuableContext?) newValuer) {
     _currentValuer = newValuer;
