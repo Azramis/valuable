@@ -120,3 +120,40 @@ _That's all !_
     counter.setValue(1);
 ```
 
+### ``FutureValuable<Output, Res>``
+
+``FutureValuable<Output, Res>`` have been created in the purpose of computing a ``Future<Res>`` to a safe runtime ``Output`` value. In fact ``FutureValuable<Output, Res>`` inherits ``Valuable<Output>``, so it can used all of its useful methods.
+
+There are 2 constructors that can be written.
+
+#### Computing one
+
+```dart
+    late final Future<int> distantCounter = ...
+    late final FutureValuable<String, int> distantCounterStr = FutureValuable<String, int>(
+            distantCounter,
+            dataValue: (ValuableContext? context, int result) => "My counter is $result", // Future is done
+            noDataValue: (ValuableContext? context) => "Still in progress", // Future is not done yet
+            errorValue: (ValuableContext? context, Object error, StackTrace st) => "Can't retrieve counter !", // Future done in error
+        );
+```
+
+This way, we can provide a value, depending of the ``Future<Res>`` state and value.
+
+#### Providing one
+
+This constructor is the simpliest for the case ``Res == Output``, and provide value for waiting and error states.
+
+```dart
+    late final Future<int> distantCounter = ...
+    late final FutureValuable<int, int> distantCounterVal = FutureValuable<int, int>.values(
+            distantCounter,
+            noDataValue: 0, // Future is not done yet
+            errorValue: -1, // Future done in error
+        );
+```
+
+Then the _Valuable_ always have a correct runtime value, without error management complexity.
+
+### ``StreamValuable<Output, Msg>``
+
