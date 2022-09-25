@@ -341,7 +341,7 @@ class ValuableBoolGroup extends Valuable<bool> {
 
 /// Method prototype for a Future complete
 typedef ValuableGetFutureResult<Output, Res> = Output Function(
-    ValuableContext? context, Res? result);
+    ValuableContext? context, Res result);
 
 /// Method prototype for a Future error
 typedef ValuableGetFutureError<Output> = Output Function(
@@ -376,9 +376,9 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
 
   bool _isComplete = false;
   bool _isError = false;
-  Res? _resultValue;
-  Object? _error;
-  StackTrace? _stackTrace;
+  late final Res _resultValue;
+  late final Object _error;
+  late final StackTrace _stackTrace;
 
   /// Constructor to provide each functions
   FutureValuable(Future<Res> future,
@@ -408,11 +408,11 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
   FutureValuable.values(Future<Res> future,
       {required Output noDataValue, required Output errorValue})
       : this(future,
-            dataValue: (ValuableContext? context, Res? result) =>
+            dataValue: (ValuableContext? context, Res result) =>
                 result as Output,
             noDataValue: (ValuableContext? context) => noDataValue,
             errorValue: (ValuableContext? context, Object error,
-                    StackTrace? stackTrace) =>
+                    StackTrace stackTrace) =>
                 errorValue);
 
   @override
@@ -422,7 +422,7 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
     Output retour;
     if (_isComplete) {
       if (_isError) {
-        retour = errorValue.call(context, _error!, _stackTrace!);
+        retour = errorValue.call(context, _error, _stackTrace);
       } else {
         retour = dataValue.call(context, _resultValue);
       }
@@ -446,9 +446,9 @@ typedef ValuableGetStreamError<Output> = Output Function(
 typedef ValuableGetStreamDone<Output> = Output Function(ValuableContext?);
 
 class StreamValuable<Output, Msg> extends Valuable<Output> {
-  final ValuableGetStreamData dataValue;
-  final ValuableGetStreamError errorValue;
-  final ValuableGetStreamDone doneValue;
+  final ValuableGetStreamData<Output, Msg> dataValue;
+  final ValuableGetStreamError<Output> errorValue;
+  final ValuableGetStreamDone<Output> doneValue;
 
   late Output Function(ValuableContext?) _currentValuer;
 
