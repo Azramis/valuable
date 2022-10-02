@@ -57,7 +57,7 @@ As a _Valuable_ inherits from ``ChangeNotifier``, its value's change can be list
 
 _Obviously, that's not how we'll use it in a Flutter's widget tree, but we'll see that later._
 
-#### Dirty it
+#### Invalidate it
 
 Sometime, it could be useful to mark the _Valuable_ as invalid for it to reevaluate its value.
 
@@ -174,4 +174,48 @@ Let show the code directly !
         );
 ```
 
-### ```Valuable<T>```
+### ``Valuable<T>``
+
+As it was said, ``Valuable<T>`` is the root type of all _Valuable_, but it offer two factories for :
+
+- simple immuable value, to interact with others _Valuable_
+- auto evaluated _Valuable_, that can depend on others _Valuable_
+
+#### Simple immuable value
+
+```dart
+    final Valuable<int> zero = Valuable.value(0);
+```
+
+#### Auto evaluated
+
+```dart
+    final StatefulValuable<int> counter = StatefulValuable<int>(2);
+    final late Valuable<double> halfCounter = Valuable.byValuer((ValuableWatcher watch) => watch(counter) / 2);
+    ...
+    print(halfCounter.getValue()); // Print '1'
+    counter.setValue(3); // halfCounter is notified of this change, marks as invalid, and notifies all its listeners
+    print(halCounter.getValue()); // Print '1.5'
+```
+
+Here comes the real power of _Valuable_.  
+This way, the _Valuables_ can be chained and then the graph is created.  
+The differents states are defined directly by the _Valuable_ valuer and are safely used in the code through it.
+
+## Valuable and the Widget tree
+
+Like any other Flutter state management, _Valuable_ is designed to provide interaction with the Widget tree.  
+Here are the different concepts to use _Valuable_ in Flutter UI:
+
+- ``ValuableConsumer``
+- ``ValuableWidget``
+- ``watchIt`` extension
+
+### ``ValuableConsumer``
+
+This is the most common way to use some _Valuable_ inside the Widget tree, in purpose to produce a reactive UI.  
+Inspired by **Riverpod**, this widget requires a ``ValuableConsumerBuilder`` that provide :
+
+- a ``BuildContext context``
+- a ``T watch(Valuable<T>)`` function to read the value, and especially to register at any changes of the ``Valuable<T>``
+- a ``Widget? child`` that can be passed as optional argument of the ``ValuableConsumer``
