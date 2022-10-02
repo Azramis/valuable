@@ -219,3 +219,41 @@ Inspired by **Riverpod**, this widget requires a ``ValuableConsumerBuilder`` tha
 - a ``BuildContext context``
 - a ``T watch(Valuable<T>)`` function to read the value, and especially to register at any changes of the ``Valuable<T>``
 - a ``Widget? child`` that can be passed as optional argument of the ``ValuableConsumer``
+
+Let the code speaks
+
+```dart
+    final StatefulValuable<Color> myColor = StatefulValuable<Color>(Colors.red);
+
+    Widget build(BuildContext context) {
+        return Column(
+            children: <Widget>[
+                Container(
+                    color: Colors.amber,
+                    width: 100,
+                    height: 100,
+                ),
+                ValuableConsumer(
+                    builder: (BuildContext context, ValuableWatcher watch, _) =>
+                        Container(
+                            color: watch(myColor),
+                            width: 100,
+                            height: 100,
+                        ),
+                ),
+                Row(
+                    children: <Widget>[
+                        TextButton(
+                            onPressed: () => myColor.setValue(Colors.blue),
+                            child: const Text("Blue"),
+                        ),
+                        TextButton(
+                            onPressed: () => myColor.setValue(Colors.red),
+                            child: const Text("Red"),
+                        ),
+                    ],
+                ),
+            ],
+        );               
+    }
+```
