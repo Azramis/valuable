@@ -10,7 +10,7 @@ _Why Valuable ?_
 
  Unlike **Riverpod**, **Valuable** each of its Provider-like is autonomous and remain on itself, it dispatch its own update events.  
  In fact, **Valuable** is a graph state management.  
- It was made to build Widget tree as stateless as possible, with the ability to refresh some part of the tree, without the necessity to split it ton an infinite number of **StatelessWidget**.
+ It was made to build Widget tree as stateless as possible, with the ability to refresh some part of the tree, without the necessity to split it to an infinite number of **StatelessWidget**.
  While **Riverpod** needs to have its Providers global, **Valuable** tends to have its owns local, or in some kind of a ViewModel.
  In my mind, when I built this library, I went with the idea, that **Riverpod** and **Valuable** will not be concurrent, but complementary :
 
@@ -122,7 +122,7 @@ _That's all !_
 
 ### ``FutureValuable<Output, Res>``
 
-``FutureValuable<Output, Res>`` have been created in the purpose of computing a ``Future<Res>`` to a safe runtime ``Output`` value. In fact ``FutureValuable<Output, Res>`` inherits ``Valuable<Output>``, so it can used all of its useful methods.
+``FutureValuable<Output, Res>`` have been created in the purpose of computing a ``Future<Res>`` to a safe runtime ``Output`` value. In fact ``FutureValuable<Output, Res>`` inherits ``Valuable<Output>``, so it can use all of its useful methods.
 
 There are 2 constructors that can be written.
 
@@ -257,3 +257,139 @@ Let the code speaks
         );               
     }
 ```
+
+In this example, we build an UI with 2 colored squares and 2 buttons.  
+The first square is designed to never change, whereas the second can changed its color when we pressed either of the buttons.  
+When we set the value of ``myColor`` by pressing a button, **only** the ``builder`` of the ``ValuableConsumer`` is played again in order to change the color.  
+This way, we create a databinding between ``myColor`` and the UI.
+
+### ``ValuableWidget``
+
+In some cases, you may want to define a reusable Widget that depends on one or more _Valuable_.  
+``ValuableWidget`` exists for this reason. It's exactly the same as declare a new ``StatelessWidget`` where the built Widget is a ``ValuableConsumer``, but without the boilerplate.  
+
+Instead, ``ValuableWidget.build`` gains access to the function ``watch`` as it exists in the ``ValuableConsumer.builder``.
+
+Let's redo the same code as above, but isolate the ``ValuableConsumer`` as Widget, to reuse it later.
+
+```dart
+
+    class ColoredSquare extends ValuableWidget {
+        /// No need to know that is a StatefulValuable or other, only need to depend on a Valuable<Color>
+        final Valuable<Color> myColor;
+
+        const ColoredSquare({
+                required this.myColor,
+                Key? key,
+            }) : super(key: key);
+
+        Widget build(BuildContext context, ValuableWatcher watch) {
+            return Container(
+                        color: watch(myColor),
+                        width: 100,
+                        height: 100,
+                    );
+        }    
+    }
+```
+
+and then use it
+
+```dart
+    final StatefulValuable<Color> myColor = StatefulValuable<Color>(Colors.red);
+
+    Widget build(BuildContext context) {
+        return Column(
+            children: <Widget>[
+                Container(
+                    color: Colors.amber,
+                    width: 100,
+                    height: 100,
+                ),
+                ColoredSquare(
+                    myColor: myColor,
+                ),
+                Row(
+                    children: <Widget>[
+                        TextButton(
+                            onPressed: () => myColor.setValue(Colors.blue),
+                            child: const Text("Blue"),
+                        ),
+                        TextButton(
+                            onPressed: () => myColor.setValue(Colors.red),
+                            child: const Text("Red"),
+                        ),
+                    ],
+                ),
+            ],
+        );               
+    }
+```
+
+The behavior is the same, but we gain the possibility to reuse the ``ColoredSquare`` and to separe the concerns.  
+
+### ``watchIt``
+
+This is an extension on ``Valuable<T>``, that allows to retrieve the closest ``ValuableConsumer`` in the tree and use its ``watch`` function to read the value and to subscribe to the _Valuable_ changes.  
+If no ``ValuableConsumer`` are found in the tree, the value is simply returned to avoid runtime error.  
+
+Code sample
+
+```dart
+    final StatefulValuable<Color> myColor = StatefulValuable<Color>(Colors.red);
+
+    Widget build(BuildContext context) {
+        return Column(
+            children: <Widget>[
+                Container(
+                    color: Colors.amber,
+                    width: 100,
+                    height: 100,
+                ),
+                Container(
+                        color: myColor.watchIt(context),
+                        width: 100,
+                        height: 100,
+                    ),
+                ),
+                Row(
+                    children: <Widget>[
+                        TextButton(
+                            onPressed: () => myColor.setValue(Colors.blue),
+                            child: const Text("Blue"),
+                        ),
+                        TextButton(
+                            onPressed: () => myColor.setValue(Colors.red),
+                            child: const Text("Red"),
+                        ),
+                    ],
+                ),
+            ],
+        );               
+    }
+```
+
+The usage of this method **is not encouraged**.  
+It can be useful in some cases, but it doesnt separe the rebuilt parts and tends to invalidate to much UI (performance shortage). Use at your own risks.  
+
+## Go deeper
+
+Some explanations to go deeper with _Valuable_
+
+### Extensions
+
+The library defines few extensions to add some functionality to certain generic types of _Valuable_.  
+It can be operators, but methods too.  
+It often results in a _Valuable_ that can be notified from the source _Valuable_, in order to reevaluate itself.
+
+The simpliest extensions are listed there.
+
+#### ``Valuable<bool>``
+
+- ``&`` operator between 2 ``Valuable<bool>`` to create a ``Valuable<bool>`` that result of an **and** operation.
+- ``|`` operator, to create a ``Valuable<bool>`` that result of an **or** operation.
+- ``negation()`` method, generate a ``Valuable<bool>`` that is the negation of the caller.
+
+#### ``Valuable<T extends num>``
+
+- ``+``operator that produces a ``Valuable<num>``, result of the sum.
