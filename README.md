@@ -392,4 +392,47 @@ The simpliest extensions are listed there.
 
 #### ``Valuable<T extends num>``
 
-- ``+``operator that produces a ``Valuable<num>``, result of the sum.
+- ``+`` operator that produces a ``Valuable<num>``, result of the sum.
+- ``-`` operator that produces a ``Valuable<num>``, result of the substraction.
+- ``*`` operator that produces a ``Valuable<num>``, result of the multiplication.
+- ``/`` operator that produces a ``Valuable<double>``, result of the division.
+- ``%`` operator that produces a ``Valuable<num>``, result of the modulo.
+- ``~/`` operator that produces a ``Valuable<int>``, result of the integer division.
+- ``-Valuable<num>`` that produces a ``Valuable<num>``, that is the negated value.
+
+#### ``Valuable<String>``
+
+- ``+`` operator that produces a ``Valuable<String>``, result of the concatenation between two ``Valuable<String>``
+
+#### ``StatefulValuable<bool>``
+
+- ``negate()`` that changes the value to the opposite boolean value
+
+#### ``StatefulValuable<num>``
+
+- ``negate()`` that applies a ``-1`` factor to the value
+- ``add(num other)`` that changes the value by adding ``other`` to current value
+- ``substract(num other)`` that changes the value by substracting ``other`` to current value
+- ``multiply(num other)`` that changes the value by multiplying ``other`` with current value
+
+#### ``StatefulValuable<int>``
+
+- ``increment()`` add one to current value
+- ``decrement()`` substract one to current value
+- ``divide(num other)`` that changes the value with an integer division by ``other``
+
+#### ``StatefulValuable<double>``
+
+- ``divide(num other)`` that changes by dividing current value with ``other``
+
+### Operations
+
+#### ``ValuableCompare<T>``
+
+#### ``ValuableNumOperation<Output extends num>``
+
+#### ``ValuableStringOperation``
+
+#### ``ValuableSwitch<Switch, Output>``
+
+#### ``ValuableIf<Output>``
