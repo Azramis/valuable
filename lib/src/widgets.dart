@@ -75,11 +75,13 @@ class _ValuableConsumerState extends State<ValuableConsumer>
       if (mitigate(SchedulerBinding.instance)?.schedulerPhase ==
           SchedulerPhase.persistentCallbacks) {
         mitigate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
-          setState(() {
-            _markNeedBuild = false;
-          });
+          if (mounted) {
+            setState(() {
+              _markNeedBuild = false;
+            });
+          }          
         });
-      } else {
+      } else if (mounted) {
         setState(() {
           _markNeedBuild = false;
         });
@@ -125,5 +127,18 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
   @override
   void onValuableChange() {
     markNeedsBuild();
+  }
+
+  @protected
+  ValuableContext get valuableContext => ValuableContext(context: this);
+
+  @override
+  @mustCallSuper
+  void unmount() {
+    super.unmount();
+
+    // When the element is unmounted, it should clean all listened Valuable
+    // to avoid error-prone callback from Valuable update
+    cleanWatched();
   }
 }
