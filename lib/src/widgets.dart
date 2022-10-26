@@ -128,4 +128,14 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
   void onValuableChange() {
     markNeedsBuild();
   }
+
+  @override
+  @mustCallSuper
+  void unmount() {
+    super.unmount();
+
+    // When the element is unmounted, it should clean all listened Valuable
+    // to avoid error-prone callback from Valuable update
+    cleanWatched();
+  }
 }
