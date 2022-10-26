@@ -79,7 +79,7 @@ class _ValuableConsumerState extends State<ValuableConsumer>
             setState(() {
               _markNeedBuild = false;
             });
-          }          
+          }
         });
       } else if (mounted) {
         setState(() {

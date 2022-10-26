@@ -4,7 +4,7 @@
 
 _What is Valuable ?_  
 
- Valuable is another state management library (one more...), it takes its roots from [Riverpod]([https://](https://riverpod.dev/fr/)) and from which it is inspired.
+ Valuable is another state management library (one more...), it takes its roots from [Riverpod](https://riverpod.dev/fr/) and from which it is inspired.
 
 _Why Valuable ?_
 
