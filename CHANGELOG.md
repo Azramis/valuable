@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.2.2+1] - 26/10/2022
+
+- Fixes to pub.dev score
+
 ## [0.2.2] - 26/10/2022
 
 - Fixes to clean watched Valuable
