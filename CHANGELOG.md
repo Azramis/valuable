@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [0.2.2] - 26/10/2022
+
+- Fixes to clean watched Valuable
+- Fix to provide a ``ValuableContext`` on ``ValuableWidget``
+- Add a ``Valuable.listenable`` to link a Valuable to ``ValueListenable``
+- Add a ``map`` method on ``Valuable`` to transform ``Output`` type to ``Other``
+
 ## [0.2.1] - 06/06/2022
 
 - Add a fresh new ValuableWidget which provide a build method with a ValuableWatcher as parameter
