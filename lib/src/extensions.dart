@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/stateful.dart';
@@ -445,4 +446,10 @@ extension DoubleStateOperations on StatefulValuable<double> {
   void divide(num other) {
     setValue(this.getValue() / other);
   }
+}
+
+/// Method to transform a [ValueListenable] to a [Valuable]
+extension ValueListenableValuable<T> on ValueListenable<T> {
+  /// Method to transform a [ValueListenable] to a [Valuable]
+  Valuable<T> toValuable() => Valuable.listenable(this);
 }

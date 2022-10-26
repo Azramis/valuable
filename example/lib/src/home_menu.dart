@@ -1,3 +1,4 @@
+import 'package:example/src/sample_animation.dart';
 import 'package:example/src/sample_bool_ope.dart';
 import 'package:example/src/sample_checkbox.dart';
 import 'package:example/src/sample_color_picker_widget.dart';
@@ -32,6 +33,13 @@ class HomeMenu extends StatelessWidget {
       icon: Icons.account_tree,
       callback: _callbackPush(
         (context) => SampleColorPickerWidget(),
+      ),
+    ),
+    _MenuItem(
+      name: "Animation",
+      icon: Icons.animation,
+      callback: _callbackPush(
+        (context) => const SampleAnimation(),
       ),
     ),
   ];
