@@ -75,11 +75,13 @@ class _ValuableConsumerState extends State<ValuableConsumer>
       if (mitigate(SchedulerBinding.instance)?.schedulerPhase ==
           SchedulerPhase.persistentCallbacks) {
         mitigate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
-          setState(() {
-            _markNeedBuild = false;
-          });
+          if (mounted) {
+            setState(() {
+              _markNeedBuild = false;
+            });
+          }          
         });
-      } else {
+      } else if (mounted) {
         setState(() {
           _markNeedBuild = false;
         });
