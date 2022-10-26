@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/exceptions.dart';
@@ -112,12 +113,17 @@ abstract class Valuable<Output> extends ChangeNotifier
     return _Valuable<Output>(value);
   }
 
-  /// Factory [Valuable.valuer] to build a Valuable that calculate its own value
+  /// Factory [Valuable.byValuer] to build a Valuable that calculate its own value
   /// through a function.
   factory Valuable.byValuer(ValuableParentWatcher<Output> valuer,
       {bool evaluateWithContext = false}) {
     return _Valuable<Output>.byValuer(valuer);
   }
+
+  /// Factory [Valuable.listenable] to build a Valuable that listen
+  /// to a [ValueListenable] and provide its value
+  factory Valuable.listenable(ValueListenable<Output> listenable) =>
+    _ValuableListenable(listenable);
 
   /// Get the current value of the Valuable
   @mustCallSuper
@@ -198,6 +204,18 @@ abstract class Valuable<Output> extends ChangeNotifier
 
     super.dispose();
   }
+
+  /// A method to map a Valuable from [Output] to [Other]
+  Valuable<Other> map<Other>(Other Function(Output) toElement) =>
+    Valuable.byValuer(
+      (watch, {valuableContext}) => 
+        toElement(
+          watch(
+            this, 
+            valuableContext: valuableContext,
+          ),
+        ),
+      );
 
   Valuable<bool> _getCompare(dynamic other, CompareOperator ope) {
     Valuable compare;
@@ -288,6 +306,25 @@ class _Valuable<Output> extends Valuable<Output> {
   Output getValueDefinition(bool reevaluatingNeeded,
           [ValuableContext? context = const ValuableContext()]) =>
       valuer(watch, valuableContext: context);
+}
+
+/// A [Valuable] linked to [ValueListenable] to provide a value
+class _ValuableListenable<T> extends Valuable<T> {
+  final ValueListenable<T> _listenable;
+
+  _ValuableListenable(this._listenable) : super(evaluateWithContext: false) {
+    _listenable.addListener(markToReevaluate);
+  }
+  
+  @override
+  T getValueDefinition(bool reevaluatingNeeded, 
+    [ValuableContext? context = const ValuableContext()]) => _listenable.value;
+
+  @override
+  void dispose(){
+    super.dispose();
+    _listenable.removeListener(markToReevaluate); // Unlink from the _listenable 
+  }  
 }
 
 enum _BoolGroupType { and, or }
