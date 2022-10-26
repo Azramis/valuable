@@ -129,6 +129,9 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
     markNeedsBuild();
   }
 
+  @protected
+  ValuableContext get valuableContext => ValuableContext(context: this);
+
   @override
   @mustCallSuper
   void unmount() {
