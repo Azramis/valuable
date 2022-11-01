@@ -1,7 +1,5 @@
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:valuable/valuable.dart';
 
 class SampleHistory extends StatefulWidget {
@@ -16,11 +14,6 @@ class _SampleHistoryState extends State<SampleHistory> {
       StatefulValuable<double>(0).historizeRW();
   final ReWritableHistorizedValuable<double> operand2 =
       StatefulValuable<double>(0).historizeRW();
-
-  /*final StatefulValuable<double> operand1 =
-      StatefulValuable<double>(0);
-  final StatefulValuable<double> operand2 =
-      StatefulValuable<double>(0);*/
 
   late final HistorizedValuable<num> result = (operand1 * operand2).historize();
   @override
@@ -107,8 +100,11 @@ class _ValuableMultiplicatorOperand extends ValuableWidget {
 
   const _ValuableMultiplicatorOperand(
       {required this.operand,
+      // ignore: unused_element
       this.minValue = 0,
+      // ignore: unused_element
       this.maxValue = 9,
+      // ignore: unused_element
       this.divisions = 9});
 
   @override
