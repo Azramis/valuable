@@ -6,10 +6,6 @@ import 'package:valuable/valuable.dart';
 import 'base.dart';
 import 'package:flutter/material.dart';
 
-export 'widgets/text.dart';
-export 'widgets/checkbox.dart';
-export 'widgets/dropdown.dart';
-
 /// Contract for the implementation function needed to build [Widget] for a [ValuableConsumer]
 typedef ValuableConsumerBuilder = Widget Function(
     BuildContext context, ValuableWatcher watch, Widget? child);
