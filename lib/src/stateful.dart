@@ -24,12 +24,15 @@ abstract class StatefulValuable<Output> extends Valuable<Output> {
 }
 
 /// Provide some method implementations to fullfil [StatefulValuable] contract
-mixin StatefulValuableMixin<Output> on Valuable<Output> implements StatefulValuable<Output> {
+mixin StatefulValuableMixin<Output> on Valuable<Output>
+    implements StatefulValuable<Output> {
   @override
-  HistorizedStatefulValuable<Output> historize() => HistorizedStatefulValuable<Output>(this);
+  HistorizedStatefulValuable<Output> historize() =>
+      HistorizedStatefulValuable<Output>(this);
 
   @override
-  ReWritableHistorizedValuable<Output> historizeRW() => ReWritableHistorizedValuable<Output>(this);
+  ReWritableHistorizedValuable<Output> historizeRW() =>
+      ReWritableHistorizedValuable<Output>(this);
 
   @override
   @protected

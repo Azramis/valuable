@@ -33,7 +33,7 @@ class ValuableText extends ValuableWidget {
   final Valuable<String> textValuable;
 
   const ValuableText(this.textValuable, {Key? key}) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context, ValuableWatcher watch) {
     return Text(watch(textValuable));
