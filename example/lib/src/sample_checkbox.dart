@@ -38,3 +38,16 @@ class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget> {
     );
   }
 }
+
+class ValuableCheckbox extends ValuableWidget {
+  final StatefulValuable<bool?> valuable;
+
+  const ValuableCheckbox({required this.valuable, Key? key}) : super(key: key,);
+  
+  @override
+  Widget build(BuildContext context, ValuableWatcher watch) {
+    return Checkbox(value: watch(valuable), onChanged: valuable.setValue,);
+  }
+
+
+}
