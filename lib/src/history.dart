@@ -72,7 +72,7 @@ class _HistorizedValuable<T> extends Valuable<T>
 }
 
 class _HistorizedStatefulValuable<T> extends Valuable<T>
-    with _HistorizedValuableMixin<T>, StatefulValuableMixin
+    with StatefulValuableMixin, _HistorizedValuableMixin<T>
     implements HistorizedStatefulValuable<T> {
   final StatefulValuable<T> _valuable;
 
@@ -129,6 +129,9 @@ abstract class ReWritableHistorizedValuable<T>
   /// Go forward in history
   void redo();
 
+  /// Current index position for the history pointer
+  int get currentHistoryHead;
+
   factory ReWritableHistorizedValuable(StatefulValuable<T> valuable) =>
       _ReWritableHistorizedValuable<T>(valuable);
 }
@@ -138,6 +141,9 @@ class _ReWritableHistorizedValuable<T> extends _HistorizedStatefulValuable<T>
   int _currentHistoryHead = -1;
 
   _ReWritableHistorizedValuable(StatefulValuable<T> valuable) : super(valuable);
+
+  @override
+  int get currentHistoryHead => _currentHistoryHead;
 
   @override
   void setValue(T value) {
@@ -154,6 +160,10 @@ class _ReWritableHistorizedValuable<T> extends _HistorizedStatefulValuable<T>
     _currentHistoryHead =
         _history.length - 1; // Always reposition by current history length
   }
+
+  @override
+  bool _shouldHistorize(T value) => (_history.isEmpty ||
+      _history.elementAt(_currentHistoryHead).value != value);
 
   void _eraseHistoryBeyondHead() {
     while (_currentHistoryHead < (_history.length - 1)) {
@@ -182,7 +192,7 @@ class _ReWritableHistorizedValuable<T> extends _HistorizedStatefulValuable<T>
 
   void _setValueFromHeadHistory() {
     ValuableHistoryNode<T> node = _history.elementAt(_currentHistoryHead);
-    setValue(
+    super.setValue(
         node.value); // History will not change, as the values will be the same
   }
 }
