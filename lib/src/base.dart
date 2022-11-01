@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/exceptions.dart';
+import 'package:valuable/src/history.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/widgets.dart';
@@ -193,6 +194,9 @@ abstract class Valuable<Output> extends ChangeNotifier
   void listenDispose(VoidCallback onDispose) {
     _isMounted.addListener(onDispose);
   }
+
+  /// Build an [HistorizedValuable] based on this Valuable
+  HistorizedValuable<Output> historize() => HistorizedValuable<Output>(this);
 
   /// Should be called to clean all links to other Valuables, and all the rest
   @override
