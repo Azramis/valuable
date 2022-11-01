@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/collections.dart';
+import 'package:valuable/src/linker.dart';
 import 'package:valuable/src/stateful.dart';
 
 /// Contract class for Valuable that can maintain an history
@@ -33,6 +34,12 @@ abstract class HistorizedStatefulValuable<T>
       _HistorizedStatefulValuable<T>(valuable);
 }
 
+abstract class HistorizedValuableLinker<T>
+    implements ValuableLinker<T>, HistorizedValuable<T> {
+  factory HistorizedValuableLinker(ValuableLinker<T> valuable) =>
+      _HistorizedValuableLinker<T>(valuable);
+}
+
 mixin _HistorizedValuableMixin<T> on Valuable<T> {
   Valuable<T> get _innerValuable;
 
@@ -58,21 +65,27 @@ mixin _HistorizedValuableMixin<T> on Valuable<T> {
 
   UnmodifiableQueueView<ValuableHistoryNode<T>> get history =>
       UnmodifiableQueueView(_history);
+
+  void _registerAutodispose() {
+    _innerValuable.listenDispose(dispose);
+  }
 }
 
 class _HistorizedValuable<T> extends Valuable<T>
-    with _HistorizedValuableMixin
+    with _HistorizedValuableMixin<T>
     implements HistorizedValuable<T> {
   final Valuable<T> _valuable;
 
-  _HistorizedValuable(this._valuable);
+  _HistorizedValuable(this._valuable) {
+    _registerAutodispose();
+  }
 
   @override
   Valuable<T> get _innerValuable => _valuable;
 }
 
 class _HistorizedStatefulValuable<T> extends Valuable<T>
-    with StatefulValuableMixin, _HistorizedValuableMixin<T>
+    with StatefulValuableMixin<T>, _HistorizedValuableMixin<T>
     implements HistorizedStatefulValuable<T> {
   final StatefulValuable<T> _valuable;
 
@@ -81,6 +94,7 @@ class _HistorizedStatefulValuable<T> extends Valuable<T>
     if (_shouldHistorize(_valuable.state)) {
       _historize(_valuable.state);
     }
+    _registerAutodispose();
   }
 
   @override
@@ -96,6 +110,35 @@ class _HistorizedStatefulValuable<T> extends Valuable<T>
 
   @override
   T get state => _valuable.state;
+}
+
+class _HistorizedValuableLinker<T> extends Valuable<T>
+    with ValuableLinkerMixin<T>, _HistorizedValuableMixin<T>
+    implements HistorizedValuableLinker<T> {
+  final ValuableLinker<T> _valuable;
+
+  _HistorizedValuableLinker(this._valuable) {
+    _registerAutodispose();
+  }
+
+  @override
+  Valuable<T> get _innerValuable => _valuable;
+
+  @override
+  T get defaultValue => _valuable.defaultValue;
+
+  @override
+  void link(Valuable<T> valuable) {
+    _valuable.link(valuable);
+  }
+
+  @override
+  Valuable<T>? get linkedValuable => _valuable.linkedValuable;
+
+  @override
+  void unlink() {
+    _valuable.unlink();
+  }
 }
 
 /// Contract class for StatefulValuable that provide rewritable history management
