@@ -24,13 +24,13 @@ abstract class HistorizedValuable<T> implements Valuable<T> {
   UnmodifiableQueueView<ValuableHistoryNode<T>> get history;
 
   factory HistorizedValuable(Valuable<T> valuable) =>
-      _HistorizedValuable(valuable);
+      _HistorizedValuable<T>(valuable);
 }
 
 abstract class HistorizedStatefulValuable<T>
     implements StatefulValuable<T>, HistorizedValuable<T> {
   factory HistorizedStatefulValuable(StatefulValuable<T> valuable) =>
-      _HistorizedStatefulValuable(valuable);
+      _HistorizedStatefulValuable<T>(valuable);
 }
 
 mixin _HistorizedValuableMixin<T> on Valuable<T> {
