@@ -453,3 +453,23 @@ extension ValueListenableValuable<T> on ValueListenable<T> {
   /// Method to transform a [ValueListenable] to a [Valuable]
   Valuable<T> toValuable() => Valuable.listenable(this);
 }
+
+/// Provide extension on ValuableWatcher
+extension ValuableWatcherExtension on ValuableWatcher {
+  /// Method to manage a Nullable Valuable with a default value if it's null
+  T def<T>(
+    Valuable<T>? valuable,
+    T defaultValue, {
+    ValuableContext? valuableContext,
+    ValuableWatcherSelector? selector,
+  }) {
+    if (valuable != null) {
+      return this(
+        valuable,
+        valuableContext: valuableContext,
+        selector: selector,
+      );
+    }
+    return defaultValue;
+  }
+}

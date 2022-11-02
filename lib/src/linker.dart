@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
+import 'package:valuable/src/extensions.dart';
 import 'package:valuable/src/history.dart';
 
 /// A special Valuable that can link to another Valuable to provide a value
@@ -24,16 +25,14 @@ abstract class ValuableLinker<Output> extends Valuable<Output> {
       _ValuableLinkerImpl<Output>(defaultValue);
 }
 
+/// Provide some method implementations to fullfil [ValuableLinker] contract
 mixin ValuableLinkerMixin<Output> on Valuable<Output>
     implements ValuableLinker<Output> {
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
       [ValuableContext? context = const ValuableContext()]) {
-    if (linkedValuable != null) {
-      return watch(linkedValuable!);
-    }
-
-    return defaultValue;
+    return watch.def(linkedValuable, defaultValue,
+        valuableContext: valuableContext);
   }
 
   @override

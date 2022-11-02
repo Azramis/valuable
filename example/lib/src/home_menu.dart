@@ -3,6 +3,7 @@ import 'package:example/src/sample_bool_ope.dart';
 import 'package:example/src/sample_checkbox.dart';
 import 'package:example/src/sample_color_picker_widget.dart';
 import 'package:example/src/sample_history.dart';
+import 'package:example/src/sample_linker.dart';
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
 
@@ -48,6 +49,13 @@ class HomeMenu extends StatelessWidget {
       icon: Icons.history,
       callback: _callbackPush(
         (context) => const SampleHistory(),
+      ),
+    ),
+    _MenuItem(
+      name: "Linker",
+      icon: Icons.link,
+      callback: _callbackPush(
+        (context) => const SampleLinker(),
       ),
     ),
   ];
