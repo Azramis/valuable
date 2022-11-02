@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.0.0] - 02/11/2022
+
+- 1.0.0 release ! 🎉🎉🎉
+- Add ``HistorizedValuable`` feature
+- Add ``ValuableLinker`` feature
+- Add a ``def`` extension method on ``ValuableWatcher`` to manage nullable _Valuable_
+- Enhance the README.md
+
 ## [0.2.2+1] - 26/10/2022
 
 - Fixes to pub.dev score
