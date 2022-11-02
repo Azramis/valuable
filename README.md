@@ -187,6 +187,13 @@ As it was said, ``Valuable<T>`` is the root type of all _Valuable_, but it offer
     final Valuable<int> zero = Valuable.value(0);
 ```
 
+#### Link to a ``ValueListenable``
+
+```dart
+    late final AnimatedController controller = AnimatedController();
+    late final Valuable<double> vcont = Valuable<double>.listenable(controller);
+```
+
 #### Auto evaluated
 
 ```dart
@@ -201,6 +208,50 @@ As it was said, ``Valuable<T>`` is the root type of all _Valuable_, but it offer
 Here comes the real power of _Valuable_.  
 This way, the _Valuables_ can be chained and then the graph is created.  
 The differents states are defined directly by the _Valuable_ valuer and are safely used in the code through it.
+
+### Some special _Valuable_
+
+There are some special derivatives of _Valuable_, that can not really define how to get a value.  
+These just link to another _Valuable_ to let it provide the value, but instead they allow extra behaviors.
+
+#### ValuableLinker
+
+The ``ValuableLinker`` is just an other _Valuable_, that just needs to have a default value.  
+But its main purpose is to link to another _Valuable_ of the same generic type, to watch and provide a value.  
+
+This way, we can delegate to a deeper node of the widget tree, the management of a _Valuable_ (that follows an ``Animation`` for example), and pass through the tree, a ``ValuableLinker`` to link to it.  
+The linker became aware of any _Valuable_ changes !
+
+Two methods are available on ``ValuableLinker<T>``, ``link(Valuable<T>)`` and ``unlink()``.  
+As it was said, the main purpose of this class is to link to an other _Valuable_, but ``ValuableLinker`` can't link if already linked. In this case, a ``StateError`` is thrown.  
+You shall unlink the ``ValuableLinker`` before reuse the ``link`` method (it was an arbitrary choice to make it explicit).
+
+For a complete example, just refer to [sample_linker.dart](example/lib/src/sample_linker.dart) in the example.
+
+#### HistorizedValuable
+
+``HistorizedValuable`` is the contract class to describe a _Valuable_ that can maintain an history for all values of a _Valuable_.  
+
+Historize a _Valuable_ is as simple as this:
+
+```dart
+    final historized = Valuable<T>().historize();
+```
+
+The ``historize()`` is available on the ``Valuable`` base type.
+
+``HistorizedValuable`` is derivated to ``HistorizedStatefulValuable`` to historize the ``StatefulValuable`` and ``HistorizedValuableLinker`` to historize ``ValuableLinker``. This way, it can provide the transitive methods to each types (``setValue``, ``link``, etc.).
+
+``HistorizedValuable`` provide an ``UnmodifiableQueueView<ValuableHistoryNode> get history`` accessor, that list all history node for a _Valuable_.
+
+``StatefulValuable`` comes with an ``historizeRW`` method too. This method provide a ``ReWritableHistorizedValuable`` that is a ``StatefulValuable`` with extra methods/accessor to play with history:
+
+- ``canUndo``, accessor to know if undo is possible
+- ``canRedo``, accessor to know if redo is possible
+- ``undo()``, that set the value to the previous in the history
+- ``redo()``, that set the value to the next value in the history
+
+Take a look to the great example in [sample_history.dart](example/lib/src/sample_history.dart)
 
 ## Valuable and the Widget tree
 
@@ -425,6 +476,14 @@ The simpliest extensions are listed there.
 
 - ``divide(num other)`` that changes by dividing current value with ``other``
 
+#### ``ValueListenable<T>``
+
+- ``toValuable`` provide a ``Valuable<T>`` by calling ``Valuable<T>.listenable(this)``
+
+#### ``ValuableWatcher``
+
+- ``T def<T>(Valuable<T>? valuable, T defaultValue)`` that extends the behavior of a ``ValuableWatcher`` to be used with a Nullable _Valuable_
+  
 ### Operations
 
 #### ``ValuableCompare<T>``
