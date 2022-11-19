@@ -2,3 +2,5 @@ example/build/
 example/windows/
 example/android/
 example/ios/
+example/linux/
+example/macos/
