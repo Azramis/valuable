@@ -248,8 +248,10 @@ The ``historize()`` is available on the ``Valuable`` base type.
 
 - ``canUndo``, accessor to know if undo is possible
 - ``canRedo``, accessor to know if redo is possible
+- ``undoToInitial()``, that set the value to initial value in the history
 - ``undo()``, that set the value to the previous in the history
 - ``redo()``, that set the value to the next value in the history
+- ``redoToCurrent()``, that set the value to latest value (current) in the history
 
 Take a look to the great example in [sample_history.dart](example/lib/src/sample_history.dart)
 
