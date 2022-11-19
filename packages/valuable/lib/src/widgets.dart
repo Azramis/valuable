@@ -114,6 +114,8 @@ abstract class ValuableWidget extends Widget {
 }
 
 class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
+  bool _mounted=false;
+
   /// Creates an element that uses the given widget as its configuration.
   ValuableWidgetElement(ValuableWidget widget) : super(widget);
 
@@ -122,7 +124,17 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
 
   @override
   void onValuableChange() {
-    markNeedsBuild();
+    if (mitigate(SchedulerBinding.instance)?.schedulerPhase ==
+          SchedulerPhase.persistentCallbacks) {
+        mitigate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
+          if (_mounted) {
+            markNeedsBuild();
+          }
+        });
+      } else if (_mounted) {
+        markNeedsBuild();
+      }
+    
   }
 
   @protected
@@ -130,8 +142,17 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
 
   @override
   @mustCallSuper
+  void mount(Element? parent, Object? newSlot) {
+    super.mount(parent, newSlot);
+    _mounted = true;
+  }
+
+  @override
+  @mustCallSuper
   void unmount() {
     super.unmount();
+
+    _mounted = false;
 
     // When the element is unmounted, it should clean all listened Valuable
     // to avoid error-prone callback from Valuable update
