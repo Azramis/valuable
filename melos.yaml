@@ -1,0 +1,12 @@
+name: valuable
+repository: https://github.com/Azramis/valuable
+sdkPath: .fvm/flutter_sdk
+packages:
+  - packages/*
+
+command:
+  bootstrap:
+    usePubspecOverrides: false
+
+  version:
+    branch: master
