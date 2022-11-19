@@ -160,10 +160,10 @@ class _HistorizedValuableLinker<T> extends Valuable<T>
 /// so that every value can be retrieve from history.
 abstract class ReWritableHistorizedValuable<T>
     implements HistorizedStatefulValuable<T> {
-  /// Tests if [undo] may be applied
+  /// Tests if [undo] or [undoToInitial] may be applied
   bool get canUndo;
 
-  /// Tests if [redo] may be applied
+  /// Tests if [redo] or [redoToCurrent] may be applied
   bool get canRedo;
 
   /// Go backward in history
@@ -171,6 +171,12 @@ abstract class ReWritableHistorizedValuable<T>
 
   /// Go forward in history
   void redo();
+
+  /// Go backward in history, to the initial value
+  void undoToInitial();
+
+  /// Go forward in history, to the current value
+  void redoToCurrent();
 
   /// Current index position for the history pointer
   int get currentHistoryHead;
@@ -231,6 +237,16 @@ class _ReWritableHistorizedValuable<T> extends _HistorizedStatefulValuable<T>
   void redo() {
     ++_currentHistoryHead; // Move the head forward
     _setValueFromHeadHistory(); // Set value from current head position
+  }
+
+  void undoToInitial() {
+    _currentHistoryHead = 0;
+    _setValueFromHeadHistory();
+  }
+
+  void redoToCurrent() {
+    _currentHistoryHead = _history.length - 1;
+    _setValueFromHeadHistory();
   }
 
   void _setValueFromHeadHistory() {

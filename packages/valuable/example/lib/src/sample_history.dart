@@ -204,12 +204,20 @@ class _UndoRedo extends StatelessWidget {
     return Row(
       children: [
         IconButton(
+          onPressed: rwvaluable.canUndo ? rwvaluable.undoToInitial : null,
+          icon: const Icon(Icons.first_page),
+        ),
+        IconButton(
           onPressed: rwvaluable.canUndo ? rwvaluable.undo : null,
           icon: const Icon(Icons.undo),
         ),
         IconButton(
           onPressed: rwvaluable.canRedo ? rwvaluable.redo : null,
           icon: const Icon(Icons.redo),
+        ),
+        IconButton(
+          onPressed: rwvaluable.canRedo ? rwvaluable.redoToCurrent : null,
+          icon: const Icon(Icons.last_page),
         ),
       ],
     );
