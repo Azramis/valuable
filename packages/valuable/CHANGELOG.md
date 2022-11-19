@@ -1,10 +1,10 @@
+# CHANGELOG
+
 ## 1.1.0
 
- - **REFACTOR**: Add melos management ([#25](https://github.com/Azramis/valuable/issues/25)).
- - **FIX**: markNeedsBuild called during building.
- - **FEAT**: add undoToInitial and redoToCurrent.
-
-# CHANGELOG
+- **REFACTOR**: Add melos management ([#25](https://github.com/Azramis/valuable/issues/25)).
+- **FIX**: markNeedsBuild called during building.
+- **FEAT**: add undoToInitial and redoToCurrent.
 
 ## [1.0.0] - 02/11/2022
 
