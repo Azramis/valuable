@@ -120,7 +120,11 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
   ValuableWidgetElement(ValuableWidget widget) : super(widget);
 
   @override
-  Widget build() => (widget as ValuableWidget).build(this, this.watch);
+  Widget build() {
+    // remove all previous watched Valuable
+    cleanWatched();
+    return (widget as ValuableWidget).build(this, this.watch);
+  }
 
   @override
   void onValuableChange() {
@@ -156,5 +160,12 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
     // When the element is unmounted, it should clean all listened Valuable
     // to avoid error-prone callback from Valuable update
     cleanWatched();
+  }
+
+  @override
+  void update(ValuableWidget newWidget) {
+    super.update(newWidget);
+    assert(widget == newWidget);
+    markNeedsBuild();
   }
 }
