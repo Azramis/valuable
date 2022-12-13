@@ -2,8 +2,10 @@ import 'package:example/src/sample_animation.dart';
 import 'package:example/src/sample_bool_ope.dart';
 import 'package:example/src/sample_checkbox.dart';
 import 'package:example/src/sample_color_picker_widget.dart';
+import 'package:example/src/sample_future.dart';
 import 'package:example/src/sample_history.dart';
 import 'package:example/src/sample_linker.dart';
+import 'package:example/src/sample_stream.dart';
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
 
@@ -56,6 +58,20 @@ class HomeMenu extends StatelessWidget {
       icon: Icons.link,
       callback: _callbackPush(
         (context) => const SampleLinker(),
+      ),
+    ),
+    _MenuItem(
+      name: "Future",
+      icon: Icons.agriculture,
+      callback: _callbackPush(
+        (context) => const SampleFutureWidget(),
+      ),
+    ),
+    _MenuItem(
+      name: "Stream",
+      icon: Icons.stream,
+      callback: _callbackPush(
+        (context) => const SampleStreamWidget(),
       ),
     ),
   ];
