@@ -33,4 +33,9 @@ class ValuableCallback with ValuableWatcherMixin {
   void onValuableChange() {
     this();
   }
+
+  /// Cleaning the ValuableCallback
+  void dispose() {
+    cleanWatched();
+  }
 }
