@@ -1,10 +1,10 @@
+# CHANGELOG
+
 ## 1.2.0
 
- - **FIX**: markNeedsBuild when update for ValuableWidget ([#27](https://github.com/Azramis/valuable/issues/27)).
- - **FIX**: dart format.
- - **FEAT**: enhance futurevaluable and streamvaluable ([#29](https://github.com/Azramis/valuable/issues/29)).
-
-# CHANGELOG
+- **FIX**: markNeedsBuild when update for ValuableWidget ([#27](https://github.com/Azramis/valuable/issues/27)).
+- **FIX**: dart format.
+- **FEAT**: enhance futurevaluable and streamvaluable ([#29](https://github.com/Azramis/valuable/issues/29)).
 
 ## 1.1.0
 
