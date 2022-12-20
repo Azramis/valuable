@@ -473,3 +473,23 @@ extension ValuableWatcherExtension on ValuableWatcher {
     return defaultValue;
   }
 }
+
+extension ValuableFutureExtension<T> on Valuable<Future<T>> {
+  FutureValuableAsyncValue<T> toFutureAsyncValue() =>
+      FutureValuable.asyncVal(this);
+}
+
+extension FutureExtension<T> on Future<T> {
+  FutureValuableAsyncValue<T> toValuableFutureAsyncValue() =>
+      FutureValuable.asyncVal(Valuable.value(this));
+}
+
+extension ValuableStreamExtension<T> on Valuable<Stream<T>> {
+  StreamValuableAsyncValue<T> toStreamAsyncValue() =>
+      StreamValuable.asyncVal(this);
+}
+
+extension StreamExtension<T> on Stream<T> {
+  StreamValuableAsyncValue<T> toValuableStreamAsyncValue() =>
+      StreamValuable.asyncVal(Valuable.value(this));
+}

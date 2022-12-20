@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:valuable/src/async.dart';
+import 'package:valuable/src/callable.dart';
 import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/exceptions.dart';
 import 'package:valuable/src/history.dart';
@@ -73,7 +75,7 @@ class ValuableContext {
 ///
 /// This class defines 2 factories to build simpler Valuable:
 /// - [Valuable.value] represent a Valuable at its simplest form : a value.
-/// No function, no depenancies, just a value that would be returned by [getValue]
+/// No function, no dependencies, just a value that would be returned by [getValue]
 /// - [Valuable.byValuer] which is more complex but even more powerful. Indeed, the
 /// [valuer] param is a function, where Valuable calculate its self value. In fact
 /// it's even possible to depends on other Valuables, whose values are possibly changeable.
@@ -402,7 +404,8 @@ typedef ValuableGetFutureLoading<Output> = Output Function(
 /// - [noDataValue] will return an [Output] value while the future is still incomplete
 /// - [errorValue] will return an [Output] when the future complete on error
 class FutureValuable<Output, Res> extends Valuable<Output> {
-  final Future<Res> _future;
+  //final Future<Res> _future;
+  final Valuable<Future<Res>> _valuableFuture;
 
   /// A function to return a value when the future is complete normally
   final ValuableGetFutureResult<Output, Res> dataValue;
@@ -415,36 +418,57 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
 
   bool _isComplete = false;
   bool _isError = false;
-  late final Res _resultValue;
-  late final Object _error;
-  late final StackTrace _stackTrace;
+  late Res _resultValue;
+  late Object _error;
+  late StackTrace _stackTrace;
+
+  late Future<Res> _currentFuture;
+
+  late final ValuableCallback _callback = ValuableCallback(
+    (watch, {valuableContext}) {
+      Future<Res> future = watch(_valuableFuture);
+      _currentFuture = future;
+
+      // Reinitialise computing value
+      _isComplete = false;
+      _isError = false;
+      markToReevaluate();
+
+      future.then((Res value) {
+        if (_currentFuture == future) {
+          _isComplete = true;
+          _resultValue = value;
+          markToReevaluate();
+        }
+      }, onError: (Object error, StackTrace stackTrace) {
+        if (_currentFuture == future) {
+          _error = error;
+          _stackTrace = stackTrace;
+          _isComplete = _isError = true;
+          markToReevaluate();
+        }
+      });
+    },
+  );
 
   /// Constructor to provide each functions
-  FutureValuable(Future<Res> future,
-      {required this.dataValue,
-      required this.noDataValue,
-      required this.errorValue,
-      bool evaluateWithContext = false})
-      : _future = future,
+  FutureValuable(
+    Valuable<Future<Res>> future, {
+    required this.dataValue,
+    required this.noDataValue,
+    required this.errorValue,
+    bool evaluateWithContext = false,
+  })  : _valuableFuture = future,
         super(
           evaluateWithContext: evaluateWithContext,
         ) {
-    _future.then((Res value) {
-      _isComplete = true;
-      _resultValue = value;
-      markToReevaluate();
-    }, onError: (Object error, StackTrace stackTrace) {
-      _error = error;
-      _stackTrace = stackTrace;
-      _isComplete = _isError = true;
-      markToReevaluate();
-    });
+    _callback();
   }
 
   /// Constructor to simply map result value as Valuable value
   ///
   /// [Output] must be super type or type of [Res]
-  FutureValuable.values(Future<Res> future,
+  FutureValuable.values(Valuable<Future<Res>> future,
       {required Output noDataValue, required Output errorValue})
       : this(future,
             dataValue: (ValuableContext? context, Res result) =>
@@ -453,6 +477,19 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
             errorValue: (ValuableContext? context, Object error,
                     StackTrace stackTrace) =>
                 errorValue);
+
+  /// Pseudo constructor to map directly a [Res] value to an [AsyncValue<Res>]
+  static FutureValuableAsyncValue<Res> asyncVal<Res>(
+      Valuable<Future<Res>> future) {
+    return FutureValuable<ValuableAsyncValue<Res>, Res>(
+      future,
+      dataValue: (_, result) => ValuableAsyncValue.data(result),
+      errorValue: (_, error, stackTrace) =>
+          ValuableAsyncValue.error(error, stackTrace),
+      noDataValue: (_) => ValuableAsyncValue.noData(),
+      evaluateWithContext: false,
+    );
+  }
 
   @override
   @protected
@@ -471,18 +508,34 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
 
     return retour;
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _callback.dispose();
+  }
 }
 
+/// Equivalent to a [FutureValuable<ValuableAsyncValue<Res>, Res>]
+typedef FutureValuableAsyncValue<Res>
+    = FutureValuable<ValuableAsyncValue<Res>, Res>;
+
 /// Method prototype for onData of the Stream
-typedef ValuableGetStreamData<Output, Res> = Output Function(
-    ValuableContext?, Res);
+typedef ValuableGetStreamData<Output, Msg> = Output Function(
+  ValuableContext? context,
+  Msg data,
+);
 
 /// Method prototype for onError of the Stream
 typedef ValuableGetStreamError<Output> = Output Function(
-    ValuableContext?, Object, StackTrace);
+  ValuableContext? context,
+  Object error,
+  StackTrace stackTrace,
+);
 
 /// Method prototype for onDone of the Stream
-typedef ValuableGetStreamDone<Output> = Output Function(ValuableContext?);
+typedef ValuableGetStreamDone<Output> = Output Function(
+    ValuableContext? context);
 
 /// A Valuable that remains on a Stream<Msg>
 ///
@@ -501,40 +554,58 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
   /// A function to provide an [Output] value when the Stream closes
   final ValuableGetStreamDone<Output> doneValue;
 
-  late Output Function(ValuableContext?) _currentValuer;
+  late final ValuableGetStreamDone<Output> _defaultValuer;
 
-  late final StreamSubscription _subscription;
+  late Output Function(ValuableContext?) _currentValuer;
+  StreamSubscription? _subscription;
+
+  final Valuable<Stream<Msg>> _valuableStream;
+  late final ValuableCallback _callback = ValuableCallback(
+    (watch, {valuableContext}) {
+      Stream<Msg> stream = watch(_valuableStream);
+      // May cancel the previous subsciption if exists
+      _subscription?.cancel();
+
+      _changeCurrentValuer(_defaultValuer);
+
+      _subscription = stream.listen(
+        (Msg data) {
+          _changeCurrentValuer(
+              (ValuableContext? context) => dataValue.call(context, data));
+        },
+        onError: (Object error, StackTrace stacktrace) {
+          _changeCurrentValuer((ValuableContext? context) =>
+              errorValue.call(context, error, stacktrace));
+        },
+        onDone: () {
+          _changeCurrentValuer(
+              (ValuableContext? context) => doneValue.call(context));
+        },
+        cancelOnError: false,
+      );
+    },
+  );
 
   /// Constructor to provide each functions
   StreamValuable(
-    Stream<Msg> stream, {
+    Valuable<Stream<Msg>> stream, {
     required this.dataValue,
     required this.errorValue,
     required this.doneValue,
     required Output initialData,
-    bool? cancelOnError,
     bool evaluateWithContext = false,
-  }) : super(evaluateWithContext: evaluateWithContext) {
-    _currentValuer = (_) => initialData;
-    _subscription = stream.listen((Msg data) {
-      _changeCurrentValuer(
-          (ValuableContext? context) => dataValue.call(context, data));
-    }, onError: (Object error, StackTrace stacktrace) {
-      _changeCurrentValuer((ValuableContext? context) =>
-          errorValue.call(context, error, stacktrace));
-    }, onDone: () {
-      _changeCurrentValuer(
-          (ValuableContext? context) => doneValue.call(context));
-    }, cancelOnError: cancelOnError);
+  })  : _valuableStream = stream,
+        super(evaluateWithContext: evaluateWithContext) {
+    _defaultValuer = (_) => initialData;
+    _callback();
   }
 
   /// Constructor to simplify the case when [Output] == [Msg]
   StreamValuable.values(
-    Stream<Msg> stream, {
+    Valuable<Stream<Msg>> stream, {
     required Output errorValue,
     required Output doneValue,
     required Output initialData,
-    bool? cancelOnError,
     bool evaluateWithContext = false,
   }) : this(
           stream,
@@ -550,9 +621,22 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
           ) =>
               doneValue,
           initialData: initialData,
-          cancelOnError: cancelOnError,
           evaluateWithContext: evaluateWithContext,
         );
+
+  /// Pseudo constructor to map directly a [Msg] value to an [AsyncValue<Msg>]
+  static StreamValuable<ValuableAsyncValue<Msg>, Msg> asyncVal<Msg>(
+      Valuable<Stream<Msg>> stream) {
+    return StreamValuable(
+      stream,
+      dataValue: (_, data) => ValuableAsyncValue.data(data),
+      errorValue: (_, error, stackTrace) =>
+          ValuableAsyncValue.error(error, stackTrace),
+      doneValue: (_) => ValuableAsyncValue.noData(closed: true),
+      initialData: ValuableAsyncValue.noData(),
+      evaluateWithContext: false,
+    );
+  }
 
   void _changeCurrentValuer(Output Function(ValuableContext?) newValuer) {
     _currentValuer = newValuer;
@@ -568,6 +652,11 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
   @override
   void dispose() {
     super.dispose();
-    _subscription.cancel(); // Cancel subscription to free memory
+    _callback.dispose();
+    _subscription?.cancel(); // Cancel subscription to free memory
   }
 }
+
+/// Equivalent to a [StreamValuable<ValuableAsyncValue<Res>, Res>]
+typedef StreamValuableAsyncValue<Res>
+    = StreamValuable<ValuableAsyncValue<Res>, Res>;

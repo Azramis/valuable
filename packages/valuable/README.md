@@ -122,14 +122,14 @@ _That's all !_
 
 ### ``FutureValuable<Output, Res>``
 
-``FutureValuable<Output, Res>`` have been created in the purpose of computing a ``Future<Res>`` to a safe runtime ``Output`` value. In fact ``FutureValuable<Output, Res>`` inherits ``Valuable<Output>``, so it can use all of its useful methods.
+``FutureValuable<Output, Res>`` have been created in the purpose of computing a ``Valuable<Future<Res>>`` to a safe runtime ``Output`` value. In fact ``FutureValuable<Output, Res>`` inherits ``Valuable<Output>``, so it can use all of its useful methods.
 
 There are 2 constructors that can be written.
 
 #### FutureValuable computing constructor
 
 ```dart
-    late final Future<int> distantCounter = ...
+    late final Valuable<Future<int>> distantCounter = ...
     late final FutureValuable<String, int> distantCounterStr = FutureValuable<String, int>(
             distantCounter,
             dataValue: (ValuableContext? context, int result) => "My counter is $result", // Future is done
@@ -138,14 +138,14 @@ There are 2 constructors that can be written.
         );
 ```
 
-This way, we can provide a value, depending of the ``Future<Res>`` state and value.
+This way, we can provide a value, depending of the ``Valuable<Future<Res>>`` state and value.
 
 #### FutureValuable providing constructor
 
 This constructor is the simpliest for the case ``Res == Output``, and provide value for waiting and error states.
 
 ```dart
-    late final Future<int> distantCounter = ...
+    late final Valuable<Future<int>> distantCounter = ...
     late final FutureValuable<int, int> distantCounterVal = FutureValuable<int, int>.values(
             distantCounter,
             noDataValue: 0, // Future is not done yet
@@ -154,6 +154,18 @@ This constructor is the simpliest for the case ``Res == Output``, and provide va
 ```
 
 Then the _Valuable_ always have a correct runtime value, without error management complexity.
+
+#### FutureValuable AsyncValue 'constructor'
+
+In some cases, it's not the desired behavior to map to a certain type ``Output``, but it's necessary to map dynamically during runtime.  
+For that, it's possible to use this code below.
+
+```dart
+    late final Valuable<Future<int>> distantCounter = ...
+    late final FutureValuableAsyncValue<int> distantCounterVal = FutureValuable.asyncVal(distantCounter);
+```
+
+The _Valuable_ returns a ``ValuableAsyncValue<int>``.  This kind of object is really useful as it offers a ``map()`` method to compute the current state of the Future.
 
 ### ``StreamValuable<Output, Msg>``
 
@@ -164,7 +176,7 @@ Let show the code directly !
 #### StreamValuable computing constructor
 
 ```dart
-    late final Stream<int> continuousCounter = ...
+    late final Valuable<Stream<int>> continuousCounter = ...
     late final StreamValuable<String, int> continuousCounterStr = StreamValuable<String, int>(
             continuousCounter,
             dataValue: (ValuableContext? context, int result) => "$result", // Stream data
@@ -178,10 +190,10 @@ Let show the code directly !
 
 As it was said, ``Valuable<T>`` is the root type of all _Valuable_, but it offer two factories for :
 
-- simple immuable value, to interact with others _Valuable_
+- simple immutable value, to interact with others _Valuable_
 - auto evaluated _Valuable_, that can depend on others _Valuable_
 
-#### Simple immuable value
+#### Simple immutable value
 
 ```dart
     final Valuable<int> zero = Valuable.value(0);
