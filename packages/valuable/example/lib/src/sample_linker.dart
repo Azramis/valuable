@@ -40,8 +40,8 @@ class _LinkedContainer extends ValuableWidget {
       left: watch(leftOffset),
       child: Container(
         color: Colors.green,
-        child: Row(
-          children: const [Icon(Icons.settings_accessibility)],
+        child: const Row(
+          children: [Icon(Icons.settings_accessibility)],
         ),
       ),
     );

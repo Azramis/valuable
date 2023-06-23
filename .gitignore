@@ -123,6 +123,7 @@ app.*.symbols
 
 # Pubspec.lock
 **/pubspec.lock
+!/pubspec.lock
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3

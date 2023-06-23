@@ -149,7 +149,7 @@ class _HistoryViewer<T> extends ValuableWidget {
         Text(title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.subtitle1),
+            style: Theme.of(context).textTheme.titleMedium),
         Card(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
