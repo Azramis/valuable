@@ -424,7 +424,7 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
 
   late Future<Res> _currentFuture;
 
-  late final ValuableCallback _callback = ValuableCallback(
+  late final ValuableCallback _callback = ValuableCallback.immediate(
     (watch, {valuableContext}) {
       Future<Res> future = watch(_valuableFuture);
       _currentFuture = future;
@@ -560,7 +560,7 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
   StreamSubscription? _subscription;
 
   final Valuable<Stream<Msg>> _valuableStream;
-  late final ValuableCallback _callback = ValuableCallback(
+  late final ValuableCallback _callback = ValuableCallback.immediate(
     (watch, {valuableContext}) {
       Stream<Msg> stream = watch(_valuableStream);
       // May cancel the previous subsciption if exists
