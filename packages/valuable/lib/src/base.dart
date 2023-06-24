@@ -76,7 +76,7 @@ class ValuableContext {
 /// This class defines 2 factories to build simpler Valuable:
 /// - [Valuable.value] represent a Valuable at its simplest form : a value.
 /// No function, no dependencies, just a value that would be returned by [getValue]
-/// - [Valuable.byValuer] which is more complex but even more powerful. Indeed, the
+/// - [Valuable.computed] which is more complex but even more powerful. Indeed, the
 /// [valuer] param is a function, where Valuable calculate its self value. In fact
 /// it's even possible to depends on other Valuables, whose values are possibly changeable.
 /// When these Valuable values change, our Valuable is notified, and notify at its turn
@@ -116,11 +116,22 @@ abstract class Valuable<Output> extends ChangeNotifier
     return _Valuable<Output>(value);
   }
 
-  /// Factory [Valuable.byValuer] to build a Valuable that calculate its own value
+  /// Factory [Valuable.computed] to build a Valuable that calculate its own value
   /// through a function.
+  factory Valuable.computed(ValuableParentWatcher<Output> computation,
+      {bool evaluateWithContext = false}) {
+    return _Valuable<Output>.computed(computation,
+        evaluateWithContext: evaluateWithContext);
+  }
+
+  /// Replace by [Valuable.computed].
+  ///
+  /// Will be removed in future version. Keeping it at this moment is
+  /// only for backward compatibility.
+  @deprecated
   factory Valuable.byValuer(ValuableParentWatcher<Output> valuer,
       {bool evaluateWithContext = false}) {
-    return _Valuable<Output>.byValuer(valuer);
+    return Valuable.computed(valuer, evaluateWithContext: evaluateWithContext);
   }
 
   /// Factory [Valuable.listenable] to build a Valuable that listen
@@ -213,7 +224,7 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// A method to map a Valuable from [Output] to [Other]
   Valuable<Other> map<Other>(Other Function(Output) toElement) =>
-      Valuable.byValuer(
+      Valuable.computed(
         (watch, {valuableContext}) => toElement(
           watch(
             this,
@@ -298,19 +309,19 @@ class _ValueCache<Output> {
 }
 
 class _Valuable<Output> extends Valuable<Output> {
-  final ValuableParentWatcher<Output> valuer;
+  final ValuableParentWatcher<Output> computation;
 
-  _Valuable.byValuer(this.valuer, {bool evaluateWithContext = false})
+  _Valuable.computed(this.computation, {bool evaluateWithContext = false})
       : super(evaluateWithContext: evaluateWithContext);
   _Valuable(Output value)
-      : this.byValuer((ValuableWatcher watch,
+      : this.computed((ValuableWatcher watch,
                 {ValuableContext? valuableContext}) =>
             value);
 
   @override
   Output getValueDefinition(bool reevaluatingNeeded,
           [ValuableContext? context = const ValuableContext()]) =>
-      valuer(watch, valuableContext: context);
+      computation(watch, valuableContext: context);
 }
 
 /// A [Valuable] linked to [ValueListenable] to provide a value
