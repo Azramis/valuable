@@ -210,7 +210,7 @@ As it was said, ``Valuable<T>`` is the root type of all _Valuable_, but it offer
 
 ```dart
     final StatefulValuable<int> counter = StatefulValuable<int>(2);
-    final late Valuable<double> halfCounter = Valuable.byValuer((ValuableWatcher watch) => watch(counter) / 2);
+    final late Valuable<double> halfCounter = Valuable.evaluate((ValuableWatcher watch) => watch(counter) / 2);
     ...
     print(halfCounter.getValue()); // Print '1'
     counter.setValue(3); // halfCounter is notified of this change, marks as invalid, and notifies all its listeners
