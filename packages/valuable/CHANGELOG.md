@@ -1,3 +1,8 @@
+## 1.3.0
+
+ - **FEAT**: Built-in transformation for Listenable to Valuable. ([50cf6eb7](https://github.com/Azramis/valuable/commit/50cf6eb72da37e1403813c9e8aa1c7bbd6d5874b))
+ - **FEAT**: Enhance ValuableCallback with async executions. ([eeb3e344](https://github.com/Azramis/valuable/commit/eeb3e344c0b1aebf53a231292fefaec10952d292))
+
 # CHANGELOG
 
 ## 1.2.0
