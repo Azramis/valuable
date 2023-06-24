@@ -126,7 +126,14 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// Factory [Valuable.listenable] to build a Valuable that listen
   /// to a [ValueListenable] and provide its value
   factory Valuable.listenable(ValueListenable<Output> listenable) =>
-      _ValuableListenable(listenable);
+      _ValuableListenable(
+          listenable, (ValueListenable<Output> listenable) => listenable.value);
+
+  /// Factory [Valuable.listenableComputed] to build a Valuable that listen
+  /// to a [Listenable] and provide a value by computation
+  static Valuable<Output> listenableComputed<L extends Listenable, Output>(
+          L listenable, Output computation(L listenable)) =>
+      _ValuableListenable(listenable, computation);
 
   /// Get the current value of the Valuable
   @mustCallSuper
@@ -313,18 +320,20 @@ class _Valuable<Output> extends Valuable<Output> {
       valuer(watch, valuableContext: context);
 }
 
-/// A [Valuable] linked to [ValueListenable] to provide a value
-class _ValuableListenable<T> extends Valuable<T> {
-  final ValueListenable<T> _listenable;
+/// A [Valuable] linked to a [Listenable] and will compute a value with it
+class _ValuableListenable<L extends Listenable, V> extends Valuable<V> {
+  final L _listenable;
+  final V Function(L) _computation;
 
-  _ValuableListenable(this._listenable) : super(evaluateWithContext: false) {
+  _ValuableListenable(this._listenable, this._computation)
+      : super(evaluateWithContext: false) {
     _listenable.addListener(markToReevaluate);
   }
 
   @override
-  T getValueDefinition(bool reevaluatingNeeded,
+  V getValueDefinition(bool reevaluatingNeeded,
           [ValuableContext? context = const ValuableContext()]) =>
-      _listenable.value;
+      _computation(_listenable);
 
   @override
   void dispose() {
