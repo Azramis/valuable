@@ -19,7 +19,7 @@ extension BoolOperators on Valuable<bool> {
 
   /// Create a new Valuable<bool> that depends on the current, but with the negated value
   Valuable<bool> negation() {
-    return Valuable<bool>.byValuer((watch, {valuableContext}) => !watch(this));
+    return this.map((value) => !value);
   }
 
   /// Get a new Valuable whom the value depends on the current Valuable value
