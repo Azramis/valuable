@@ -13,7 +13,7 @@ class _SampleStreamWidgetState extends State<SampleStreamWidget> {
       StatefulValuable(const Duration(seconds: 1));
 
   late final Valuable<Stream<int>> streamValue =
-      Valuable<Stream<int>>.byValuer((watch, {valuableContext}) async* {
+      Valuable<Stream<int>>.computed((watch, {valuableContext}) async* {
     Duration duration = watch(durationValue);
     await Future.delayed(duration);
 

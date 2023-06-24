@@ -71,7 +71,7 @@ class __LinkableContainerState extends State<_LinkableContainer>
       animationController.toValuable();
   late final Valuable<Color?> colorValuable = animationColor.toValuable();
   late final Valuable<double> widthValuable =
-      Valuable<double>.byValuer((watch, {valuableContext}) {
+      Valuable<double>.computed((watch, {valuableContext}) {
     return lerpDouble(minWidth, maxWidth, watch(animationValuable)) ?? 0;
   });
 

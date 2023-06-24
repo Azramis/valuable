@@ -13,7 +13,7 @@ class _SampleFutureWidgetState extends State<SampleFutureWidget> {
       StatefulValuable(const Duration(seconds: 1));
 
   late final Valuable<Future<String>> futureTextValue =
-      Valuable<Future<String>>.byValuer((watch, {valuableContext}) async {
+      Valuable<Future<String>>.computed((watch, {valuableContext}) async {
     Duration duration = watch(durationValue);
     await Future.delayed(duration);
 

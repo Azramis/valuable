@@ -6,7 +6,7 @@ class SampleColorPickerWidget extends StatelessWidget {
   final StatefulValuable<double> greenVal = StatefulValuable<double>(0);
   final StatefulValuable<double> blueVal = StatefulValuable<double>(0);
 
-  late final Valuable<Color> myColor = Valuable.byValuer(
+  late final Valuable<Color> myColor = Valuable.computed(
     (watch, {valuableContext}) {
       return Color.fromARGB(
         255,
