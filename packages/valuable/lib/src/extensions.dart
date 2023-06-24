@@ -454,6 +454,13 @@ extension ValueListenableValuable<T> on ValueListenable<T> {
   Valuable<T> toValuable() => Valuable.listenable(this);
 }
 
+/// Method to transform a [ValueListenable] to a [Valuable]
+extension ListenableValuable<L extends Listenable> on L {
+  /// Method to transform a [ValueListenable] to a [Valuable]
+  Valuable<T> toComputedValuable<T>(T computation(L listenable)) =>
+      Valuable.listenableComputed(this, computation);
+}
+
 /// Provide extension on ValuableWatcher
 extension ValuableWatcherExtension on ValuableWatcher {
   /// Method to manage a Nullable Valuable with a default value if it's null
