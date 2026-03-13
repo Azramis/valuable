@@ -135,4 +135,6 @@ app.*.symbols
 !**/example/pubspec.lock
 
 # FVM
-.fvm/flutter_sdk
+
+# FVM Version Cache
+.fvm/
