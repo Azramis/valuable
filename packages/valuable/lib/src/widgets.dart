@@ -7,8 +7,8 @@ import 'base.dart';
 import 'package:flutter/material.dart';
 
 /// Contract for the implementation function needed to build [Widget] for a [ValuableConsumer]
-typedef ValuableConsumerBuilder = Widget Function(
-    BuildContext context, ValuableWatcher watch, Widget? child);
+typedef ValuableConsumerBuilder =
+    Widget Function(BuildContext context, ValuableWatcher watch, Widget? child);
 
 /// A widget that is used to watch [Valuable] inside a widget tree
 ///
@@ -19,7 +19,7 @@ class ValuableConsumer extends StatefulWidget {
   final ValuableConsumerBuilder builder;
 
   const ValuableConsumer({this.child, required this.builder, Key? key})
-      : super(key: key);
+    : super(key: key);
 
   @override
   _ValuableConsumerState createState() => _ValuableConsumerState();
@@ -43,8 +43,9 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     cleanWatched();
 
     return Builder(
-        builder: (BuildContext context) =>
-            widget.builder(context, watch, widget.child));
+      builder: (BuildContext context) =>
+          widget.builder(context, watch, widget.child),
+    );
   }
 
   @override
@@ -55,10 +56,11 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     //cleanWatched();
   }
 
-  T _watch<T>(Valuable<T> valuable,
-          {ValuableContext? valuableContext,
-          ValuableWatcherSelector? selector}) =>
-      watch(valuable, valuableContext: valuableContext, selector: selector);
+  T _watch<T>(
+    Valuable<T> valuable, {
+    ValuableContext? valuableContext,
+    ValuableWatcherSelector? selector,
+  }) => watch(valuable, valuableContext: valuableContext, selector: selector);
 
   @override
   ValuableContext get valuableContext => ValuableContext(context: context);

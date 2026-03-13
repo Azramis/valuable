@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/mixins.dart';
 
-typedef ValuableCallbackPrototype = void Function(ValuableWatcher watch,
-    {ValuableContext? valuableContext});
+typedef ValuableCallbackPrototype =
+    void Function(ValuableWatcher watch, {ValuableContext? valuableContext});
 
 /// User-defined callback that can watch Valuable to be automatically re-call
 abstract class ValuableCallback with ValuableWatcherMixin {
@@ -78,7 +78,7 @@ abstract class ValuableCallback with ValuableWatcherMixin {
 class _ValuableCallbackImmediate extends ValuableCallback {
   _ValuableCallbackImmediate(
     void Function(ValuableWatcher watch, {ValuableContext? valuableContext})
-        _callback,
+    _callback,
   ) : super._(_callback);
 
   @override
@@ -89,7 +89,7 @@ class _ValuableCallbackImmediate extends ValuableCallback {
 class _ValuableCallbackMicrotask extends ValuableCallback {
   _ValuableCallbackMicrotask(
     void Function(ValuableWatcher watch, {ValuableContext? valuableContext})
-        _callback,
+    _callback,
   ) : super._(_callback);
 
   @override
@@ -106,7 +106,7 @@ class _ValuableCallbackMicrotask extends ValuableCallback {
 class _ValuableCallbackFuture extends ValuableCallback {
   _ValuableCallbackFuture(
     void Function(ValuableWatcher watch, {ValuableContext? valuableContext})
-        _callback,
+    _callback,
   ) : super._(_callback);
 
   @override
@@ -114,8 +114,9 @@ class _ValuableCallbackFuture extends ValuableCallback {
     _nextCallbackContext = valuableContext;
     if (_futureExecHandle != null) return;
 
-    _futureExecHandle =
-        Future(_futureExec).then((_) => _futureExecHandle == null);
+    _futureExecHandle = Future(
+      _futureExec,
+    ).then((_) => _futureExecHandle == null);
   }
 
   Future<void>? _futureExecHandle;

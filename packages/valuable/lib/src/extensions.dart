@@ -26,21 +26,26 @@ extension BoolOperators on Valuable<bool> {
   ///
   /// If current value is true then [value] is returned, else if [elseValue] is
   /// specified then it returned
-  Valuable<Output> then<Output>(Valuable<Output> value,
-      {Valuable<Output>? elseValue}) {
+  Valuable<Output> then<Output>(
+    Valuable<Output> value, {
+    Valuable<Output>? elseValue,
+  }) {
     return ValuableIf<Output>(
-        this,
-        (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
-            watch(value),
-        elseCase: (elseValue != null)
-            ? (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
+      this,
+      (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
+          watch(value),
+      elseCase: (elseValue != null)
+          ? (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
                 watch(elseValue)
-            : null);
+          : null,
+    );
   }
 
   /// Same as [then] function, but with direct value as parameters
-  Valuable<Output> thenValue<Output>(Output value,
-      {required Output elseValue}) {
+  Valuable<Output> thenValue<Output>(
+    Output value, {
+    required Output elseValue,
+  }) {
     return ValuableIf<Output>.value(this, value, elseValue: elseValue);
   }
 }

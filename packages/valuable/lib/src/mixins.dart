@@ -7,8 +7,10 @@ class _ValuableWatchedInfos<T> {
       <ValuableWatcherSelector<T>?>[];
   T previousWatchedValue;
 
-  _ValuableWatchedInfos(
-      {required this.callback, required this.previousWatchedValue});
+  _ValuableWatchedInfos({
+    required this.callback,
+    required this.previousWatchedValue,
+  });
 }
 
 /// A mixin to provide extension of classes that might want to watch some valuable
@@ -20,9 +22,11 @@ mixin ValuableWatcherMixin {
   /// Watch a valuable, that eventually change
   @protected
   @mustCallSuper
-  T watch<T>(Valuable<T> valuable,
-      {ValuableContext? valuableContext,
-      ValuableWatcherSelector<T>? selector}) {
+  T watch<T>(
+    Valuable<T> valuable, {
+    ValuableContext? valuableContext,
+    ValuableWatcherSelector<T>? selector,
+  }) {
     T result;
 
     result = valuable.getValue(valuableContext ?? this.valuableContext);
@@ -31,9 +35,12 @@ mixin ValuableWatcherMixin {
       VoidCallback callback = () => _callValuableChange<T>(valuable);
 
       _watched.putIfAbsent(
-          valuable,
-          () => _ValuableWatchedInfos<T>(
-              callback: callback, previousWatchedValue: result));
+        valuable,
+        () => _ValuableWatchedInfos<T>(
+          callback: callback,
+          previousWatchedValue: result,
+        ),
+      );
       valuable.addListener(callback);
       valuable.listenDispose(() {
         unwatch(valuable);
@@ -79,7 +86,8 @@ mixin ValuableWatcherMixin {
           selectOk = false;
           T previousWatchedValue = infos.previousWatchedValue;
           for (ValuableWatcherSelector<T>? selector in selectors) {
-            selectOk = selectOk ||
+            selectOk =
+                selectOk ||
                 (selector?.call(valuable, previousWatchedValue) ?? false);
 
             if (selectOk) {

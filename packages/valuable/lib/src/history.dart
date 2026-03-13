@@ -52,8 +52,10 @@ mixin _HistorizedValuableMixin<T> on Valuable<T> {
   void _historize(T value) => _history.addLast(ValuableHistoryNode<T>._(value));
 
   @override
-  T getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? context = const ValuableContext()]) {
+  T getValueDefinition(
+    bool reevaluatingNeeded, [
+    ValuableContext? context = const ValuableContext(),
+  ]) {
     T value = watch(_innerValuable, valuableContext: context);
 
     if (_shouldHistorize(value)) {
@@ -211,7 +213,8 @@ class _ReWritableHistorizedValuable<T> extends _HistorizedStatefulValuable<T>
   }
 
   @override
-  bool _shouldHistorize(T value) => (_history.isEmpty ||
+  bool _shouldHistorize(T value) =>
+      (_history.isEmpty ||
       _history.elementAt(_currentHistoryHead).value != value);
 
   void _eraseHistoryBeyondHead() {
@@ -252,7 +255,8 @@ class _ReWritableHistorizedValuable<T> extends _HistorizedStatefulValuable<T>
   void _setValueFromHeadHistory() {
     ValuableHistoryNode<T> node = _history.elementAt(_currentHistoryHead);
     super.setValue(
-        node.value); // History will not change, as the values will be the same
+      node.value,
+    ); // History will not change, as the values will be the same
   }
 }
 

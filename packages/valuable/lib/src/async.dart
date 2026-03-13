@@ -44,8 +44,7 @@ class ValuableAsyncData<T> extends ValuableAsyncValue<T> {
     required Output Function(ValuableAsyncData<T> data) onData,
     required Output Function(ValuableAsyncError<T> error) onError,
     required Output Function(ValuableAsyncNoData<T> noData) onNoData,
-  }) =>
-      onData(this);
+  }) => onData(this);
 }
 
 /// Representation of an error that occured during an async process
@@ -64,8 +63,7 @@ class ValuableAsyncError<T> extends ValuableAsyncValue<T> {
     required Output Function(ValuableAsyncData<T> data) onData,
     required Output Function(ValuableAsyncError<T> error) onError,
     required Output Function(ValuableAsyncNoData<T> noData) onNoData,
-  }) =>
-      onError(this);
+  }) => onError(this);
 }
 
 /// Representation of a momentum when no data is provided, and no error occured
@@ -77,15 +75,12 @@ class ValuableAsyncNoData<T> extends ValuableAsyncValue<T> {
   /// Indicates whether this state came from a closing stream or not
   final bool closed;
 
-  const ValuableAsyncNoData._({
-    this.closed = false,
-  }) : super._();
+  const ValuableAsyncNoData._({this.closed = false}) : super._();
 
   @override
   Output map<Output>({
     required Output Function(ValuableAsyncData<T> data) onData,
     required Output Function(ValuableAsyncError<T> error) onError,
     required Output Function(ValuableAsyncNoData<T> noData) onNoData,
-  }) =>
-      onNoData(this);
+  }) => onNoData(this);
 }

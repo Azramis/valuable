@@ -36,9 +36,10 @@ mixin StatefulValuableMixin<Output> on Valuable<Output>
 
   @override
   @protected
-  Output getValueDefinition(bool reevaluatingNeeded,
-          [ValuableContext? context = const ValuableContext()]) =>
-      state;
+  Output getValueDefinition(
+    bool reevaluatingNeeded, [
+    ValuableContext? context = const ValuableContext(),
+  ]) => state;
 }
 
 class _StatefulValuableImpl<Output> extends Valuable<Output>
@@ -49,9 +50,7 @@ class _StatefulValuableImpl<Output> extends Valuable<Output>
   @override
   Output get state => _state;
 
-  _StatefulValuableImpl(Output initialState)
-      : _state = initialState,
-        super();
+  _StatefulValuableImpl(Output initialState) : _state = initialState, super();
 
   void setValue(Output value) {
     if (_state != value) {

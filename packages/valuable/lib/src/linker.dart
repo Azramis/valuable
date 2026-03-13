@@ -29,10 +29,15 @@ abstract class ValuableLinker<Output> extends Valuable<Output> {
 mixin ValuableLinkerMixin<Output> on Valuable<Output>
     implements ValuableLinker<Output> {
   @override
-  Output getValueDefinition(bool reevaluatingNeeded,
-      [ValuableContext? context = const ValuableContext()]) {
-    return watch.def(linkedValuable, defaultValue,
-        valuableContext: valuableContext);
+  Output getValueDefinition(
+    bool reevaluatingNeeded, [
+    ValuableContext? context = const ValuableContext(),
+  ]) {
+    return watch.def(
+      linkedValuable,
+      defaultValue,
+      valuableContext: valuableContext,
+    );
   }
 
   @override
@@ -65,7 +70,8 @@ class _ValuableLinkerImpl<Output> extends Valuable<Output>
     }
     _linkedValuable = valuable;
     _linkedValuable!.listenDispose(
-        unlink); // Listen Valuable dispose, to automatically unlink
+      unlink,
+    ); // Listen Valuable dispose, to automatically unlink
     markToReevaluate(); // We have linked a Valuable, the linker may change its value
   }
 

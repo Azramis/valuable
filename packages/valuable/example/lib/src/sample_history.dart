@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element_parameter
+
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
@@ -100,11 +102,8 @@ class _ValuableMultiplicatorOperand extends ValuableWidget {
 
   const _ValuableMultiplicatorOperand(
       {required this.operand,
-      // ignore: unused_element
       this.minValue = 0,
-      // ignore: unused_element
       this.maxValue = 9,
-      // ignore: unused_element
       this.divisions = 9});
 
   @override
