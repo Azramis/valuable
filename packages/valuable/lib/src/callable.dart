@@ -7,41 +7,33 @@ typedef ValuableCallbackPrototype =
     void Function(ValuableWatcher watch, {ValuableContext? valuableContext});
 
 /// User-defined callback that can watch Valuable to be automatically re-call
-abstract class ValuableCallback with ValuableWatcherMixin {
+sealed class ValuableCallback with ValuableWatcherMixin {
   /// The real callback to execute
   final ValuableCallbackPrototype _callback;
-
-  /// This factory only continues existing for backward compatibility.
-  /// Will be removed in a future release
-  ///
-  /// Default implementation [ValuableCallback.immediate] for backward compatibility
-  @deprecated
-  factory ValuableCallback(ValuableCallbackPrototype callback) =>
-      ValuableCallback.immediate(callback);
 
   /// A callback that will execute immediately after a watched [Valuable] change
   ///
   /// Once executed one time, this callback will execute immediatly
   /// each time a watched [Valuable] fires an invalidation event.
-  factory ValuableCallback.immediate(ValuableCallbackPrototype callback) =>
-      _ValuableCallbackImmediate(callback);
+  factory ValuableCallback.immediate(ValuableCallbackPrototype callback) =
+      _ValuableCallbackImmediate;
 
   /// A callback that schedule execution in the **microtask queue**, after a watched [Valuable] change
   ///
   /// Once executed one time, this callback will schedule execution as a microtask
   /// when any watched [Valuable] fires an invalidation event.
-  factory ValuableCallback.microtask(ValuableCallbackPrototype callback) =>
-      _ValuableCallbackMicrotask(callback);
+  factory ValuableCallback.microtask(ValuableCallbackPrototype callback) =
+      _ValuableCallbackMicrotask;
 
   /// A callback that schedule execution in the **event queue**, after a watched [Valuable] change
   ///
   /// Once executed one time, this callback will schedule execution as an event task
   /// when any watched [Valuable] fires an invalidation event.
-  factory ValuableCallback.future(ValuableCallbackPrototype callback) =>
-      _ValuableCallbackFuture(callback);
+  factory ValuableCallback.future(ValuableCallbackPrototype callback) =
+      _ValuableCallbackFuture;
 
   ///
-  ValuableCallback._(this._callback) : super();
+  ValuableCallback._(this._callback);
 
   /// Allow to consider this instance as Function, so it can be used
   /// like this :
@@ -65,9 +57,7 @@ abstract class ValuableCallback with ValuableWatcherMixin {
   }
 
   @override
-  void onValuableChange() {
-    this();
-  }
+  void onValuableChange() => this();
 
   /// Cleaning the ValuableCallback
   void dispose() {
@@ -75,39 +65,37 @@ abstract class ValuableCallback with ValuableWatcherMixin {
   }
 }
 
-class _ValuableCallbackImmediate extends ValuableCallback {
-  _ValuableCallbackImmediate(
-    void Function(ValuableWatcher watch, {ValuableContext? valuableContext})
-    _callback,
-  ) : super._(_callback);
+final class _ValuableCallbackImmediate extends ValuableCallback {
+  _ValuableCallbackImmediate(super._callback) : super._();
 
   @override
   void call({ValuableContext? valuableContext}) =>
       _internalCall(valuableContext: valuableContext);
 }
 
-class _ValuableCallbackMicrotask extends ValuableCallback {
-  _ValuableCallbackMicrotask(
-    void Function(ValuableWatcher watch, {ValuableContext? valuableContext})
-    _callback,
-  ) : super._(_callback);
+final class _ValuableCallbackMicrotask extends ValuableCallback {
+  _ValuableCallbackMicrotask(super._callback) : super._();
+
+  bool _scheduled = false;
 
   @override
   void call({ValuableContext? valuableContext}) {
     _nextCallbackContext = valuableContext;
+    if (_scheduled) return;
+    _scheduled = true;
     scheduleMicrotask(_microtaskExec);
   }
 
   ValuableContext? _nextCallbackContext;
 
-  void _microtaskExec() => _internalCall(valuableContext: _nextCallbackContext);
+  void _microtaskExec() {
+    _scheduled = false;
+    _internalCall(valuableContext: _nextCallbackContext);
+  }
 }
 
-class _ValuableCallbackFuture extends ValuableCallback {
-  _ValuableCallbackFuture(
-    void Function(ValuableWatcher watch, {ValuableContext? valuableContext})
-    _callback,
-  ) : super._(_callback);
+final class _ValuableCallbackFuture extends ValuableCallback {
+  _ValuableCallbackFuture(super._callback) : super._();
 
   @override
   void call({ValuableContext? valuableContext}) {

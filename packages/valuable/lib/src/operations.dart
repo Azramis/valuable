@@ -3,17 +3,17 @@ import 'package:valuable/src/base.dart';
 /// Comparison operator
 enum CompareOperator {
   equals,
-  greater_than,
-  smaller_than,
-  greater_or_equals,
-  smaller_or_equals,
+  greaterThan,
+  smallerThan,
+  greaterOrEquals,
+  smallerOrEquals,
   different,
 }
 
 /// A class to map Valuables comparison to a [Valuable<bool>]
 ///
 /// This object will notify any listeners when one of its operands changes
-class ValuableCompare<T> extends Valuable<bool> {
+final class ValuableCompare<T> extends Valuable<bool> {
   final Valuable<T> _operand1;
   final CompareOperator _operator;
   final Valuable<T> _operand2;
@@ -27,19 +27,19 @@ class ValuableCompare<T> extends Valuable<bool> {
 
   /// Greater comparator constructor
   ValuableCompare.greaterThan(Valuable<T> operand1, Valuable<T> operand2)
-    : this(operand1, CompareOperator.greater_than, operand2);
+    : this(operand1, CompareOperator.greaterThan, operand2);
 
   /// Greater or equality comparator constructor
   ValuableCompare.greaterOrEquals(Valuable<T> operand1, Valuable<T> operand2)
-    : this(operand1, CompareOperator.greater_or_equals, operand2);
+    : this(operand1, CompareOperator.greaterOrEquals, operand2);
 
   /// Smaller comparator constructor
   ValuableCompare.smallerThan(Valuable<T> operand1, Valuable<T> operand2)
-    : this(operand1, CompareOperator.smaller_than, operand2);
+    : this(operand1, CompareOperator.smallerThan, operand2);
 
   /// Smaller or equality comparator constructor
   ValuableCompare.smallerOrEquals(Valuable<T> operand1, Valuable<T> operand2)
-    : this(operand1, CompareOperator.smaller_or_equals, operand2);
+    : this(operand1, CompareOperator.smallerOrEquals, operand2);
 
   /// Difference comparator constructor
   ValuableCompare.different(Valuable<T> operand1, Valuable<T> operand2)
@@ -54,31 +54,17 @@ class ValuableCompare<T> extends Valuable<bool> {
   }
 
   bool _compareWithOperator(ValuableContext? valuableContext) {
-    bool retour;
     dynamic fieldValue = watch(_operand1, valuableContext: valuableContext);
     dynamic compareValue = watch(_operand2, valuableContext: valuableContext);
 
-    switch (_operator) {
-      case CompareOperator.equals:
-        retour = fieldValue == compareValue;
-        break;
-      case CompareOperator.greater_than:
-        retour = fieldValue > compareValue;
-        break;
-      case CompareOperator.smaller_than:
-        retour = fieldValue < compareValue;
-        break;
-      case CompareOperator.smaller_or_equals:
-        retour = fieldValue <= compareValue;
-        break;
-      case CompareOperator.greater_or_equals:
-        retour = fieldValue >= compareValue;
-        break;
-      case CompareOperator.different:
-        retour = fieldValue != compareValue;
-        break;
-    }
-    return retour;
+    return switch (_operator) {
+      .equals => fieldValue == compareValue,
+      .greaterThan => fieldValue > compareValue,
+      .smallerThan => fieldValue < compareValue,
+      .smallerOrEquals => fieldValue <= compareValue,
+      .greaterOrEquals => fieldValue >= compareValue,
+      .different => fieldValue != compareValue,
+    };
   }
 }
 
@@ -89,11 +75,11 @@ enum NumOperator {
   multiply,
   divide,
   modulo,
-  trunc_divide,
+  truncDivide,
   negate,
 }
 
-/// Class to do calculus with numeric operands, and obtain a Valuable<num>.
+/// Class to do calculus with numeric operands, and obtain a [Valuable<num>].
 ///
 /// When one of its operands changes, this Valuable notify its listeners
 class ValuableNumOperation<Output extends num> extends Valuable<Output> {
@@ -132,7 +118,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
   static ValuableNumOperation<int> truncDivide(
     Valuable<num> operand1,
     Valuable<num> operand2,
-  ) => _ValuableIntOperation(operand1, NumOperator.trunc_divide, operand2);
+  ) => _ValuableIntOperation(operand1, NumOperator.truncDivide, operand2);
 
   /// Modulo operation
   static ValuableNumOperation<num> modulo(
@@ -142,7 +128,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
 
   /// Negate operation
   static ValuableNumOperation<num> negate(Valuable<num> operand1) =>
-      ValuableNumOperation._(operand1, NumOperator.sum, null);
+      ValuableNumOperation._(operand1, NumOperator.negate, null);
 
   @override
   Output getValueDefinition(
@@ -153,46 +139,33 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
   }
 
   Output _compareWithOperator(ValuableContext? valuableContext) {
-    num retour;
     num ope1 = watch(_operand1, valuableContext: valuableContext);
     num ope2 = _operator != NumOperator.negate
         ? watch(_operand2!, valuableContext: valuableContext)
         : 0;
 
-    switch (_operator) {
-      case NumOperator.sum:
-        retour = ope1 + ope2;
-        break;
-      case NumOperator.divide:
-        retour = ope1 / ope2;
-        break;
-      case NumOperator.modulo:
-        retour = ope1 % ope2;
-        break;
-      case NumOperator.multiply:
-        retour = ope1 * ope2;
-        break;
-      case NumOperator.substract:
-        retour = ope1 - ope2;
-        break;
-      case NumOperator.negate:
-        retour = -ope1;
-        break;
-      default:
-        retour = 0.0;
-        break;
-    }
-    return retour as Output;
+    return switch (_operator) {
+          NumOperator.sum => ope1 + ope2,
+          NumOperator.modulo => ope1 % ope2,
+          NumOperator.multiply => ope1 * ope2,
+          NumOperator.substract => ope1 - ope2,
+          NumOperator.negate => -ope1,
+          _ => throw UnimplementedError(
+            'Operator $_operator is not implemented for ValuableNumOperation<Output> with Output = $Output',
+          ),
+        }
+        as Output;
   }
 }
 
 class _ValuableIntOperation extends ValuableNumOperation<int> {
   _ValuableIntOperation(
-    Valuable<num> operand1,
-    NumOperator operat,
-    Valuable<num> operand2,
-  ) : super._(operand1, operat, operand2);
+    super.operand1,
+    super.operat,
+    Valuable<num> super.operand2,
+  ) : super._();
 
+  @override
   int _compareWithOperator(ValuableContext? valuableContext) {
     int retour;
     num ope1 = watch(_operand1, valuableContext: valuableContext);
@@ -201,7 +174,7 @@ class _ValuableIntOperation extends ValuableNumOperation<int> {
         : 0;
 
     switch (_operator) {
-      case NumOperator.trunc_divide:
+      case NumOperator.truncDivide:
         retour = ope1 ~/ ope2;
         break;
       default:
@@ -214,11 +187,12 @@ class _ValuableIntOperation extends ValuableNumOperation<int> {
 
 class _ValuableDoubleOperation extends ValuableNumOperation<double> {
   _ValuableDoubleOperation(
-    Valuable<num> operand1,
-    NumOperator operat,
-    Valuable<num> operand2,
-  ) : super._(operand1, operat, operand2);
+    super.operand1,
+    super.operat,
+    Valuable<num> super.operand2,
+  ) : super._();
 
+  @override
   double _compareWithOperator(ValuableContext? valuableContext) {
     double retour;
     num ope1 = watch(_operand1, valuableContext: valuableContext);
@@ -238,7 +212,7 @@ class _ValuableDoubleOperation extends ValuableNumOperation<double> {
   }
 }
 
-/// Possible operations between Valuable<String>
+/// Possible operations between [Valuable<String>]
 enum StringOperator { concate }
 
 /// Operations for String

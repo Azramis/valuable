@@ -3,11 +3,11 @@ import 'package:valuable/src/base.dart';
 
 /// Provide a safe representation of an async value
 ///
-/// Inspired by the AsyncValue<T> from **Riverpod**, this object may be
+/// Inspired by the [AsyncValue<T>] from **Riverpod**, this object may be
 /// used by [FutureValuable] or [StreamValuable] to provide a value depending
 /// on current state
 @immutable
-abstract class ValuableAsyncValue<T> {
+sealed class ValuableAsyncValue<T> {
   const ValuableAsyncValue._();
 
   /// Provide an async value with a data
@@ -33,7 +33,7 @@ abstract class ValuableAsyncValue<T> {
 
 /// Representation of a valid data provided by an async process (Future, Stream, ...)
 @immutable
-class ValuableAsyncData<T> extends ValuableAsyncValue<T> {
+final class ValuableAsyncData<T> extends ValuableAsyncValue<T> {
   /// Current async data
   final T data;
 
@@ -49,7 +49,7 @@ class ValuableAsyncData<T> extends ValuableAsyncValue<T> {
 
 /// Representation of an error that occured during an async process
 @immutable
-class ValuableAsyncError<T> extends ValuableAsyncValue<T> {
+final class ValuableAsyncError<T> extends ValuableAsyncValue<T> {
   /// Stack trace provided with the error
   final StackTrace stackTrace;
 
@@ -71,7 +71,7 @@ class ValuableAsyncError<T> extends ValuableAsyncValue<T> {
 /// In case of async process from a Stream, this type of async value can be provided
 /// after a valid data or an error
 @immutable
-class ValuableAsyncNoData<T> extends ValuableAsyncValue<T> {
+final class ValuableAsyncNoData<T> extends ValuableAsyncValue<T> {
   /// Indicates whether this state came from a closing stream or not
   final bool closed;
 

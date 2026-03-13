@@ -1,6 +1,5 @@
 import 'package:flutter/scheduler.dart';
 import 'package:valuable/src/mixins.dart';
-import 'package:valuable/src/utils.dart';
 import 'package:valuable/valuable.dart';
 
 import 'base.dart';
@@ -18,24 +17,18 @@ class ValuableConsumer extends StatefulWidget {
   final Widget? child;
   final ValuableConsumerBuilder builder;
 
-  const ValuableConsumer({this.child, required this.builder, Key? key})
-    : super(key: key);
+  const ValuableConsumer({this.child, required this.builder, super.key});
 
   @override
-  _ValuableConsumerState createState() => _ValuableConsumerState();
+  State<ValuableConsumer> createState() => _ValuableConsumerState();
 
-  static _ValuableConsumerState? of(BuildContext context) =>
+  static _ValuableConsumerState? _maybeOf(BuildContext context) =>
       context.findAncestorStateOfType<_ValuableConsumerState>();
 }
 
 class _ValuableConsumerState extends State<ValuableConsumer>
     with ValuableWatcherMixin {
   bool _markNeedBuild = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +39,6 @@ class _ValuableConsumerState extends State<ValuableConsumer>
       builder: (BuildContext context) =>
           widget.builder(context, watch, widget.child),
     );
-  }
-
-  @override
-  void didUpdateWidget(ValuableConsumer old) {
-    super.didUpdateWidget(old);
-
-    // remove all previous watched Valuable
-    //cleanWatched();
   }
 
   T _watch<T>(
@@ -70,19 +55,19 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     if (_markNeedBuild == false) {
       _markNeedBuild = true;
 
-      if (mitigate(SchedulerBinding.instance)?.schedulerPhase ==
+      void callback(_) {
+        if (mounted) {
+          setState(() {
+            _markNeedBuild = false;
+          });
+        }
+      }
+
+      if (SchedulerBinding.instance.schedulerPhase ==
           SchedulerPhase.persistentCallbacks) {
-        mitigate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              _markNeedBuild = false;
-            });
-          }
-        });
-      } else if (mounted) {
-        setState(() {
-          _markNeedBuild = false;
-        });
+        WidgetsBinding.instance.addPostFrameCallback(callback);
+      } else {
+        callback(null);
       }
     }
   }
@@ -97,18 +82,18 @@ class _ValuableConsumerState extends State<ValuableConsumer>
 
 extension WidgetValuable<T> on Valuable<T> {
   T watchIt(BuildContext context, {ValuableWatcherSelector? selector}) {
-    ValuableContext vContext = ValuableContext(context: context);
-    _ValuableConsumerState? state = ValuableConsumer.of(context);
+    final vContext = ValuableContext(context: context);
+    final state = ValuableConsumer._maybeOf(context);
 
     // If a consumer exists in the current UI tree, we make it watch the current Valuable
     return state != null
         ? state._watch(this, valuableContext: vContext, selector: selector)
-        : this.getValue(vContext);
+        : getValue(vContext);
   }
 }
 
 abstract class ValuableWidget extends Widget {
-  const ValuableWidget({Key? key}) : super(key: key);
+  const ValuableWidget({super.key});
   @override
   Element createElement() => ValuableWidgetElement(this);
 
@@ -119,30 +104,33 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
   bool _mounted = false;
 
   /// Creates an element that uses the given widget as its configuration.
-  ValuableWidgetElement(ValuableWidget widget) : super(widget);
+  ValuableWidgetElement(ValuableWidget super.widget);
 
   @override
   Widget build() {
     // remove all previous watched Valuable
     cleanWatched();
-    return (widget as ValuableWidget).build(this, this.watch);
+    return (widget as ValuableWidget).build(this, watch);
   }
 
   @override
   void onValuableChange() {
-    if (mitigate(SchedulerBinding.instance)?.schedulerPhase ==
+    void callback(_) {
+      if (_mounted) {
+        markNeedsBuild();
+      }
+    }
+
+    if (SchedulerBinding.instance.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
-      mitigate(WidgetsBinding.instance)?.addPostFrameCallback((_) {
-        if (_mounted) {
-          markNeedsBuild();
-        }
-      });
-    } else if (_mounted) {
-      markNeedsBuild();
+      WidgetsBinding.instance.addPostFrameCallback(callback);
+    } else {
+      callback(null);
     }
   }
 
   @protected
+  @override
   ValuableContext get valuableContext => ValuableContext(context: this);
 
   @override

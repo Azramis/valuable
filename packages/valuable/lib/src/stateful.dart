@@ -6,7 +6,7 @@ import 'package:valuable/src/history.dart';
 ///
 /// When the value of the state changes, the valuable notify all dependant components
 /// (other Valubales, Consumer, ...)
-abstract class StatefulValuable<Output> extends Valuable<Output> {
+abstract interface class StatefulValuable<Output> extends Valuable<Output> {
   @protected
   Output get state;
 
@@ -42,7 +42,7 @@ mixin StatefulValuableMixin<Output> on Valuable<Output>
   ]) => state;
 }
 
-class _StatefulValuableImpl<Output> extends Valuable<Output>
+final class _StatefulValuableImpl<Output> extends Valuable<Output>
     with StatefulValuableMixin<Output> {
   Output _state;
 
@@ -52,6 +52,7 @@ class _StatefulValuableImpl<Output> extends Valuable<Output>
 
   _StatefulValuableImpl(Output initialState) : _state = initialState, super();
 
+  @override
   void setValue(Output value) {
     if (_state != value) {
       _state = value;

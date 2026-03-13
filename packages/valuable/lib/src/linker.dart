@@ -8,7 +8,7 @@ import 'package:valuable/src/history.dart';
 /// When unlinked, the value provided is the [defaultValue].
 ///
 /// Otherwise, it watch the linked Valuable to provide its value.
-abstract class ValuableLinker<Output> extends Valuable<Output> {
+abstract interface class ValuableLinker<Output> extends Valuable<Output> {
   @protected
   Valuable<Output>? get linkedValuable;
 
@@ -45,7 +45,7 @@ mixin ValuableLinkerMixin<Output> on Valuable<Output>
       HistorizedValuableLinker<Output>(this);
 }
 
-class _ValuableLinkerImpl<Output> extends Valuable<Output>
+final class _ValuableLinkerImpl<Output> extends Valuable<Output>
     with ValuableLinkerMixin<Output> {
   Valuable<Output>? _linkedValuable;
 

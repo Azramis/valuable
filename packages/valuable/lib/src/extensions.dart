@@ -5,22 +5,18 @@ import 'package:valuable/src/base.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/stateful.dart';
 
-/// Extension to define operators for Valuable<bool>
+/// Extension to define operators for [Valuable<bool>]
 extension BoolOperators on Valuable<bool> {
   /// Logical AND between Valuable/boolean value
-  Valuable<bool> operator &(Valuable<bool> other) {
-    return ValuableBoolGroup.and(<Valuable<bool>>[this, other]);
-  }
+  Valuable<bool> operator &(Valuable<bool> other) =>
+      ValuableBoolGroup.and([this, other]);
 
   /// Logical OR between Valuable/boolean value
-  Valuable<bool> operator |(Valuable<bool> other) {
-    return ValuableBoolGroup.or(<Valuable<bool>>[this, other]);
-  }
+  Valuable<bool> operator |(Valuable<bool> other) =>
+      ValuableBoolGroup.or([this, other]);
 
-  /// Create a new Valuable<bool> that depends on the current, but with the negated value
-  Valuable<bool> negation() {
-    return this.map((value) => !value);
-  }
+  /// Create a new [Valuable<bool>] that depends on the current, but with the negated value
+  Valuable<bool> negation() => map((value) => !value);
 
   /// Get a new Valuable whom the value depends on the current Valuable value
   ///
@@ -32,11 +28,9 @@ extension BoolOperators on Valuable<bool> {
   }) {
     return ValuableIf<Output>(
       this,
-      (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
-          watch(value),
+      (watch, {valuableContext}) => watch(value),
       elseCase: (elseValue != null)
-          ? (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
-                watch(elseValue)
+          ? (watch, {valuableContext}) => watch(elseValue)
           : null,
     );
   }
@@ -50,7 +44,7 @@ extension BoolOperators on Valuable<bool> {
   }
 }
 
-/// Extension to define operators for Valuable<bool>
+/// Extension to define operators for [Valuable<bool>]
 extension NumOperators<T extends num> on Valuable<T> {
   /// Addition operator.
   Valuable<num> operator +(Valuable<num> other) =>
@@ -77,7 +71,7 @@ extension NumOperators<T extends num> on Valuable<T> {
   ///
   /// The sign of the returned value `r` is always positive.
   ///
-  /// See [remainder] for the remainder of the truncating division.
+  /// See [num.remainder] for the remainder of the truncating division.
   ///
   Valuable<num> operator %(Valuable<num> other) =>
       ValuableNumOperation.modulo(this, other);
@@ -102,7 +96,7 @@ extension NumOperators<T extends num> on Valuable<T> {
   Valuable<num> operator -() => ValuableNumOperation.negate(this);
 }
 
-/// Extension to define operators for Valuable<String>
+/// Extension to define operators for [Valuable<String>]
 extension StringOperators on Valuable<String> {
   /// Concate operator
   Valuable<String> operator +(Valuable<String> other) =>
@@ -111,17 +105,17 @@ extension StringOperators on Valuable<String> {
 
 extension ListOperators<E> on Valuable<List<E>> {
   /// Notify listener that the list or its values have been updated
-  void listUpdated() => this.markToReevaluate();
+  void listUpdated() => markToReevaluate();
 
   /// Returns the object at the given [index] in the list
   /// or throws a [RangeError] if [index] is out of bounds.
-  E operator [](int index) => this.getValue()[index];
+  E operator [](int index) => getValue()[index];
 
   /// Sets the value at the given [index] in the list to [value]
   /// or throws a [RangeError] if [index] is out of bounds.
   void operator []=(int index, E value) {
-    if (this.getValue()[index] != value) {
-      this.getValue()[index] = value;
+    if (getValue()[index] != value) {
+      getValue()[index] = value;
       listUpdated();
     }
   }
@@ -131,7 +125,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// Throws a [StateError] if `this` is empty.
   /// Otherwise returns the first element in the iteration order,
   /// equivalent to `this.elementAt(0)`.
-  E get first => this.getValue().first;
+  E get first => getValue().first;
 
   /// Returns the last element.
   ///
@@ -141,12 +135,12 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// Some iterables may have more efficient ways to find the last element
   /// (for example a list can directly access the last element,
   /// without iterating through the previous ones).
-  E get last => this.getValue().last;
+  E get last => getValue().last;
 
   /// Checks that this iterable has only one element, and returns that element.
   ///
   /// Throws a [StateError] if `this` is empty or has more than one element.
-  E get single => this.getValue().single;
+  E get single => getValue().single;
 
   /// Updates the first position of the list to contain [value].
   ///
@@ -154,8 +148,8 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///
   /// The list must be non-empty.
   set first(E value) {
-    if (this.first != value) {
-      this.getValue().first = value;
+    if (first != value) {
+      getValue().first = value;
       listUpdated();
     }
   }
@@ -166,8 +160,8 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///
   /// The list must be non-empty.
   set last(E value) {
-    if (this.last != value) {
-      this.getValue().last = value;
+    if (last != value) {
+      getValue().last = value;
       listUpdated();
     }
   }
@@ -175,7 +169,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// The number of objects in this list.
   ///
   /// The valid indices for a list are `0` through `length - 1`.
-  int get length => this.getValue().length;
+  int get length => getValue().length;
 
   /// Changes the length of this list.
   ///
@@ -186,8 +180,8 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// Throws an [UnsupportedError] if the list is fixed-length or
   /// if attempting tp enlarge the list when `null` is not a valid element.
   set length(int newLength) {
-    if (this.length != newLength) {
-      this.getValue().length = newLength;
+    if (length != newLength) {
+      getValue().length = newLength;
       listUpdated();
     }
   }
@@ -197,7 +191,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///
   /// Throws an [UnsupportedError] if the list is fixed-length.
   void add(E value) {
-    this.getValue().add(value);
+    getValue().add(value);
     listUpdated();
   }
 
@@ -206,7 +200,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// Extends the length of the list by the number of objects in [iterable].
   /// Throws an [UnsupportedError] if this list is fixed-length.
   void addAll(Iterable<E> iterable) {
-    this.getValue().addAll(iterable);
+    getValue().addAll(iterable);
     listUpdated();
   }
 
@@ -234,14 +228,14 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///     List<String> numbers = ['one', 'two', 'three', 'four'];
   ///     numbers.sort((a, b) => a.length.compareTo(b.length));
   ///     print(numbers);  // [one, two, four, three] OR [two, one, four, three]
-  void sort([int compare(E a, E b)?]) {
-    this.getValue().sort(compare);
+  void sort([int Function(E a, E b)? compare]) {
+    getValue().sort(compare);
     listUpdated();
   }
 
   /// Shuffles the elements of this list randomly.
   void shuffle([Random? random]) {
-    this.getValue().shuffle(random);
+    getValue().shuffle(random);
     listUpdated();
   }
 
@@ -251,8 +245,8 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// Throws an [UnsupportedError], and retains all objects, if this
   /// is a fixed-length list.
   void clear() {
-    if (this.length > 0) {
-      this.getValue().clear();
+    if (length > 0) {
+      getValue().clear();
       listUpdated();
     }
   }
@@ -265,7 +259,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// The list must be growable.
   /// The [index] value must be non-negative and no greater than [length].
   void insert(int index, E element) {
-    this.getValue().insert(index, element);
+    getValue().insert(index, element);
     listUpdated();
   }
 
@@ -277,7 +271,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// The list must be growable.
   /// The [index] value must be non-negative and no greater than [length].
   void insertAll(int index, Iterable<E> iterable) {
-    this.getValue().insertAll(index, iterable);
+    getValue().insertAll(index, iterable);
     listUpdated();
   }
 
@@ -298,7 +292,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// An [UnsupportedError] occurs if the list is fixed-length.
   bool remove(Object? value) {
     bool result;
-    result = this.getValue().remove(value);
+    result = getValue().remove(value);
     if (result) {
       listUpdated();
     }
@@ -318,7 +312,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// the list is not modified.
   E removeAt(int index) {
     E result;
-    result = this.getValue().removeAt(index);
+    result = getValue().removeAt(index);
     listUpdated();
     return result;
   }
@@ -330,7 +324,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// Throws an [UnsupportedError] if this is a fixed-length list.
   E removeLast() {
     E result;
-    result = this.getValue().removeLast();
+    result = getValue().removeLast();
     listUpdated();
     return result;
   }
@@ -344,8 +338,8 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///     numbers.join(', '); // 'three, four'
   ///
   /// Throws an [UnsupportedError] if this is a fixed-length list.
-  void removeWhere(bool test(E element)) {
-    this.getValue().removeWhere(test);
+  void removeWhere(bool Function(E element) test) {
+    getValue().removeWhere(test);
     listUpdated();
   }
 
@@ -358,8 +352,8 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///     numbers.join(', '); // 'one, two'
   ///
   /// Throws an [UnsupportedError] if this is a fixed-length list.
-  void retainWhere(bool test(E element)) {
-    this.getValue().retainWhere(test);
+  void retainWhere(bool Function(E element) test) {
+    getValue().retainWhere(test);
     listUpdated();
   }
 
@@ -371,7 +365,7 @@ extension ListOperators<E> on Valuable<List<E>> {
   /// The default behavior is to return a normal growable list.
   /// Some list types may choose to return a list of the same type as themselves
   /// (see [Uint8List.+]);
-  List<E> operator +(List<E> other) => this.getValue() + other;
+  List<E> operator +(List<E> other) => getValue() + other;
 
   /// Returns an unmodifiable [Map] view of `this`.
   ///
@@ -383,51 +377,51 @@ extension ListOperators<E> on Valuable<List<E>> {
   ///     Map<int, String> map = words.asMap();
   ///     map[0] + map[1];   // 'feefi';
   ///     map.keys.toList(); // [0, 1, 2, 3]
-  Map<int, E> asMap() => this.getValue().asMap();
+  Map<int, E> asMap() => getValue().asMap();
 
   /// Returns `true` if there are no elements in this collection.
   ///
   /// May be computed by checking if `iterator.moveNext()` returns `false`.
-  bool get isEmpty => this.getValue().isEmpty;
+  bool get isEmpty => getValue().isEmpty;
 
   /// Returns true if there is at least one element in this collection.
   ///
   /// May be computed by checking if `iterator.moveNext()` returns `true`.
-  bool get isNotEmpty => this.getValue().isNotEmpty;
+  bool get isNotEmpty => getValue().isNotEmpty;
 }
 
-/// Available operations on StatefulValuable<bool>
+/// Available operations on [StatefulValuable<bool>]
 extension BoolStateOperations on StatefulValuable<bool> {
   /// Reassign the state value with the negated current value (true -> false)
   void negate() {
-    setValue(!this.getValue());
+    setValue(!getValue());
   }
 }
 
-/// Available operations on StatefulValuable<T extends num>
+/// Available operations on [StatefulValuable<T extends num>]
 extension NumStateOperations<T extends num> on StatefulValuable<T> {
   /// Reassign the state value with the negated current value (current * -1)
   void negate() {
-    setValue((this.getValue() * -1) as T);
+    setValue((getValue() * -1) as T);
   }
 
   /// Reassign the state value by adding an other number
   void add(num other) {
-    setValue((this.getValue() + other) as T);
+    setValue((getValue() + other) as T);
   }
 
   /// Reassign the state value by substracting an other number
   void substract(num other) {
-    setValue((this.getValue() - other) as T);
+    setValue((getValue() - other) as T);
   }
 
   /// Reassign the state value by mutiplying with an other number
   void multiply(num other) {
-    setValue((this.getValue() * other) as T);
+    setValue((getValue() * other) as T);
   }
 }
 
-/// Available operations on StatefulValuable<int>
+/// Available operations on [StatefulValuable<int>]
 extension IntStateOperations on StatefulValuable<int> {
   /// Reassign the state by adding 1
   void increment() {
@@ -441,15 +435,15 @@ extension IntStateOperations on StatefulValuable<int> {
 
   /// Reassign the state value by dividing with an other number
   void divide(num other) {
-    setValue(this.getValue() ~/ other);
+    setValue(getValue() ~/ other);
   }
 }
 
-/// Available operations on StatefulValuable<double>
+/// Available operations on [StatefulValuable<double>]
 extension DoubleStateOperations on StatefulValuable<double> {
   /// Reassign the state value by dividing with an other number
   void divide(num other) {
-    setValue(this.getValue() / other);
+    setValue(getValue() / other);
   }
 }
 
@@ -462,7 +456,7 @@ extension ValueListenableValuable<T> on ValueListenable<T> {
 /// Method to transform a [ValueListenable] to a [Valuable]
 extension ListenableValuable<L extends Listenable> on L {
   /// Method to transform a [ValueListenable] to a [Valuable]
-  Valuable<T> toComputedValuable<T>(T computation(L listenable)) =>
+  Valuable<T> toComputedValuable<T>(T Function(L listenable) computation) =>
       Valuable.listenableComputed(this, computation);
 }
 

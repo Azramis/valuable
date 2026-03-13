@@ -1,4 +1,4 @@
-library valuable;
+library;
 
 export 'src/async.dart';
 export 'src/base.dart';

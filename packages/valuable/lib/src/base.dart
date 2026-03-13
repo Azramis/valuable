@@ -60,7 +60,7 @@ class ValuableContext {
   }
 
   @override
-  int get hashCode => super.hashCode;
+  int get hashCode => Object.hash(this, context);
 }
 
 /// Main class Valuable
@@ -92,8 +92,7 @@ class ValuableContext {
 /// where the value is needed.
 abstract class Valuable<Output> extends ChangeNotifier
     with ValuableWatcherMixin {
-  @protected
-  final _ValueCache valueCache = _ValueCache();
+  final _valueCache = _ValueCache<Output>();
 
   /// Determines if the valuable use the cache or not
   ///
@@ -116,33 +115,14 @@ abstract class Valuable<Output> extends ChangeNotifier
   bool get isMounted => _isMounted.value;
 
   /// Factory [Valuable.value] to build a simple Valuable on a final value
-  factory Valuable.value(Output value) {
-    return _Valuable<Output>(value);
-  }
+  factory Valuable.value(Output value) = _Valuable<Output>;
 
   /// Factory [Valuable.computed] to build a Valuable that calculate its own value
   /// through a function.
   factory Valuable.computed(
     ValuableParentWatcher<Output> computation, {
-    bool evaluateWithContext = false,
-  }) {
-    return _Valuable<Output>.computed(
-      computation,
-      evaluateWithContext: evaluateWithContext,
-    );
-  }
-
-  /// Replace by [Valuable.computed].
-  ///
-  /// Will be removed in future version. Keeping it at this moment is
-  /// only for backward compatibility.
-  @deprecated
-  factory Valuable.byValuer(
-    ValuableParentWatcher<Output> valuer, {
-    bool evaluateWithContext = false,
-  }) {
-    return Valuable.computed(valuer, evaluateWithContext: evaluateWithContext);
-  }
+    bool evaluateWithContext,
+  }) = _Valuable<Output>.computed;
 
   /// Factory [Valuable.listenable] to build a Valuable that listen
   /// to a [ValueListenable] and provide its value
@@ -156,7 +136,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// to a [Listenable] and provide a value by computation
   static Valuable<Output> listenableComputed<L extends Listenable, Output>(
     L listenable,
-    Output computation(L listenable),
+    Output Function(L listenable) computation,
   ) => _ValuableListenable(listenable, computation);
 
   /// Get the current value of the Valuable
@@ -168,18 +148,18 @@ abstract class Valuable<Output> extends ChangeNotifier
     // in that case, return cached value rather than reevaluate it
     if (!_evaluateWithContext &&
         !_reevaluatingNeeded &&
-        valueCache.isProvided) {
-      return valueCache.currentValue;
+        _valueCache.isProvided) {
+      return _valueCache.currentValue;
     }
     // Before reading/calculating the value, the watched Valuables tree is cleaned
     // in order to remove the dependencies that may disapear.
     cleanWatched();
 
-    Output value = getValueDefinition(_reevaluatingNeeded, context);
+    final value = getValueDefinition(_reevaluatingNeeded, context);
 
     //
     if (!_evaluateWithContext) {
-      valueCache.currentValue = value;
+      _valueCache.currentValue = value;
     }
     // We are reevaluating the Valuable, so we can unmark it
     _reevaluatingNeeded = false;
@@ -214,9 +194,7 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   @protected
   @override
-  void onValuableChange() {
-    markToReevaluate();
-  }
+  void onValuableChange() => markToReevaluate();
 
   /// Mark the valuable to be reevaluated
   ///
@@ -224,16 +202,15 @@ abstract class Valuable<Output> extends ChangeNotifier
   void markToReevaluate() {
     if (!_reevaluatingNeeded) {
       _reevaluatingNeeded = true;
-      this.notifyListeners();
+      notifyListeners();
     }
   }
 
   /// Allows to be notified when this Valuable is disposed
   ///
   /// [onDispose] will be called when this Valuable is disposed
-  void listenDispose(VoidCallback onDispose) {
-    _isMounted.addListener(onDispose);
-  }
+  void listenDispose(VoidCallback onDispose) =>
+      _isMounted.addListener(onDispose);
 
   /// Build an [HistorizedValuable] based on this Valuable
   HistorizedValuable<Output> historize() => HistorizedValuable<Output>(this);
@@ -244,7 +221,9 @@ abstract class Valuable<Output> extends ChangeNotifier
     _isMounted.value = false;
     _isMounted.dispose();
     List<VoidCallback> removers = _removeListeners.values.toList();
-    removers.forEach((VoidCallback remover) => remover());
+    for (var remover in removers) {
+      remover();
+    }
 
     super.dispose();
   }
@@ -275,7 +254,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
   Valuable<bool> operator >(dynamic other) {
-    return _getCompare(other, CompareOperator.greater_than);
+    return _getCompare(other, CompareOperator.greaterThan);
   }
 
   /// Compare with a value that type is [Output] or another [Valuable]
@@ -283,7 +262,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
   Valuable<bool> operator >=(dynamic other) {
-    return _getCompare(other, CompareOperator.greater_or_equals);
+    return _getCompare(other, CompareOperator.greaterOrEquals);
   }
 
   /// Compare with a value that type is [Output] or another [Valuable]
@@ -291,7 +270,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
   Valuable<bool> operator <(dynamic other) {
-    return _getCompare(other, CompareOperator.smaller_than);
+    return _getCompare(other, CompareOperator.smallerThan);
   }
 
   /// Compare with a value that type is [Output] or another [Valuable]
@@ -299,7 +278,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
   /// is thrown
   Valuable<bool> operator <=(dynamic other) {
-    return _getCompare(other, CompareOperator.smaller_or_equals);
+    return _getCompare(other, CompareOperator.smallerOrEquals);
   }
 
   /// Compare with a value that type is [Output] or another [Valuable]
@@ -319,7 +298,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   }
 }
 
-class _ValueCache<Output> {
+final class _ValueCache<Output> {
   late Output _currentValue;
   bool _isProvided = false;
   Output get currentValue => _currentValue;
@@ -331,15 +310,11 @@ class _ValueCache<Output> {
   bool get isProvided => _isProvided;
 }
 
-class _Valuable<Output> extends Valuable<Output> {
+final class _Valuable<Output> extends Valuable<Output> {
   final ValuableParentWatcher<Output> computation;
 
-  _Valuable.computed(this.computation, {bool evaluateWithContext = false})
-    : super(evaluateWithContext: evaluateWithContext);
-  _Valuable(Output value)
-    : this.computed(
-        (ValuableWatcher watch, {ValuableContext? valuableContext}) => value,
-      );
+  _Valuable.computed(this.computation, {super.evaluateWithContext = false});
+  _Valuable(Output value) : this.computed((_, {valuableContext}) => value);
 
   @override
   Output getValueDefinition(
@@ -349,7 +324,7 @@ class _Valuable<Output> extends Valuable<Output> {
 }
 
 /// A [Valuable] linked to a [Listenable] and will compute a value with it
-class _ValuableListenable<L extends Listenable, V> extends Valuable<V> {
+final class _ValuableListenable<L extends Listenable, V> extends Valuable<V> {
   final L _listenable;
   final V Function(L) _computation;
 
@@ -373,17 +348,17 @@ class _ValuableListenable<L extends Listenable, V> extends Valuable<V> {
 
 enum _BoolGroupType { and, or }
 
-/// A class to make logical operations with Valuable<bool>
+/// A class to make logical operations with [Valuable<bool>]
 ///
-/// Group some Valuable<bool> with a boolean operator (AND OR), to get a super-Valuable
+/// Group some [Valuable<bool>] with a boolean operator (AND OR), to get a super-Valuable
 /// that depends on them.
-class ValuableBoolGroup extends Valuable<bool> {
-  final _BoolGroupType type;
+final class ValuableBoolGroup extends Valuable<bool> {
+  final _BoolGroupType _type;
 
   /// All the constraints to be used in the group to determine the value
   final List<Valuable<bool>> constraints;
 
-  ValuableBoolGroup._(this.type, this.constraints)
+  ValuableBoolGroup._(this._type, this.constraints)
     : super(
         evaluateWithContext:
             true /* Needed because of the parameter passed to children */,
@@ -403,10 +378,10 @@ class ValuableBoolGroup extends Valuable<bool> {
     bool reevaluatingNeeded, [
     ValuableContext? valuableContext = const ValuableContext(),
   ]) {
-    bool retour = type == _BoolGroupType.and;
+    bool retour = _type == _BoolGroupType.and;
 
     for (Valuable<bool> constraint in constraints) {
-      if (type == _BoolGroupType.and) {
+      if (_type == _BoolGroupType.and) {
         retour = retour && watch(constraint, valuableContext: valuableContext);
         if (retour == false) {
           break;
@@ -448,7 +423,7 @@ typedef ValuableGetFutureLoading<Output> =
 /// response of the future
 /// - [noDataValue] will return an [Output] value while the future is still incomplete
 /// - [errorValue] will return an [Output] when the future complete on error
-class FutureValuable<Output, Res> extends Valuable<Output> {
+final class FutureValuable<Output, Res> extends Valuable<Output> {
   //final Future<Res> _future;
   final Valuable<Future<Res>> _valuableFuture;
 
@@ -506,9 +481,8 @@ class FutureValuable<Output, Res> extends Valuable<Output> {
     required this.dataValue,
     required this.noDataValue,
     required this.errorValue,
-    bool evaluateWithContext = false,
-  }) : _valuableFuture = future,
-       super(evaluateWithContext: evaluateWithContext) {
+    super.evaluateWithContext = false,
+  }) : _valuableFuture = future {
     _callback();
   }
 
@@ -589,14 +563,14 @@ typedef ValuableGetStreamError<Output> =
 typedef ValuableGetStreamDone<Output> =
     Output Function(ValuableContext? context);
 
-/// A Valuable that remains on a Stream<Msg>
+/// A Valuable that remains on a [Stream<Msg>]
 ///
 /// This object provide a valuer function, for each possible state of the Stream
 ///
 /// - [dataValue] while the Stream messaging without error
 /// - [errorValue] when the Stream get an error
 /// - [doneValue] when the Stream closes and is done
-class StreamValuable<Output, Msg> extends Valuable<Output> {
+final class StreamValuable<Output, Msg> extends Valuable<Output> {
   /// A function to provide an [Output] value on a [Msg] message
   final ValuableGetStreamData<Output, Msg> dataValue;
 
@@ -650,9 +624,8 @@ class StreamValuable<Output, Msg> extends Valuable<Output> {
     required this.errorValue,
     required this.doneValue,
     required Output initialData,
-    bool evaluateWithContext = false,
-  }) : _valuableStream = stream,
-       super(evaluateWithContext: evaluateWithContext) {
+    super.evaluateWithContext = false,
+  }) : _valuableStream = stream {
     _defaultValuer = (_) => initialData;
     _callback();
   }

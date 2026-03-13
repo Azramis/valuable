@@ -27,12 +27,10 @@ mixin ValuableWatcherMixin {
     ValuableContext? valuableContext,
     ValuableWatcherSelector<T>? selector,
   }) {
-    T result;
-
-    result = valuable.getValue(valuableContext ?? this.valuableContext);
+    final result = valuable.getValue(valuableContext ?? this.valuableContext);
 
     if (!_watched.containsKey(valuable)) {
-      VoidCallback callback = () => _callValuableChange<T>(valuable);
+      void callback() => _callValuableChange<T>(valuable);
 
       _watched.putIfAbsent(
         valuable,
@@ -43,13 +41,12 @@ mixin ValuableWatcherMixin {
       );
       valuable.addListener(callback);
       valuable.listenDispose(() {
-        unwatch(valuable);
+        _unwatch(valuable);
       });
     }
 
     if (_watched.containsKey(valuable)) {
-      _ValuableWatchedInfos<T> infos =
-          _watched[valuable] as _ValuableWatchedInfos<T>;
+      final infos = _watched[valuable] as _ValuableWatchedInfos<T>;
       infos.previousWatchedValue = result; // Save value for future comparaison
       if (selector != null) {
         infos.selectors.add(selector);
@@ -60,9 +57,7 @@ mixin ValuableWatcherMixin {
   }
 
   /// Remove listener on the valuable, that may change scope, or that about to be disposed
-  /// Internal purpose
-  @protected
-  void unwatch(Valuable valuable) {
+  void _unwatch(Valuable valuable) {
     if (_watched.containsKey(valuable)) {
       _removeValuableListener(valuable);
       _watched.remove(valuable);
@@ -72,8 +67,7 @@ mixin ValuableWatcherMixin {
   void _callValuableChange<T>(Valuable<T> valuable) {
     if (_watched.containsKey(valuable)) {
       if (_watched[valuable] != null) {
-        _ValuableWatchedInfos<T> infos =
-            _watched[valuable] as _ValuableWatchedInfos<T>;
+        final infos = _watched[valuable] as _ValuableWatchedInfos<T>;
 
         bool selectOk;
 
@@ -110,9 +104,11 @@ mixin ValuableWatcherMixin {
   ///
   /// This method should be overriden to define the implementor behavior
   @protected
+  @visibleForOverriding
   void onValuableChange();
 
   @protected
+  @visibleForOverriding
   ValuableContext? get valuableContext => null;
 
   @protected

@@ -11,51 +11,51 @@ import 'package:meta/meta.dart';
 extension type UnmodifiableQueueView<E>(Queue<E> queue) implements Queue<E> {
   @redeclare
   void add(E value) {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   void addAll(Iterable<E> iterable) {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   void addFirst(E value) {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   void addLast(E value) {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   void clear() {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   bool remove(Object? value) {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   E removeFirst() {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   E removeLast() {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   void removeWhere(bool Function(E element) test) {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 
   @redeclare
   void retainWhere(bool Function(E element) test) {
-    throw new UnsupportedError("Cannot modify an unmodifiable queue");
+    throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
 }

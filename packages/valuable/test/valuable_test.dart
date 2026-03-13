@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:valuable/valuable.dart';
 
 void main() async {
