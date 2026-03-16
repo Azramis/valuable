@@ -202,6 +202,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// If it's the first time, then it notify listeners
   void markToReevaluate() {
+    if (!isMounted) return;
     if (!_reevaluatingNeeded) {
       _reevaluatingNeeded = true;
       notifyListeners();
