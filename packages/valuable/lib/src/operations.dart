@@ -34,7 +34,14 @@ final class ValuableCompare<T> extends Valuable<bool> {
   final Valuable<T> _operand2;
 
   /// Complete constuctor
-  ValuableCompare(this._operand1, this._operator, this._operand2) : super();
+  ValuableCompare(
+    Valuable<T> operand1,
+    CompareOperator operator,
+    Valuable<T> operand2,
+  ) : _operand1 = operand1,
+      _operator = operator,
+      _operand2 = operand2,
+      super();
 
   /// Equality comparator constructor
   ValuableCompare.equals(Valuable<T> operand1, Valuable<T> operand2)
@@ -102,8 +109,14 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
   final Valuable<num>? _operand2;
   final NumOperator _operator;
 
-  ValuableNumOperation._(this._operand1, this._operator, this._operand2)
-    : super();
+  ValuableNumOperation._(
+    Valuable<num> operand1,
+    NumOperator operator,
+    Valuable<num>? operand2,
+  ) : _operand1 = operand1,
+      _operator = operator,
+      _operand2 = operand2,
+      super();
 
   /// Sum operation
   static ValuableNumOperation<num> sum(
@@ -176,7 +189,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
 class _ValuableIntOperation extends ValuableNumOperation<int> {
   _ValuableIntOperation(
     super.operand1,
-    super.operat,
+    super.operator,
     Valuable<num> super.operand2,
   ) : super._();
 
@@ -203,7 +216,7 @@ class _ValuableIntOperation extends ValuableNumOperation<int> {
 class _ValuableDoubleOperation extends ValuableNumOperation<double> {
   _ValuableDoubleOperation(
     super.operand1,
-    super.operat,
+    super.operator,
     Valuable<num> super.operand2,
   ) : super._();
 
@@ -236,8 +249,14 @@ class ValuableStringOperation extends Valuable<String> {
   final Valuable<String> _operand2;
   final StringOperator _operator;
 
-  ValuableStringOperation(this._operand1, this._operator, this._operand2)
-    : super();
+  ValuableStringOperation(
+    Valuable<String> operand1,
+    StringOperator operator,
+    Valuable<String> operand2,
+  ) : _operand1 = operand1,
+      _operator = operator,
+      _operand2 = operand2,
+      super();
 
   /// Sum operation
   ValuableStringOperation.concate(
