@@ -679,9 +679,9 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
 
   @override
   void dispose() {
-    super.dispose();
-    _callback.dispose();
     _subscription?.cancel(); // Cancel subscription to free memory
+    _callback.dispose();
+    super.dispose();
   }
 }
 
