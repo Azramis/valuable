@@ -4,7 +4,7 @@ import 'dart:collection';
   Dart doesn't provide an unmodifiable queue, so this is an implementation
   for the need of this library
 */
-class UnmodifiableQueueView<E> implements Queue<E> {
+class UnmodifiableQueueView<E> with IterableMixin<E> implements Queue<E> {
   final Queue<E> _queue;
 
   UnmodifiableQueueView(this._queue);
@@ -61,24 +61,6 @@ class UnmodifiableQueueView<E> implements Queue<E> {
 
   @override
   Iterator<E> get iterator => _queue.iterator;
-
-  @override
-  int get length => _queue.length;
-
-  @override
-  bool get isEmpty => _queue.isEmpty;
-
-  @override
-  bool get isNotEmpty => _queue.isNotEmpty;
-
-  @override
-  E get first => _queue.first;
-
-  @override
-  E get last => _queue.last;
-
-  @override
-  E get single => _queue.single;
 
   @override
   Queue<T> cast<T>() => UnmodifiableQueueView<T>(_queue.cast<T>());
