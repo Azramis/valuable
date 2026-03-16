@@ -81,5 +81,5 @@ class UnmodifiableQueueView<E> implements Queue<E> {
   E get single => _queue.single;
 
   @override
-  Queue<T> cast<T>() => _queue.cast<T>();
+  Queue<T> cast<T>() => UnmodifiableQueueView<T>(_queue.cast<T>());
 }
