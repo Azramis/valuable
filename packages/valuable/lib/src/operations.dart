@@ -99,6 +99,10 @@ enum NumOperator {
   modulo,
   truncDivide,
   negate,
+
+  @Deprecated('Use .truncDivide instead')
+  // ignore: non_constant_identifier_names
+  static NumOperator get trunc_divide => NumOperator.truncDivide;
 }
 
 /// Class to do calculus with numeric operands, and obtain a [Valuable<num>].
