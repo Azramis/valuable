@@ -98,7 +98,7 @@ enum NumOperator {
   divide,
   modulo,
   truncDivide,
-  negate,
+  negate;
 
   @Deprecated('Use .truncDivide instead')
   // ignore: non_constant_identifier_names
