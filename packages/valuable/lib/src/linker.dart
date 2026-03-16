@@ -36,7 +36,7 @@ mixin ValuableLinkerMixin<Output> on Valuable<Output>
     return watch.def(
       linkedValuable,
       defaultValue,
-      valuableContext: valuableContext,
+      valuableContext: context,
     );
   }
 
