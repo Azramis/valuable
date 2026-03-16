@@ -11,17 +11,17 @@ enum CompareOperator {
 
   @Deprecated('Use .greaterThan instead')
   // ignore: non_constant_identifier_names
-  static CompareOperator get greater_than => CompareOperator.greaterThan;
+  static const CompareOperator greater_than = CompareOperator.greaterThan;
   @Deprecated('Use .smallerThan instead')
   // ignore: non_constant_identifier_names
-  static CompareOperator get smaller_than => CompareOperator.smallerThan;
+  static const CompareOperator smaller_than = CompareOperator.smallerThan;
   @Deprecated('Use .greaterOrEquals instead')
   // ignore: non_constant_identifier_names
-  static CompareOperator get greater_or_equals =>
+  static const CompareOperator greater_or_equals =
       CompareOperator.greaterOrEquals;
   @Deprecated('Use .smallerOrEquals instead')
   // ignore: non_constant_identifier_names
-  static CompareOperator get smaller_or_equals =>
+  static const CompareOperator smaller_or_equals =
       CompareOperator.smallerOrEquals;
 }
 
@@ -102,7 +102,7 @@ enum NumOperator {
 
   @Deprecated('Use .truncDivide instead')
   // ignore: non_constant_identifier_names
-  static NumOperator get trunc_divide => NumOperator.truncDivide;
+  static const NumOperator trunc_divide = NumOperator.truncDivide;
 }
 
 /// Class to do calculus with numeric operands, and obtain a [Valuable<num>].
