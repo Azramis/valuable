@@ -10,6 +10,27 @@ class UnmodifiableQueueView<E> with IterableMixin<E> implements Queue<E> {
   UnmodifiableQueueView(this._queue);
 
   @override
+  int get length => _queue.length;
+
+  @override
+  bool get isEmpty => _queue.isEmpty;
+
+  @override
+  bool get isNotEmpty => _queue.isNotEmpty;
+
+  @override
+  E get first => _queue.first;
+
+  @override
+  E get last => _queue.last;
+
+  @override
+  E get single => _queue.single;
+
+  @override
+  E elementAt(int index) => _queue.elementAt(index);
+
+  @override
   void add(E value) {
     throw UnsupportedError("Cannot modify an unmodifiable queue");
   }
