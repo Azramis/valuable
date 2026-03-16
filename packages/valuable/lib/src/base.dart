@@ -59,8 +59,10 @@ class ValuableContext {
     return other is ValuableContext && (other.context == context);
   }
 
+  static const _identity = Object();
+
   @override
-  int get hashCode => Object.hash(context);
+  int get hashCode => Object.hash(_identity, context);
 }
 
 /// Main class Valuable
