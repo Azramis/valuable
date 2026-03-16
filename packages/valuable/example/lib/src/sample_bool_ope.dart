@@ -77,15 +77,17 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
               );
             },
           ),
-          ValuableConsumer(
-            builder: (context, watch, _) {
-              return Visibility(
-                visible: watch(
-                  _cbCheckSuper | _cbCheck1 & _cbCheck2 & _cbCheck3,
-                ),
-                child: Expanded(child: Container(color: Colors.blue)),
-              );
-            },
+          Expanded(
+            child: ValuableConsumer(
+              builder: (context, watch, _) {
+                return Visibility(
+                  visible: watch(
+                    _cbCheckSuper | _cbCheck1 & _cbCheck2 & _cbCheck3,
+                  ),
+                  child: Container(color: Colors.blue),
+                );
+              },
+            ),
           ),
         ],
       ),
