@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
 class SampleHistory extends StatefulWidget {
-  const SampleHistory({Key? key}) : super(key: key);
+  const SampleHistory({super.key});
 
   @override
   State<SampleHistory> createState() => _SampleHistoryState();
@@ -21,9 +21,7 @@ class _SampleHistoryState extends State<SampleHistory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Sample History"),
-      ),
+      appBar: AppBar(title: const Text("Sample History")),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -33,14 +31,15 @@ class _SampleHistoryState extends State<SampleHistory> {
             result: result,
           ),
           Expanded(
-              child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: _HistoryViewer(operand1, title: "Operand 1")),
-              Expanded(child: _HistoryViewer(operand2, title: "Operand 2")),
-              Expanded(child: _HistoryViewer(result, title: "Result")),
-            ],
-          ))
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: _HistoryViewer(operand1, title: "Operand 1")),
+                Expanded(child: _HistoryViewer(operand2, title: "Operand 2")),
+                Expanded(child: _HistoryViewer(result, title: "Result")),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -56,8 +55,11 @@ class _ValuableMultiplicator extends StatelessWidget {
   late final Valuable<String> operand1Txt = operand1.map((p0) => p0.toString());
   late final Valuable<String> operand2Txt = operand2.map((p0) => p0.toString());
 
-  _ValuableMultiplicator(
-      {required this.operand1, required this.operand2, required this.result});
+  _ValuableMultiplicator({
+    required this.operand1,
+    required this.operand2,
+    required this.result,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +68,7 @@ class _ValuableMultiplicator extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              _ValuableMultiplicatorOperand(
-                operand: operand1,
-              ),
+              _ValuableMultiplicatorOperand(operand: operand1),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -77,16 +77,12 @@ class _ValuableMultiplicator extends StatelessWidget {
                   ValuableText(operand2Txt),
                 ],
               ),
-              _ValuableMultiplicatorOperand(
-                operand: operand2,
-              ),
+              _ValuableMultiplicatorOperand(operand: operand2),
             ],
           ),
         ),
         const Center(child: Text("=")),
-        Expanded(
-          child: _ValuableMultiplicatorResult(result),
-        ),
+        Expanded(child: _ValuableMultiplicatorResult(result)),
       ],
     );
   }
@@ -100,11 +96,12 @@ class _ValuableMultiplicatorOperand extends ValuableWidget {
 
   final int? divisions;
 
-  const _ValuableMultiplicatorOperand(
-      {required this.operand,
-      this.minValue = 0,
-      this.maxValue = 9,
-      this.divisions = 9});
+  const _ValuableMultiplicatorOperand({
+    required this.operand,
+    this.minValue = 0,
+    this.maxValue = 9,
+    this.divisions = 9,
+  });
 
   @override
   Widget build(BuildContext context, ValuableWatcher watch) {
@@ -125,9 +122,7 @@ class _ValuableMultiplicatorResult extends ValuableWidget {
 
   @override
   Widget build(BuildContext context, ValuableWatcher watch) {
-    return Center(
-      child: Text("${watch(result)}"),
-    );
+    return Center(child: Text("${watch(result)}"));
   }
 }
 
@@ -145,10 +140,12 @@ class _HistoryViewer<T> extends ValuableWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         Card(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -167,8 +164,9 @@ class _HistoryViewer<T> extends ValuableWidget {
             controller: scrollController,
             itemCount: valuable.history.length,
             itemBuilder: (context, index) {
-              ValuableHistoryNode<T> node = valuable.history
-                  .elementAt(valuable.history.length - 1 - index);
+              ValuableHistoryNode<T> node = valuable.history.elementAt(
+                valuable.history.length - 1 - index,
+              );
 
               return ListTile(
                 selected: isSelected(valuable.history.length - 1 - index),
