@@ -1,10 +1,12 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
+
 import 'package:valuable/valuable.dart';
 
 void main() async {
   await Future(() => print('Future #1'));
-  Future(() => print('Future #1 bis'));
+  unawaited(Future(() => print('Future #1 bis')));
   Test().test();
   await Future(() => print('Future #2'));
 }
