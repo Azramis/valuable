@@ -10,17 +10,17 @@ enum CompareOperator {
   different;
 
   @Deprecated('Use .greaterThan instead')
-  // ignore: non_constant_identifier_names
+  // ignore: constant_identifier_names
   static const CompareOperator greater_than = CompareOperator.greaterThan;
   @Deprecated('Use .smallerThan instead')
-  // ignore: non_constant_identifier_names
+  // ignore: constant_identifier_names
   static const CompareOperator smaller_than = CompareOperator.smallerThan;
   @Deprecated('Use .greaterOrEquals instead')
-  // ignore: non_constant_identifier_names
+  // ignore: constant_identifier_names
   static const CompareOperator greater_or_equals =
       CompareOperator.greaterOrEquals;
   @Deprecated('Use .smallerOrEquals instead')
-  // ignore: non_constant_identifier_names
+  // ignore: constant_identifier_names
   static const CompareOperator smaller_or_equals =
       CompareOperator.smallerOrEquals;
 }
@@ -101,7 +101,7 @@ enum NumOperator {
   negate;
 
   @Deprecated('Use .truncDivide instead')
-  // ignore: non_constant_identifier_names
+  // ignore: constant_identifier_names
   static const NumOperator trunc_divide = NumOperator.truncDivide;
 }
 
