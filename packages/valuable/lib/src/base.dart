@@ -60,7 +60,7 @@ class ValuableContext {
   }
 
   @override
-  int get hashCode => Object.hash(this, context);
+  int get hashCode => Object.hash(context);
 }
 
 /// Main class Valuable
