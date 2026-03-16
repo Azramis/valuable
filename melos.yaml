@@ -2,7 +2,7 @@ name: valuable
 repository: https://github.com/Azramis/valuable
 sdkPath: .fvm/flutter_sdk
 packages:
-  - packages/*
+  - packages/**
 
 command:
   bootstrap:

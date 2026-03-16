@@ -1,7 +1,11 @@
 name: valuable_workspace
-
 environment:
-  sdk: '^3.10.0'
+  sdk: ">=3.10.0 <4.0.0"
+
 dev_dependencies:
   flutter_lints: ^6.0.0
   melos: ^7.4.0
+workspace:
+  - packages/valuable/example
+  - packages/valuable
+melos: 
