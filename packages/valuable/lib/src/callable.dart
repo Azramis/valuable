@@ -104,7 +104,9 @@ final class _ValuableCallbackFuture extends ValuableCallback {
 
     _futureExecHandle = Future(
       _futureExec,
-    ).then((_) => _futureExecHandle == null);
+    ).whenComplete(() {
+      _futureExecHandle = null;
+    });
   }
 
   Future<void>? _futureExecHandle;
