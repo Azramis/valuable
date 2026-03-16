@@ -1,5 +1,3 @@
-library;
-
 export 'src/async.dart';
 export 'src/base.dart';
 export 'src/callable.dart';
