@@ -328,25 +328,27 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
     bool reevaluatingNeeded, [
     ValuableContext? valuableContext = const ValuableContext(),
   ]) {
-    bool test = false;
+    bool matched = false;
     late Output value;
+
     if (cases?.isNotEmpty ?? false) {
-      Iterator<ValuableCaseItem<Output>>? iterator = cases?.iterator;
-      while (iterator != null &&
-          iterator.moveNext() &&
-          (test =
-              testable
-                  .equals(iterator.current.caseValue)
-                  .getValue(valuableContext) ==
-              false)) {
-        value = iterator.current.getValue(
-          watch,
-          valuableContext: valuableContext,
-        );
+      for (final caseItem in cases!) {
+        final bool isMatch = testable
+            .equals(caseItem.caseValue)
+            .getValue(valuableContext);
+
+        if (isMatch) {
+          matched = true;
+          value = caseItem.getValue(
+            watch,
+            valuableContext: valuableContext,
+          );
+          break;
+        }
       }
     }
 
-    if (test == false) {
+    if (!matched) {
       value = defaultCase(watch, valuableContext: valuableContext);
     }
     return value;
