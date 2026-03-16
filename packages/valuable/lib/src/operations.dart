@@ -7,7 +7,22 @@ enum CompareOperator {
   smallerThan,
   greaterOrEquals,
   smallerOrEquals,
-  different,
+  different;
+
+  @Deprecated('Use .greaterThan instead')
+  // ignore: non_constant_identifier_names
+  static CompareOperator get greater_than => CompareOperator.greaterThan;
+  @Deprecated('Use .smallerThan instead')
+  // ignore: non_constant_identifier_names
+  static CompareOperator get smaller_than => CompareOperator.smallerThan;
+  @Deprecated('Use .greaterOrEquals instead')
+  // ignore: non_constant_identifier_names
+  static CompareOperator get greater_or_equals =>
+      CompareOperator.greaterOrEquals;
+  @Deprecated('Use .smallerOrEquals instead')
+  // ignore: non_constant_identifier_names
+  static CompareOperator get smaller_or_equals =>
+      CompareOperator.smallerOrEquals;
 }
 
 /// A class to map Valuables comparison to a [Valuable<bool>]
