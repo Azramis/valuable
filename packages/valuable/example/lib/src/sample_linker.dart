@@ -1,10 +1,12 @@
+// ignore_for_file: unused_element_parameter
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
 class SampleLinker extends StatefulWidget {
-  const SampleLinker({Key? key}) : super(key: key);
+  const SampleLinker({super.key});
 
   @override
   State<SampleLinker> createState() => _SampleLinkerState();
@@ -16,13 +18,13 @@ class _SampleLinkerState extends State<SampleLinker> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Sample Linker"),
+      appBar: AppBar(title: const Text("Sample Linker")),
+      body: Stack(
+        children: [
+          _LinkableContainer(widthLinker: widthLinker),
+          _LinkedContainer(widthLinker),
+        ],
       ),
-      body: Stack(children: [
-        _LinkableContainer(widthLinker: widthLinker),
-        _LinkedContainer(widthLinker),
-      ]),
     );
   }
 }
@@ -40,9 +42,7 @@ class _LinkedContainer extends ValuableWidget {
       left: watch(leftOffset),
       child: Container(
         color: Colors.green,
-        child: const Row(
-          children: [Icon(Icons.settings_accessibility)],
-        ),
+        child: const Row(children: [Icon(Icons.settings_accessibility)]),
       ),
     );
   }
@@ -51,7 +51,7 @@ class _LinkedContainer extends ValuableWidget {
 class _LinkableContainer extends StatefulWidget {
   final ValuableLinker<double>? widthLinker;
 
-  const _LinkableContainer({this.widthLinker, Key? key}) : super(key: key);
+  const _LinkableContainer({this.widthLinker, super.key});
 
   @override
   State<_LinkableContainer> createState() => __LinkableContainerState();
@@ -63,15 +63,18 @@ class __LinkableContainerState extends State<_LinkableContainer>
     vsync: this,
     duration: const Duration(seconds: 2),
   );
-  late final Animation<Color?> animationColor =
-      ColorTween(begin: Colors.blue, end: Colors.amber)
-          .animate(animationController);
+  late final Animation<Color?> animationColor = ColorTween(
+    begin: Colors.blue,
+    end: Colors.amber,
+  ).animate(animationController);
 
-  late final Valuable<double> animationValuable =
-      animationController.toValuable();
+  late final Valuable<double> animationValuable = animationController
+      .toValuable();
   late final Valuable<Color?> colorValuable = animationColor.toValuable();
-  late final Valuable<double> widthValuable =
-      Valuable<double>.computed((watch, {valuableContext}) {
+  late final Valuable<double> widthValuable = Valuable<double>.computed((
+    watch, {
+    valuableContext,
+  }) {
     return lerpDouble(minWidth, maxWidth, watch(animationValuable)) ?? 0;
   });
 
@@ -122,15 +125,10 @@ class _ContainerValuable extends ValuableWidget {
   final Valuable<Color?>? colorValuable;
   final Widget? child;
 
-  // ignore: unused_element
   const _ContainerValuable({
-    // ignore: unused_element
     this.widthValuable,
-    // ignore: unused_element
     this.heightValuable,
-    // ignore: unused_element
     this.colorValuable,
-    // ignore: unused_element
     this.child,
   });
 

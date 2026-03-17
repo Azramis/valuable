@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
 class SampleAnimation extends StatefulWidget {
-  const SampleAnimation({Key? key}) : super(key: key);
+  const SampleAnimation({super.key});
 
   @override
   State<SampleAnimation> createState() => _SampleAnimationState();
@@ -15,8 +15,9 @@ class _SampleAnimationState extends State<SampleAnimation>
     vsync: this,
     duration: const Duration(seconds: 30),
   );
-  late final Valuable<String> _valuable =
-      _animate.toValuable().map((e) => e.toString());
+  late final Valuable<String> _valuable = _animate.toValuable().map(
+    (e) => e.toString(),
+  );
 
   @override
   Widget build(BuildContext context) {

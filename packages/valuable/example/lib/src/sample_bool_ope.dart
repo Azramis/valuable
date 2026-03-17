@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
 class SampleBoolOpe extends StatefulWidget {
-  const SampleBoolOpe({Key? key, required this.title}) : super(key: key);
+  const SampleBoolOpe({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -16,7 +16,7 @@ class SampleBoolOpe extends StatefulWidget {
   final String title;
 
   @override
-  _SampleBoolOpeState createState() => _SampleBoolOpeState();
+  State<SampleBoolOpe> createState() => _SampleBoolOpeState();
 }
 
 class _SampleBoolOpeState extends State<SampleBoolOpe> {
@@ -34,59 +34,64 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the SampleBoolOpe object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-        ),
-        body: Column(
-          children: <Widget>[
-            ValuableConsumer(
-              builder: (context, watch, _) {
-                return CheckboxListTile(
-                    value: watch(_cbCheckSuper),
-                    title: const Text("Case Super"),
-                    onChanged: (value) => _cbCheckSuper.setValue(value!));
-              },
-            ),
-            ValuableConsumer(
-              builder: (context, watch, _) {
-                return CheckboxListTile(
-                    value: watch(_cbCheck1 | _cbCheckSuper),
-                    title: const Text("Case 1"),
-                    onChanged: (value) => _cbCheck1.setValue(value!));
-              },
-            ),
-            ValuableConsumer(
-              builder: (context, watch, _) {
-                return CheckboxListTile(
-                    value: watch(_cbCheck2 | _cbCheckSuper),
-                    title: const Text("Case 2"),
-                    onChanged: (value) => _cbCheck2.setValue(value!));
-              },
-            ),
-            ValuableConsumer(
-              builder: (context, watch, _) {
-                return CheckboxListTile(
-                    value: watch(_cbCheck3 | _cbCheckSuper),
-                    title: const Text("Case 3"),
-                    onChanged: (value) => _cbCheck3.setValue(value!));
-              },
-            ),
-            ValuableConsumer(builder: (context, watch, _) {
-              return Visibility(
-                visible:
-                    watch(_cbCheckSuper | _cbCheck1 & _cbCheck2 & _cbCheck3),
-                child: Expanded(
-                  child: Container(
-                    color: Colors.blue,
-                  ),
-                ),
+      appBar: AppBar(
+        // Here we take the value from the SampleBoolOpe object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: Column(
+        children: <Widget>[
+          ValuableConsumer(
+            builder: (context, watch, _) {
+              return CheckboxListTile(
+                value: watch(_cbCheckSuper),
+                title: const Text("Case Super"),
+                onChanged: (value) => _cbCheckSuper.setValue(value!),
               );
-            }),
-          ],
-        )
-        // This trailing comma makes auto-formatting nicer for build methods.
-        );
+            },
+          ),
+          ValuableConsumer(
+            builder: (context, watch, _) {
+              return CheckboxListTile(
+                value: watch(_cbCheck1 | _cbCheckSuper),
+                title: const Text("Case 1"),
+                onChanged: (value) => _cbCheck1.setValue(value!),
+              );
+            },
+          ),
+          ValuableConsumer(
+            builder: (context, watch, _) {
+              return CheckboxListTile(
+                value: watch(_cbCheck2 | _cbCheckSuper),
+                title: const Text("Case 2"),
+                onChanged: (value) => _cbCheck2.setValue(value!),
+              );
+            },
+          ),
+          ValuableConsumer(
+            builder: (context, watch, _) {
+              return CheckboxListTile(
+                value: watch(_cbCheck3 | _cbCheckSuper),
+                title: const Text("Case 3"),
+                onChanged: (value) => _cbCheck3.setValue(value!),
+              );
+            },
+          ),
+          Expanded(
+            child: ValuableConsumer(
+              builder: (context, watch, _) {
+                return Visibility(
+                  visible: watch(
+                    _cbCheckSuper | _cbCheck1 & _cbCheck2 & _cbCheck3,
+                  ),
+                  child: Container(color: Colors.blue),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      // This trailing comma makes auto-formatting nicer for build methods.
+    );
   }
 }

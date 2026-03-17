@@ -6,45 +6,31 @@ class SampleColorPickerWidget extends StatelessWidget {
   final StatefulValuable<double> greenVal = StatefulValuable<double>(0);
   final StatefulValuable<double> blueVal = StatefulValuable<double>(0);
 
-  late final Valuable<Color> myColor = Valuable.computed(
-    (watch, {valuableContext}) {
-      return Color.fromARGB(
-        255,
-        watch(redVal).toInt(),
-        watch(greenVal).toInt(),
-        watch(blueVal).toInt(),
-      );
-    },
-  );
+  late final Valuable<Color> myColor = Valuable.computed((
+    watch, {
+    valuableContext,
+  }) {
+    return Color.fromARGB(
+      255,
+      watch(redVal).toInt(),
+      watch(greenVal).toInt(),
+      watch(blueVal).toInt(),
+    );
+  });
 
-  SampleColorPickerWidget({Key? key}) : super(key: key);
+  SampleColorPickerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Valuable Color Picker Widget"),
-      ),
+      appBar: AppBar(title: const Text("Valuable Color Picker Widget")),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          RGBValueSlider(
-            rgbValue: redVal,
-            title: "RED",
-          ),
-          RGBValueSlider(
-            rgbValue: greenVal,
-            title: "GREEN",
-          ),
-          RGBValueSlider(
-            rgbValue: blueVal,
-            title: "BLUE",
-          ),
-          Expanded(
-            child: ColorShow(
-              myColor: myColor,
-            ),
-          ),
+          RGBValueSlider(rgbValue: redVal, title: "RED"),
+          RGBValueSlider(rgbValue: greenVal, title: "GREEN"),
+          RGBValueSlider(rgbValue: blueVal, title: "BLUE"),
+          Expanded(child: ColorShow(myColor: myColor)),
         ],
       ),
     );
@@ -54,15 +40,11 @@ class SampleColorPickerWidget extends StatelessWidget {
 class ColorShow extends ValuableWidget {
   final Valuable<Color> myColor;
 
-  const ColorShow({
-    required this.myColor,
-    Key? key,
-  }) : super(key: key);
+  const ColorShow({required this.myColor, super.key});
 
   @override
-  Widget build(BuildContext context, ValuableWatcher watch) => Container(
-        color: watch(myColor),
-      );
+  Widget build(BuildContext context, ValuableWatcher watch) =>
+      Container(color: watch(myColor));
 }
 
 class RGBValueSlider extends ValuableWidget {
@@ -72,19 +54,19 @@ class RGBValueSlider extends ValuableWidget {
   const RGBValueSlider({
     required this.rgbValue,
     required this.title,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, ValuableWatcher watch) => Column(
-        children: [
-          Text(title),
-          Slider(
-            value: watch(rgbValue),
-            onChanged: rgbValue.setValue,
-            min: 0,
-            max: 255,
-          ),
-        ],
-      );
+    children: [
+      Text(title),
+      Slider(
+        value: watch(rgbValue),
+        onChanged: rgbValue.setValue,
+        min: 0,
+        max: 255,
+      ),
+    ],
+  );
 }

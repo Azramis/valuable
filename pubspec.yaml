@@ -1,6 +1,23 @@
 name: valuable_workspace
+publish_to: 'none'
+version: 1.0.0
 
 environment:
-  sdk: '^3.0.0'
+  sdk: ">=3.10.0 <4.0.0"
+
 dev_dependencies:
-  melos: ^3.1.0
+  flutter_lints: ^6.0.0
+  melos: ^7.4.0
+workspace:
+  - packages/valuable/example
+  - packages/valuable
+melos: 
+  sdkPath: .fvm/flutter_sdk
+  packages:
+    - packages/**
+  command:
+    bootstrap:
+      usePubspecOverrides: false
+
+    version:
+      branch: master

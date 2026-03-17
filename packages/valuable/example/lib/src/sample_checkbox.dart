@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
 class SampleCheckboxWidget extends StatefulWidget {
-  const SampleCheckboxWidget({Key? key}) : super(key: key);
+  const SampleCheckboxWidget({super.key});
   @override
-  _SampleCheckboxWidgetState createState() => _SampleCheckboxWidgetState();
+  State<SampleCheckboxWidget> createState() => _SampleCheckboxWidgetState();
 }
 
 class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget> {
@@ -12,23 +12,15 @@ class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Valuable Checkbox Widget"),
-      ),
+      appBar: AppBar(title: const Text("Valuable Checkbox Widget")),
       body: Center(
         child: Column(
           children: <Widget>[
             ValuableConsumer(
               builder: (BuildContext context, ValuableWatcher watch, _) {
                 return watch(checkValue)
-                    ? const Icon(
-                        Icons.verified,
-                        color: Colors.green,
-                      )
-                    : const Icon(
-                        Icons.cancel,
-                        color: Colors.red,
-                      );
+                    ? const Icon(Icons.verified, color: Colors.green)
+                    : const Icon(Icons.cancel, color: Colors.red);
               },
             ),
             ValuableCheckbox(valuable: checkValue),
@@ -42,16 +34,10 @@ class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget> {
 class ValuableCheckbox extends ValuableWidget {
   final StatefulValuable<bool?> valuable;
 
-  const ValuableCheckbox({required this.valuable, Key? key})
-      : super(
-          key: key,
-        );
+  const ValuableCheckbox({required this.valuable, super.key});
 
   @override
   Widget build(BuildContext context, ValuableWatcher watch) {
-    return Checkbox(
-      value: watch(valuable),
-      onChanged: valuable.setValue,
-    );
+    return Checkbox(value: watch(valuable), onChanged: valuable.setValue);
   }
 }
