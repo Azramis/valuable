@@ -48,6 +48,7 @@ mixin ValuableLinkerMixin<Output> on Valuable<Output>
 final class _ValuableLinkerImpl<Output> extends Valuable<Output>
     with ValuableLinkerMixin<Output> {
   Valuable<Output>? _linkedValuable;
+  VoidCallback? _linkedValuableDisposeRemover;
 
   final Output _defaultValue;
 
@@ -69,7 +70,7 @@ final class _ValuableLinkerImpl<Output> extends Valuable<Output>
       );
     }
     _linkedValuable = valuable;
-    _linkedValuable!.listenDispose(
+    _linkedValuableDisposeRemover = _linkedValuable!.listenDispose(
       unlink,
     ); // Listen Valuable dispose, to automatically unlink
     markToReevaluate(); // We have linked a Valuable, the linker may change its value
@@ -77,6 +78,8 @@ final class _ValuableLinkerImpl<Output> extends Valuable<Output>
 
   @override
   void unlink() {
+    _linkedValuableDisposeRemover?.call();
+    _linkedValuableDisposeRemover = null;
     cleanWatched(); // Remove the listener
     _linkedValuable = null; // Detach the Valuate
     markToReevaluate(); // The linker returns to its default value
