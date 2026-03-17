@@ -46,6 +46,12 @@ mixin _HistorizedValuableMixin<T> on Valuable<T>
   final Queue<ValuableHistoryNode<T>> _history =
       Queue<ValuableHistoryNode<T>>();
 
+  /// Remover for the dispose-listener registered on [_innerValuable].
+  ///
+  /// This is used to avoid keeping a dangling listener when this wrapper
+  /// is disposed before the inner valuable.
+  void Function()? _innerDisposeListenerRemover;
+
   bool _shouldHistorize(T value) =>
       (_history.isEmpty || _history.last.value != value);
 
@@ -69,8 +75,21 @@ mixin _HistorizedValuableMixin<T> on Valuable<T>
   late final UnmodifiableQueueView<ValuableHistoryNode<T>> history =
       UnmodifiableQueueView(_history);
 
+  @override
+  void dispose() {
+    // Ensure we do not keep a dangling listener on the inner valuable.
+    _innerDisposeListenerRemover?.call();
+    _innerDisposeListenerRemover = null;
+    super.dispose();
+  }
+
   void _registerAutodispose() {
-    _innerValuable.listenDispose(dispose);
+    // Guard against multiple registrations by not re-registering if a
+    // remover is already present.
+    if (_innerDisposeListenerRemover != null) {
+      return;
+    }
+    _innerDisposeListenerRemover = _innerValuable.listenDispose(dispose);
   }
 }
 
