@@ -24,14 +24,12 @@ extension BoolOperators on Valuable<bool> {
   /// specified then it returned
   Valuable<Output> then<Output>(
     Valuable<Output> value, {
-    Valuable<Output>? elseValue,
+    required Valuable<Output> elseValue,
   }) {
     return ValuableIf<Output>(
       this,
       (watch, {valuableContext}) => watch(value),
-      elseCase: (elseValue != null)
-          ? (watch, {valuableContext}) => watch(elseValue)
-          : null,
+      elseCase: (watch, {valuableContext}) => watch(elseValue),
     );
   }
 

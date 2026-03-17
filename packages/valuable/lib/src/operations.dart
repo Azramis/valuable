@@ -291,13 +291,13 @@ class ValuableStringOperation extends Valuable<String> {
   }
 }
 
-class ValuableCaseItem<Output> {
-  final dynamic caseValue;
+class ValuableCaseItem<Switch, Output> {
+  final Switch caseValue;
   final ValuableParentWatcher<Output> getValue;
 
   ValuableCaseItem(this.caseValue, this.getValue);
 
-  ValuableCaseItem.value(dynamic caseValue, Output value)
+  ValuableCaseItem.value(Switch caseValue, Output value)
     : this(
         caseValue,
         (ValuableWatcher watch, {ValuableContext? valuableContext}) => value,
@@ -306,7 +306,7 @@ class ValuableCaseItem<Output> {
 
 class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   final Valuable<Switch> testable;
-  final List<ValuableCaseItem<Output>>? cases;
+  final List<ValuableCaseItem<Switch, Output>>? cases;
   final ValuableParentWatcher<Output> defaultCase;
 
   ValuableSwitch(this.testable, {required this.defaultCase, this.cases});
@@ -314,12 +314,10 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   ValuableSwitch.value(
     Valuable<Switch> testable, {
     required Output defaultValue,
-    List<ValuableCaseItem<Output>>? cases,
+    List<ValuableCaseItem<Switch, Output>>? cases,
   }) : this(
          testable,
-         defaultCase:
-             (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
-                 defaultValue,
+         defaultCase: (watch, {valuableContext}) => defaultValue,
          cases: cases,
        );
 
@@ -332,17 +330,14 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
     late Output value;
 
     if (cases?.isNotEmpty ?? false) {
+      final testable = watch(this.testable, valuableContext: valuableContext);
+
       for (final caseItem in cases!) {
-        final bool isMatch = testable
-            .equals(caseItem.caseValue)
-            .getValue(valuableContext);
+        final bool isMatch = testable == caseItem.caseValue;
 
         if (isMatch) {
           matched = true;
-          value = caseItem.getValue(
-            watch,
-            valuableContext: valuableContext,
-          );
+          value = caseItem.getValue(watch, valuableContext: valuableContext);
           break;
         }
       }
@@ -358,9 +353,9 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
 class ValuableIf<Output> extends Valuable<Output> {
   final Valuable<bool> testable;
   final ValuableParentWatcher<Output> thenCase;
-  final ValuableParentWatcher<Output>? elseCase;
+  final ValuableParentWatcher<Output> elseCase;
 
-  ValuableIf(this.testable, this.thenCase, {this.elseCase});
+  ValuableIf(this.testable, this.thenCase, {required this.elseCase});
 
   ValuableIf.value(
     Valuable<bool> testable,
@@ -383,12 +378,12 @@ class ValuableIf<Output> extends Valuable<Output> {
     bool test = false;
     late Output value;
 
-    test = watch(testable);
+    test = watch(testable, valuableContext: valuableContext);
 
     if (test) {
       value = thenCase(watch, valuableContext: valuableContext);
-    } else if (elseCase != null) {
-      value = elseCase!.call(watch, valuableContext: valuableContext);
+    } else {
+      value = elseCase(watch, valuableContext: valuableContext);
     }
 
     return value;
