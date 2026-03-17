@@ -33,7 +33,7 @@ final class ValuableCompare<T> extends Valuable<bool> {
   final CompareOperator _operator;
   final Valuable<T> _operand2;
 
-  /// Complete constuctor
+  /// Complete constructor
   ValuableCompare(
     Valuable<T> operand1,
     CompareOperator operator,
