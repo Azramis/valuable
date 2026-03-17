@@ -212,8 +212,11 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// Allows to be notified when this Valuable is disposed
   ///
   /// [onDispose] will be called when this Valuable is disposed
-  void listenDispose(VoidCallback onDispose) =>
-      _isMounted.addListener(onDispose);
+  /// Returns a function to remove the listener
+  VoidCallback listenDispose(VoidCallback onDispose) {
+    _isMounted.addListener(onDispose);
+    return () => _isMounted.removeListener(onDispose);
+  }
 
   /// Build an [HistorizedValuable] based on this Valuable
   HistorizedValuable<Output> historize() => HistorizedValuable<Output>(this);

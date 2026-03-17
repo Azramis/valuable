@@ -2,15 +2,22 @@ import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 
 class _ValuableWatchedInfos<T> {
-  final VoidCallback callback;
+  final VoidCallback removeValueListener;
+  final VoidCallback removeDisposeListener;
   final List<ValuableWatcherSelector<T>?> selectors =
       <ValuableWatcherSelector<T>?>[];
   T previousWatchedValue;
 
   _ValuableWatchedInfos({
-    required this.callback,
+    required this.removeValueListener,
+    required this.removeDisposeListener,
     required this.previousWatchedValue,
   });
+
+  void dispose() {
+    removeValueListener();
+    removeDisposeListener();
+  }
 }
 
 /// A mixin to provide extension of classes that might want to watch some valuable
@@ -29,40 +36,40 @@ mixin ValuableWatcherMixin {
   }) {
     final result = valuable.getValue(valuableContext ?? this.valuableContext);
 
-    if (!_watched.containsKey(valuable)) {
-      void callback() => _callValuableChange<T>(valuable);
+    _watched.update(
+      valuable,
+      (infos) {
+        if (infos is _ValuableWatchedInfos<T>) {
+          infos.previousWatchedValue =
+              result; // Save value for future comparaison
+          if (selector != null) {
+            infos.selectors.add(selector);
+          }
+        }
 
-      _watched.putIfAbsent(
-        valuable,
-        () => _ValuableWatchedInfos<T>(
-          callback: callback,
+        return infos;
+      },
+      ifAbsent: () {
+        void callback() => _callValuableChange<T>(valuable);
+        valuable.addListener(callback);
+
+        final removeListener = valuable.listenDispose(() {
+          _unwatch(valuable);
+        });
+
+        return _ValuableWatchedInfos<T>(
+          removeValueListener: () => valuable.removeListener(callback),
+          removeDisposeListener: removeListener,
           previousWatchedValue: result,
-        ),
-      );
-      valuable.addListener(callback);
-      valuable.listenDispose(() {
-        _unwatch(valuable);
-      });
-    }
-
-    if (_watched.containsKey(valuable)) {
-      final infos = _watched[valuable] as _ValuableWatchedInfos<T>;
-      infos.previousWatchedValue = result; // Save value for future comparaison
-      if (selector != null) {
-        infos.selectors.add(selector);
-      }
-    }
+        );
+      },
+    );
 
     return result;
   }
 
   /// Remove listener on the valuable, that may change scope, or that about to be disposed
-  void _unwatch(Valuable valuable) {
-    if (_watched.containsKey(valuable)) {
-      _removeValuableListener(valuable);
-      _watched.remove(valuable);
-    }
-  }
+  void _unwatch(Valuable valuable) => _watched.remove(valuable)?.dispose();
 
   void _callValuableChange<T>(Valuable<T> valuable) {
     if (_watched.containsKey(valuable)) {
@@ -113,16 +120,10 @@ mixin ValuableWatcherMixin {
 
   @protected
   void cleanWatched() {
-    _watched.forEach((Valuable key, _ValuableWatchedInfos value) {
-      _removeValuableListener(key);
-    });
-    _watched.clear();
-  }
-
-  void _removeValuableListener(Valuable valuable) {
-    if (_watched.containsKey(valuable) && valuable.isMounted) {
-      _ValuableWatchedInfos infos = _watched[valuable]!;
-      valuable.removeListener(infos.callback);
+    for (final infos in _watched.values) {
+      infos.dispose();
     }
+
+    _watched.clear();
   }
 }
