@@ -18,10 +18,10 @@ extension BoolOperators on Valuable<bool> {
   /// Create a new [Valuable<bool>] that depends on the current, but with the negated value
   Valuable<bool> negation() => map((value) => !value);
 
-  /// Get a new Valuable whom the value depends on the current Valuable value
+  /// Get a new Valuable whose value depends on the current Valuable value.
   ///
-  /// If current value is true then [value] is returned, else if [elseValue] is
-  /// specified then it returned
+  /// If the current value is `true` then [value] is returned, otherwise
+  /// [elseValue] is returned.
   Valuable<Output> then<Output>(
     Valuable<Output> value, {
     required Valuable<Output> elseValue,
