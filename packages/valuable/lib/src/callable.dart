@@ -51,16 +51,24 @@ sealed class ValuableCallback with ValuableWatcherMixin {
   /// ```
   void call({ValuableContext? valuableContext});
 
+  ValuableContext? _lastUsedValuableContext;
+
   void _internalCall({ValuableContext? valuableContext}) {
+    if (_isDisposed) return;
+
     cleanWatched();
-    _callback(watch, valuableContext: valuableContext ?? this.valuableContext);
+    _lastUsedValuableContext = valuableContext ?? this.valuableContext;
+    _callback(watch, valuableContext: _lastUsedValuableContext);
   }
 
   @override
-  void onValuableChange() => this();
+  void onValuableChange() => call(valuableContext: _lastUsedValuableContext);
+
+  bool _isDisposed = false;
 
   /// Cleaning the ValuableCallback
   void dispose() {
+    _isDisposed = true;
     cleanWatched();
   }
 }
@@ -102,9 +110,7 @@ final class _ValuableCallbackFuture extends ValuableCallback {
     _nextCallbackContext = valuableContext;
     if (_futureExecHandle != null) return;
 
-    _futureExecHandle = Future(
-      _futureExec,
-    ).whenComplete(() {
+    _futureExecHandle = Future(_futureExec).whenComplete(() {
       _futureExecHandle = null;
     });
   }
