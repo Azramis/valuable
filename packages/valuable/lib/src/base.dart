@@ -104,9 +104,6 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   final ValueNotifier<bool> _isMounted;
 
-  final Map<Valuable, VoidCallback> _removeListeners =
-      <Valuable, VoidCallback>{};
-
   bool _reevaluatingNeeded = false;
 
   Valuable({bool evaluateWithContext = false})
@@ -226,10 +223,6 @@ abstract class Valuable<Output> extends ChangeNotifier
   void dispose() {
     _isMounted.value = false;
     _isMounted.dispose();
-    List<VoidCallback> removers = _removeListeners.values.toList();
-    for (var remover in removers) {
-      remover();
-    }
 
     super.dispose();
   }
