@@ -33,11 +33,7 @@ mixin ValuableLinkerMixin<Output> on Valuable<Output>
     bool reevaluatingNeeded, [
     ValuableContext? context = const ValuableContext(),
   ]) {
-    return watch.def(
-      linkedValuable,
-      defaultValue,
-      valuableContext: context,
-    );
+    return watch.def(linkedValuable, defaultValue, valuableContext: context);
   }
 
   @override
@@ -83,5 +79,12 @@ final class _ValuableLinkerImpl<Output> extends Valuable<Output>
     cleanWatched(); // Remove the listener
     _linkedValuable = null; // Detach the Valuate
     markToReevaluate(); // The linker returns to its default value
+  }
+
+  @override
+  void dispose() {
+    // Remove listener on the linked valuable, if exist, to avoid memory leak
+    _linkedValuableDisposeRemover?.call();
+    super.dispose();
   }
 }
