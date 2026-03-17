@@ -55,7 +55,7 @@ class _ValuableConsumerState extends State<ValuableConsumer>
     if (_markNeedBuild == false) {
       _markNeedBuild = true;
 
-      void callback(_) {
+      void callback(Duration timeStamp) {
         if (mounted) {
           setState(() {
             _markNeedBuild = false;
@@ -67,7 +67,7 @@ class _ValuableConsumerState extends State<ValuableConsumer>
           SchedulerPhase.persistentCallbacks) {
         WidgetsBinding.instance.addPostFrameCallback(callback);
       } else {
-        callback(null);
+        callback(Duration.zero);
       }
     }
   }
@@ -115,7 +115,7 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
 
   @override
   void onValuableChange() {
-    void callback(_) {
+    void callback(Duration timeStamp) {
       if (_mounted) {
         markNeedsBuild();
       }
@@ -125,7 +125,7 @@ class ValuableWidgetElement extends ComponentElement with ValuableWatcherMixin {
         SchedulerPhase.persistentCallbacks) {
       WidgetsBinding.instance.addPostFrameCallback(callback);
     } else {
-      callback(null);
+      callback(Duration.zero);
     }
   }
 
