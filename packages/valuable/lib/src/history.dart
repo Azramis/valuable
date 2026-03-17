@@ -139,8 +139,8 @@ final class _HistorizedValuableLinker<T> extends Valuable<T>
   Valuable<T>? get linkedValuable => _valuable.linkedValuable;
 
   @override
-  void unlink() {
-    _valuable.unlink();
+  void unlink([Valuable<T>? valuable]) {
+    _valuable.unlink(valuable);
   }
 }
 

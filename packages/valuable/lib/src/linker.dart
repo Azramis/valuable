@@ -19,7 +19,12 @@ abstract interface class ValuableLinker<Output> extends Valuable<Output> {
   void link(Valuable<Output> valuable);
 
   /// Unlink from the Valuable
-  void unlink();
+  ///
+  /// If [valuable] is provided, the unlinking will be done only if the provided valuable is the currently linked one. Otherwise, the unlinking will be done without any check.
+  /// This is useful to avoid unlinking if the linked valuable has already been changed, for example in a case where the linked valuable is automatically changed by a parent widget.
+  ///
+  /// It is recommended to provide the [valuable] parameter when the unlinking is done in a listener of the linked valuable, to avoid unlinking if the linked valuable has already been changed.
+  void unlink([Valuable<Output>? valuable]);
 
   factory ValuableLinker(Output defaultValue) =>
       _ValuableLinkerImpl<Output>(defaultValue);
@@ -73,7 +78,9 @@ final class _ValuableLinkerImpl<Output> extends Valuable<Output>
   }
 
   @override
-  void unlink() {
+  void unlink([Valuable<Output>? valuable]) {
+    if (valuable != null && valuable != _linkedValuable) return;
+
     _linkedValuableDisposeRemover?.call();
     _linkedValuableDisposeRemover = null;
     cleanWatched(); // Remove the listener
