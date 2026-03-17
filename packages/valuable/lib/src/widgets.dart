@@ -44,7 +44,7 @@ class _ValuableConsumerState extends State<ValuableConsumer>
   T _watch<T>(
     Valuable<T> valuable, {
     ValuableContext? valuableContext,
-    ValuableWatcherSelector? selector,
+    ValuableWatcherSelector<T>? selector,
   }) => watch(valuable, valuableContext: valuableContext, selector: selector);
 
   @override
@@ -81,7 +81,7 @@ class _ValuableConsumerState extends State<ValuableConsumer>
 }
 
 extension WidgetValuable<T> on Valuable<T> {
-  T watchIt(BuildContext context, {ValuableWatcherSelector? selector}) {
+  T watchIt(BuildContext context, {ValuableWatcherSelector<T>? selector}) {
     final vContext = ValuableContext(context: context);
     final state = ValuableConsumer._maybeOf(context);
 

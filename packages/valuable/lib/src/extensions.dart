@@ -467,7 +467,7 @@ extension ValuableWatcherExtension on ValuableWatcher {
     Valuable<T>? valuable,
     T defaultValue, {
     ValuableContext? valuableContext,
-    ValuableWatcherSelector? selector,
+    ValuableWatcherSelector<T>? selector,
   }) {
     if (valuable != null) {
       return this(

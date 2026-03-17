@@ -17,7 +17,7 @@ typedef ValuableWatcher =
     T Function<T>(
       Valuable<T> valuable, {
       ValuableContext? valuableContext,
-      ValuableWatcherSelector? selector,
+      ValuableWatcherSelector<T>? selector,
     });
 typedef ValuableParentWatcher<T> =
     T Function(ValuableWatcher watch, {ValuableContext? valuableContext});
