@@ -28,8 +28,10 @@ extension BoolOperators on Valuable<bool> {
   }) {
     return ValuableIf<Output>(
       this,
-      (watch, {valuableContext}) => watch(value),
-      elseCase: (watch, {valuableContext}) => watch(elseValue),
+      (watch, {valuableContext}) =>
+          watch(value, valuableContext: valuableContext),
+      elseCase: (watch, {valuableContext}) =>
+          watch(elseValue, valuableContext: valuableContext),
     );
   }
 
