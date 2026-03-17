@@ -4,15 +4,15 @@ import 'package:valuable/src/base.dart';
 class _ValuableWatchedInfos<T> {
   final VoidCallback removeValueListener;
   final VoidCallback removeDisposeListener;
-  final List<ValuableWatcherSelector<T>?> selectors =
-      <ValuableWatcherSelector<T>?>[];
+  final List<ValuableWatcherSelector<T>> selectors;
   T previousWatchedValue;
 
   _ValuableWatchedInfos({
     required this.removeValueListener,
     required this.removeDisposeListener,
     required this.previousWatchedValue,
-  });
+    List<ValuableWatcherSelector<T>>? selectors,
+  }) : selectors = selectors ?? <ValuableWatcherSelector<T>>[];
 
   void dispose() {
     removeValueListener();
@@ -61,6 +61,7 @@ mixin ValuableWatcherMixin {
           removeValueListener: () => valuable.removeListener(callback),
           removeDisposeListener: removeListener,
           previousWatchedValue: result,
+          selectors: [?selector],
         );
       },
     );
@@ -78,7 +79,7 @@ mixin ValuableWatcherMixin {
 
         bool selectOk;
 
-        List<ValuableWatcherSelector<T>?> selectors = infos.selectors;
+        final selectors = infos.selectors;
 
         if (selectors.isNotEmpty) {
           // If there are available selectors, we must test them until [selectOk]
@@ -86,10 +87,9 @@ mixin ValuableWatcherMixin {
 
           selectOk = false;
           T previousWatchedValue = infos.previousWatchedValue;
-          for (ValuableWatcherSelector<T>? selector in selectors) {
+          for (final selector in selectors) {
             selectOk =
-                selectOk ||
-                (selector?.call(valuable, previousWatchedValue) ?? false);
+                selectOk || selector.call(valuable, previousWatchedValue);
 
             if (selectOk) {
               break;
