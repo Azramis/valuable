@@ -22,6 +22,9 @@ typedef ValuableWatcher =
 typedef ValuableParentWatcher<T> =
     T Function(ValuableWatcher watch, {ValuableContext? valuableContext});
 
+typedef ValuableValueCleaningCallback<T> =
+    void Function(T previousValue, T? newValue, bool isDisposal);
+
 /// Shortcut to get a valuable with the value true
 final Valuable<bool> boolTrue = Valuable<bool>.value(true);
 
@@ -104,11 +107,16 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   final ValueNotifier<bool> _isMounted;
 
+  final ValuableValueCleaningCallback<Output>? _cleaningValueCallback;
+
   bool _reevaluatingNeeded = false;
 
-  Valuable({bool evaluateWithContext = false})
-    : _isMounted = ValueNotifier(true),
-      _evaluateWithContext = evaluateWithContext;
+  Valuable({
+    bool evaluateWithContext = false,
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+  }) : _isMounted = ValueNotifier(true),
+       _evaluateWithContext = evaluateWithContext,
+       _cleaningValueCallback = cleaningValueCallback;
 
   /// Returns if this object is still mounted
   bool get isMounted => _isMounted.value;
@@ -156,14 +164,26 @@ abstract class Valuable<Output> extends ChangeNotifier
 
     final value = getValueDefinition(_reevaluatingNeeded, context);
 
-    //
-    if (!_evaluateWithContext) {
+    // If a cleaning callback is provided, we call it with the previous value so have to save it before update the cache, even if cache is not used because of the ValuableContext dependency
+    if (_cleaningValuePhase(newValue: value) || !_evaluateWithContext) {
       _valueCache.currentValue = value;
     }
     // We are reevaluating the Valuable, so we can unmark it
     _reevaluatingNeeded = false;
     // After we proceed to get the value, watched Valuables tree will be renewed
     return value;
+  }
+
+  /// Try to call [_cleaningValueCallback] if it's provided, to clean the previous value before update it by the new one, or before dispose the Valuable if [isDisposal] is true.
+  ///
+  /// Returns true if the cleaning callback is provided, false otherwise. This allow to know if the cleaning phase is in process or not, and avoid to call the callback twice in the same phase.
+  bool _cleaningValuePhase({Output? newValue, bool isDisposal = false}) {
+    final valueCleaningCallback = _cleaningValueCallback;
+    if (_valueCache.isProvided && valueCleaningCallback != null) {
+      // If the cache is provided, then we are in a reevaluation phase, so we can call the cleaning callback with the previous value and the new one, and isDisposal = true because the valuable is in disposal phase, so the new value is not relevant
+      valueCleaningCallback(_valueCache.currentValue, newValue, isDisposal);
+    }
+    return valueCleaningCallback != null;
   }
 
   /// This method should be redefined in ever sub-classes to determine how works
@@ -223,8 +243,9 @@ abstract class Valuable<Output> extends ChangeNotifier
   void dispose() {
     _isMounted.value = false;
     _isMounted.dispose();
-
     super.dispose();
+    // Last chance to clean the value with the cleaning callback, if provided, to prevent memory leak, by calling the cleaning callback with isDisposal = true, and newValue = null because the valuable is in disposal phase, so the new value is not relevant
+    _cleaningValuePhase(isDisposal: true);
   }
 
   /// A method to map a Valuable from [Output] to [Other]
