@@ -122,29 +122,41 @@ abstract class Valuable<Output> extends ChangeNotifier
   bool get isMounted => _isMounted.value;
 
   /// Factory [Valuable.value] to build a simple Valuable on a final value
-  factory Valuable.value(Output value) = _Valuable<Output>;
+  factory Valuable.value(
+    Output value, {
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+  }) = _Valuable<Output>;
 
   /// Factory [Valuable.computed] to build a Valuable that calculate its own value
   /// through a function.
   factory Valuable.computed(
     ValuableParentWatcher<Output> computation, {
     bool evaluateWithContext,
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) = _Valuable<Output>.computed;
 
   /// Factory [Valuable.listenable] to build a Valuable that listen
   /// to a [ValueListenable] and provide its value
-  factory Valuable.listenable(ValueListenable<Output> listenable) =>
-      _ValuableListenable(
-        listenable,
-        (ValueListenable<Output> listenable) => listenable.value,
-      );
+  factory Valuable.listenable(
+    ValueListenable<Output> listenable, {
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+  }) => _ValuableListenable(
+    listenable,
+    (ValueListenable<Output> listenable) => listenable.value,
+    cleaningValueCallback: cleaningValueCallback,
+  );
 
   /// Factory [Valuable.listenableComputed] to build a Valuable that listen
   /// to a [Listenable] and provide a value by computation
   static Valuable<Output> listenableComputed<L extends Listenable, Output>(
     L listenable,
-    Output Function(L listenable) computation,
-  ) => _ValuableListenable(listenable, computation);
+    Output Function(L listenable) computation, {
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+  }) => _ValuableListenable(
+    listenable,
+    computation,
+    cleaningValueCallback: cleaningValueCallback,
+  );
 
   /// Get the current value of the Valuable
   @mustCallSuper
@@ -333,8 +345,18 @@ final class _ValueCache<Output> {
 final class _Valuable<Output> extends Valuable<Output> {
   final ValuableParentWatcher<Output> computation;
 
-  _Valuable.computed(this.computation, {super.evaluateWithContext = false});
-  _Valuable(Output value) : this.computed((_, {valuableContext}) => value);
+  _Valuable.computed(
+    this.computation, {
+    super.evaluateWithContext = false,
+    super.cleaningValueCallback,
+  });
+  _Valuable(
+    Output value, {
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+  }) : this.computed(
+         (_, {valuableContext}) => value,
+         cleaningValueCallback: cleaningValueCallback,
+       );
 
   @override
   Output getValueDefinition(
@@ -348,8 +370,11 @@ final class _ValuableListenable<L extends Listenable, V> extends Valuable<V> {
   final L _listenable;
   final V Function(L) _computation;
 
-  _ValuableListenable(this._listenable, this._computation)
-    : super(evaluateWithContext: false) {
+  _ValuableListenable(
+    this._listenable,
+    this._computation, {
+    super.cleaningValueCallback,
+  }) : super(evaluateWithContext: false) {
     _listenable.addListener(markToReevaluate);
   }
 
@@ -502,6 +527,7 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
     required this.noDataValue,
     required this.errorValue,
     super.evaluateWithContext = false,
+    super.cleaningValueCallback,
   }) : _valuableFuture = future {
     _callback();
   }
@@ -513,6 +539,7 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
     Valuable<Future<Res>> future, {
     required Output noDataValue,
     required Output errorValue,
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          future,
          dataValue: (ValuableContext? context, Res result) => result as Output,
@@ -520,6 +547,7 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
          errorValue:
              (ValuableContext? context, Object error, StackTrace stackTrace) =>
                  errorValue,
+         cleaningValueCallback: cleaningValueCallback,
        );
 
   /// Pseudo constructor to map directly a [Res] value to an [AsyncValue<Res>]
@@ -645,6 +673,7 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
     required this.doneValue,
     required Output initialData,
     super.evaluateWithContext = false,
+    super.cleaningValueCallback,
   }) : _valuableStream = stream {
     _defaultValuer = (_) => initialData;
     _callback();
@@ -657,6 +686,7 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
     required Output doneValue,
     required Output initialData,
     bool evaluateWithContext = false,
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          stream,
          dataValue: (ValuableContext? context, Msg msg) => msg as Output,
@@ -665,6 +695,7 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
          doneValue: (ValuableContext? context) => doneValue,
          initialData: initialData,
          evaluateWithContext: evaluateWithContext,
+         cleaningValueCallback: cleaningValueCallback,
        );
 
   /// Pseudo constructor to map directly a [Msg] value to an [AsyncValue<Msg>]

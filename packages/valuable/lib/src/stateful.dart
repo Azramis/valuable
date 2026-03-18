@@ -50,7 +50,9 @@ final class _StatefulValuableImpl<Output> extends Valuable<Output>
   @override
   Output get state => _state;
 
-  _StatefulValuableImpl(Output initialState) : _state = initialState, super();
+  _StatefulValuableImpl(Output initialState, {super.cleaningValueCallback})
+    : _state = initialState,
+      super();
 
   @override
   void setValue(Output value) {

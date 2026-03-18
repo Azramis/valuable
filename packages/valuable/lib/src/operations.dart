@@ -309,16 +309,23 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   final List<ValuableCaseItem<Switch, Output>>? cases;
   final ValuableParentWatcher<Output> defaultCase;
 
-  ValuableSwitch(this.testable, {required this.defaultCase, this.cases});
+  ValuableSwitch(
+    this.testable, {
+    required this.defaultCase,
+    this.cases,
+    super.cleaningValueCallback,
+  });
 
   ValuableSwitch.value(
     Valuable<Switch> testable, {
     required Output defaultValue,
     List<ValuableCaseItem<Switch, Output>>? cases,
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          testable,
          defaultCase: (watch, {valuableContext}) => defaultValue,
          cases: cases,
+         cleaningValueCallback: cleaningValueCallback,
        );
 
   @override
@@ -355,12 +362,18 @@ class ValuableIf<Output> extends Valuable<Output> {
   final ValuableParentWatcher<Output> thenCase;
   final ValuableParentWatcher<Output> elseCase;
 
-  ValuableIf(this.testable, this.thenCase, {required this.elseCase});
+  ValuableIf(
+    this.testable,
+    this.thenCase, {
+    required this.elseCase,
+    super.cleaningValueCallback,
+  });
 
   ValuableIf.value(
     Valuable<bool> testable,
     Output thenValue, {
     required Output elseValue,
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          testable,
          (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
@@ -368,6 +381,7 @@ class ValuableIf<Output> extends Valuable<Output> {
          elseCase:
              (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
                  elseValue,
+         cleaningValueCallback: cleaningValueCallback,
        );
 
   @override
