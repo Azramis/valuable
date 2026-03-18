@@ -10,8 +10,13 @@ abstract interface class StatefulValuable<Output> extends Valuable<Output> {
   @protected
   Output get state;
 
-  factory StatefulValuable(Output initialState) =>
-      _StatefulValuableImpl(initialState);
+  factory StatefulValuable(
+    Output initialState, {
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+  }) => _StatefulValuableImpl(
+    initialState,
+    cleaningValueCallback: cleaningValueCallback,
+  );
 
   void setValue(Output value);
 
