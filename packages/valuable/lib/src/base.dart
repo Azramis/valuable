@@ -11,6 +11,32 @@ import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/widgets.dart';
 
+sealed class Opt<T> {
+  const Opt._();
+
+  const factory Opt.some(T value) = Some<T>._;
+  const factory Opt.none() = None<T>._;
+
+  R fold<R>(R Function(T value) onSome, R Function() onNone) => switch (this) {
+    Some<T>(:final value) => onSome(value),
+    None<T>() => onNone(),
+  };
+
+  Opt<T> tap({void Function(T value)? onSome, void Function()? onNone}) {
+    fold((value) => onSome?.call(value), () => onNone?.call());
+    return this;
+  }
+}
+
+final class Some<T> extends Opt<T> {
+  final T value;
+  const Some._(this.value) : super._();
+}
+
+final class None<T> extends Opt<T> {
+  const None._() : super._();
+}
+
 typedef ValuableWatcherSelector<T> =
     bool Function(Valuable<T> valuable, T previousWatchedValue);
 typedef ValuableWatcher =
@@ -23,7 +49,7 @@ typedef ValuableParentWatcher<T> =
     T Function(ValuableWatcher watch, {ValuableContext? valuableContext});
 
 typedef ValuableValueCleaningCallback<T> =
-    void Function(T previousValue, T? newValue, bool isDisposal);
+    void Function(T previousValue, Opt<T> newValue, bool isDisposal);
 
 /// Shortcut to get a valuable with the value true
 final Valuable<bool> boolTrue = Valuable<bool>.value(true);
@@ -114,9 +140,12 @@ abstract class Valuable<Output> extends ChangeNotifier
   Valuable({
     bool evaluateWithContext = false,
     ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+    Opt<Output> initCacheValue = const Opt.none(),
   }) : _isMounted = ValueNotifier(true),
        _evaluateWithContext = evaluateWithContext,
-       _cleaningValueCallback = cleaningValueCallback;
+       _cleaningValueCallback = cleaningValueCallback {
+    initCacheValue.tap(onSome: (value) => _valueCache.currentValue = value);
+  }
 
   /// Returns if this object is still mounted
   bool get isMounted => _isMounted.value;
@@ -177,7 +206,8 @@ abstract class Valuable<Output> extends ChangeNotifier
     final value = getValueDefinition(_reevaluatingNeeded, context);
 
     // If a cleaning callback is provided, we call it with the previous value so have to save it before update the cache, even if cache is not used because of the ValuableContext dependency
-    if (_cleaningValuePhase(newValue: value) || !_evaluateWithContext) {
+    if (_cleaningValuePhase(newValue: Opt.some(value)) ||
+        !_evaluateWithContext) {
       _valueCache.currentValue = value;
     }
     // We are reevaluating the Valuable, so we can unmark it
@@ -189,10 +219,15 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// Try to call [_cleaningValueCallback] if it's provided, to clean the previous value before update it by the new one, or before dispose the Valuable if [isDisposal] is true.
   ///
   /// Returns true if the cleaning callback is provided, false otherwise. This allow to know if the cleaning phase is in process or not, and avoid to call the callback twice in the same phase.
-  bool _cleaningValuePhase({Output? newValue, bool isDisposal = false}) {
+  bool _cleaningValuePhase({
+    Opt<Output> newValue = const Opt.none(),
+    bool isDisposal = false,
+  }) {
     final valueCleaningCallback = _cleaningValueCallback;
     if (_valueCache.isProvided && valueCleaningCallback != null) {
-      // If the cache is provided, then we are in a reevaluation phase, so we can call the cleaning callback with the previous value and the new one, and isDisposal = true because the valuable is in disposal phase, so the new value is not relevant
+      // If the cache is provided, then we are in a reevaluation or disposal phase,
+      // so we can call the cleaning callback with the previous value and the optional new one.
+      // The [isDisposal] flag tells the callback whether this is a disposal (newValue may be ignored) or a normal reevaluation.
       valueCleaningCallback(_valueCache.currentValue, newValue, isDisposal);
     }
     return valueCleaningCallback != null;
@@ -357,6 +392,7 @@ final class _Valuable<Output> extends Valuable<Output> {
     this.computation, {
     super.evaluateWithContext = false,
     super.cleaningValueCallback,
+    super.initCacheValue = const Opt.none(),
   });
   _Valuable(
     Output value, {
@@ -364,6 +400,7 @@ final class _Valuable<Output> extends Valuable<Output> {
   }) : this.computed(
          (_, {valuableContext}) => value,
          cleaningValueCallback: cleaningValueCallback,
+         initCacheValue: Opt.some(value),
        );
 
   @override
