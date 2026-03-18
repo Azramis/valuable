@@ -253,11 +253,19 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// Should be called to clean all links to other Valuables, and all the rest
   @override
   void dispose() {
-    _isMounted.value = false;
-    _isMounted.dispose();
-    super.dispose();
-    // Last chance to clean the value with the cleaning callback, if provided, to prevent memory leak, by calling the cleaning callback with isDisposal = true, and newValue = null because the valuable is in disposal phase, so the new value is not relevant
-    _cleaningValuePhase(isDisposal: true);
+    if (_isMounted.value) {
+      _isMounted.value = false;
+      try {
+        // Last chance to clean the value with the cleaning callback, if provided,
+        // to prevent memory leak, by calling the cleaning callback with isDisposal = true,
+        // and newValue = null because the valuable is in disposal phase, so the new value is not relevant
+        // Prevent [_cleaningValuePhase] to break disposal if the cleaning callback throw an error, by catching it
+        _cleaningValuePhase(isDisposal: true);
+      } finally {
+        _isMounted.dispose();
+        super.dispose();
+      }
+    }
   }
 
   /// A method to map a Valuable from [Output] to [Other]
