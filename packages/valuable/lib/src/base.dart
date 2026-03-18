@@ -253,7 +253,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// Should be called to clean all links to other Valuables, and all the rest
   @override
   void dispose() {
-    if (_isMounted.value) {
+    if (isMounted) {
       _isMounted.value = false;
       try {
         // Last chance to clean the value with the cleaning callback, if provided,
