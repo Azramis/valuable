@@ -6,12 +6,14 @@ class _ValuableWatchedInfos<T> {
   final VoidCallback removeDisposeListener;
   final List<ValuableWatcherSelector<T>> selectors;
   T previousWatchedValue;
+  bool evaluateWithContext;
 
   _ValuableWatchedInfos({
     required this.removeValueListener,
     required this.removeDisposeListener,
     required this.previousWatchedValue,
     List<ValuableWatcherSelector<T>>? selectors,
+    this.evaluateWithContext = false,
   }) : selectors = selectors ?? <ValuableWatcherSelector<T>>[];
 
   void dispose() {
@@ -25,6 +27,12 @@ class _ValuableWatchedInfos<T> {
 mixin ValuableWatcherMixin {
   final Map<Valuable, _ValuableWatchedInfos> _watched =
       <Valuable, _ValuableWatchedInfos>{};
+
+  @protected
+  @visibleForOverriding
+  @mustCallSuper
+  bool get evaluateWithContext =>
+      _watched.values.any((infos) => infos.evaluateWithContext);
 
   /// Watch a valuable, that eventually change
   @protected
@@ -40,6 +48,7 @@ mixin ValuableWatcherMixin {
       valuable,
       (infos) {
         if (infos is _ValuableWatchedInfos<T>) {
+          infos.evaluateWithContext = valuable.evaluateWithContext;
           infos.previousWatchedValue =
               result; // Save value for future comparaison
           if (selector != null) {
@@ -62,6 +71,7 @@ mixin ValuableWatcherMixin {
           removeDisposeListener: removeListener,
           previousWatchedValue: result,
           selectors: [?selector],
+          evaluateWithContext: valuable.evaluateWithContext,
         );
       },
     );

@@ -130,6 +130,9 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// If the valuable depends on the ValuableContext provide in the [getValue] method
   /// then it's not possible to use the cache, because of the volability of the value
   final bool _evaluateWithContext;
+  @override
+  bool get evaluateWithContext =>
+      _evaluateWithContext || super.evaluateWithContext;
 
   final ValueNotifier<bool> _isMounted;
 
@@ -194,7 +197,7 @@ abstract class Valuable<Output> extends ChangeNotifier
     // If not, check if it's invalidation phase
     // If not, check for the cache to be provided
     // in that case, return cached value rather than reevaluate it
-    if (!_evaluateWithContext &&
+    if (!evaluateWithContext &&
         !_reevaluatingNeeded &&
         _valueCache.isProvided) {
       return _valueCache.currentValue;
@@ -207,7 +210,7 @@ abstract class Valuable<Output> extends ChangeNotifier
 
     // If a cleaning callback is provided, we call it with the previous value so have to save it before update the cache, even if cache is not used because of the ValuableContext dependency
     if (_cleaningValuePhase(newValue: Opt.some(value)) ||
-        !_evaluateWithContext) {
+        !evaluateWithContext) {
       _valueCache.currentValue = value;
     }
     // We are reevaluating the Valuable, so we can unmark it
@@ -463,12 +466,7 @@ final class ValuableBoolGroup extends Valuable<bool> {
   /// All the constraints to be used in the group to determine the value
   final List<Valuable<bool>> constraints;
 
-  ValuableBoolGroup._(this._type, this.constraints)
-    : super(
-        evaluateWithContext: constraints.any(
-          (constraint) => constraint._evaluateWithContext,
-        ) /* Needed because of the parameter passed to children */,
-      );
+  ValuableBoolGroup._(this._type, this.constraints);
 
   /// Constructor for an AND logical group
   ValuableBoolGroup.and(List<Valuable<bool>> constraints)
@@ -621,7 +619,6 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
       errorValue: (_, error, stackTrace) =>
           ValuableAsyncValue.error(error, stackTrace),
       noDataValue: (_) => ValuableAsyncValue.noData(),
-      evaluateWithContext: false,
     );
   }
 
@@ -746,7 +743,6 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
     required Output errorValue,
     required Output doneValue,
     required Output initialData,
-    bool evaluateWithContext = false,
     ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          stream,
@@ -755,7 +751,6 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
              errorValue,
          doneValue: (ValuableContext? context) => doneValue,
          initialData: initialData,
-         evaluateWithContext: evaluateWithContext,
          cleaningValueCallback: cleaningValueCallback,
        );
 
@@ -770,7 +765,6 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
           ValuableAsyncValue.error(error, stackTrace),
       doneValue: (_) => ValuableAsyncValue.noData(closed: true),
       initialData: ValuableAsyncValue.noData(),
-      evaluateWithContext: false,
     );
   }
 
