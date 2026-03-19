@@ -310,6 +310,7 @@ abstract class Valuable<Output> extends ChangeNotifier
         );
       } finally {
         _isMounted.dispose();
+        cleanWatched();
         super.dispose();
       }
     }
