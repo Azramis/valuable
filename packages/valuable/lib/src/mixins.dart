@@ -64,6 +64,7 @@ mixin ValuableWatcherMixin {
 
         final removeListener = valuable.listenDispose(() {
           _unwatch(valuable);
+          onWatchedValuableDispose(valuable);
         });
 
         return _ValuableWatchedInfos<T>(
@@ -81,6 +82,11 @@ mixin ValuableWatcherMixin {
 
   /// Remove listener on the valuable, that may change scope, or that about to be disposed
   void _unwatch(Valuable valuable) => _watched.remove(valuable)?.dispose();
+
+  /// Allow to inherited class to take on watched valuable disposal
+  @protected
+  @visibleForOverriding
+  void onWatchedValuableDispose(Valuable valuable) {}
 
   void _callValuableChange<T>(Valuable<T> valuable) {
     if (_watched.containsKey(valuable)) {
