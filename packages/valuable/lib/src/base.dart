@@ -218,7 +218,9 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Try to call [_cleaningValueCallback] if it's provided, to clean the previous value before update it by the new one, or before dispose the Valuable if [isDisposal] is true.
   ///
-  /// Returns true if the cleaning callback is provided, false otherwise. This allow to know if the cleaning phase is in process or not, and avoid to call the callback twice in the same phase.
+  /// Returns true if the cleaning callback is provided, false otherwise.
+  /// It is used to determine if we need to store value in cache to be able to provide it to the cleaning callback at the next call of [getValue] or at disposal,
+  /// because if no cleaning callback is provided, then we don't need to store value in cache, even if the Valuable is not dependent of the ValuableContext.
   bool _cleaningValuePhase({
     Opt<Output> newValue = const Opt.none(),
     bool isDisposal = false,
