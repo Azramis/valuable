@@ -463,8 +463,9 @@ final class ValuableBoolGroup extends Valuable<bool> {
 
   ValuableBoolGroup._(this._type, this.constraints)
     : super(
-        evaluateWithContext:
-            true /* Needed because of the parameter passed to children */,
+        evaluateWithContext: constraints.any(
+          (constraint) => constraint._evaluateWithContext,
+        ) /* Needed because of the parameter passed to children */,
       );
 
   /// Constructor for an AND logical group

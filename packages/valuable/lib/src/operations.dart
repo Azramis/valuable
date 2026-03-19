@@ -294,8 +294,13 @@ class ValuableStringOperation extends Valuable<String> {
 class ValuableCaseItem<Switch, Output> {
   final Switch caseValue;
   final ValuableParentWatcher<Output> getValue;
+  final bool evaluateWithContext;
 
-  ValuableCaseItem(this.caseValue, this.getValue);
+  ValuableCaseItem(
+    this.caseValue,
+    this.getValue, {
+    this.evaluateWithContext = false,
+  });
 
   ValuableCaseItem.value(Switch caseValue, Output value)
     : this(
@@ -312,9 +317,14 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   ValuableSwitch(
     this.testable, {
     required this.defaultCase,
+    bool evaluateDefaultCaseWithContext = false,
     this.cases,
     super.cleaningValueCallback,
-  });
+  }) : super(
+         evaluateWithContext:
+             evaluateDefaultCaseWithContext ||
+             (cases?.any((caseItem) => caseItem.evaluateWithContext) ?? false),
+       );
 
   ValuableSwitch.value(
     Valuable<Switch> testable, {
@@ -367,7 +377,12 @@ class ValuableIf<Output> extends Valuable<Output> {
     this.thenCase, {
     required this.elseCase,
     super.cleaningValueCallback,
-  });
+    bool evaluateThenCaseWithContext = false,
+    bool evaluateElseCaseWithContext = false,
+  }) : super(
+         evaluateWithContext:
+             evaluateThenCaseWithContext || evaluateElseCaseWithContext,
+       );
 
   ValuableIf.value(
     Valuable<bool> testable,
