@@ -287,15 +287,27 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Should be called to clean all links to other Valuables, and all the rest
   @override
+  @pragma('vm:notify-debugger-on-exception')
   void dispose() {
     if (isMounted) {
       _isMounted.value = false;
       try {
         // Last chance to clean the value with the cleaning callback, if provided,
         // to prevent memory leak, by calling the cleaning callback with isDisposal = true,
-        // and newValue = null because the valuable is in disposal phase, so the new value is not relevant
+        // and newValue of [Opt.none()] because the valuable is in disposal phase, so the new value is not relevant
         // Prevent [_cleaningValuePhase] to break disposal if the cleaning callback throw an error, by catching it
         _cleaningValuePhase(isDisposal: true);
+      } catch (e, s) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: 'valuable',
+            context: ErrorDescription(
+              'while running cleaning callback during disposal of $runtimeType',
+            ),
+          ),
+        );
       } finally {
         _isMounted.dispose();
         super.dispose();
