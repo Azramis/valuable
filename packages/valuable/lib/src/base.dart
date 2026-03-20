@@ -230,11 +230,21 @@ abstract class Valuable<Output> extends ChangeNotifier
     return value;
   }
 
-  /// Try to call [_cleaningValueCallback] if it's provided, to clean the previous value before update it by the new one, or before dispose the Valuable if [isDisposal] is true.
+  /// Try to call [_cleaningValueCallback] if it's provided, to clean the previous
+  /// value before updating it with the new one, or before disposing the Valuable
+  /// if [isDisposal] is true.
   ///
-  /// Returns true if the cleaning callback is provided, false otherwise.
-  /// It is used to determine if we need to store value in cache to be able to provide it to the cleaning callback at the next call of [getValue] or at disposal,
-  /// because if no cleaning callback is provided, then we don't need to store value in cache, even if the Valuable is not dependent of the ValuableContext.
+  /// Returns `true` if the cleaning callback is provided, `false` otherwise.
+  ///
+  /// The return value is used by [getValue] to decide whether a value must be kept
+  /// in the cache when [evaluateWithContext] is `true` (i.e. when caching is
+  /// otherwise disabled): if a cleaning callback exists, the previous value is
+  /// cached so it can be passed to the callback on the next reevaluation or on
+  /// disposal.
+  ///
+  /// When [evaluateWithContext] is `false`, [getValue] may still cache values for
+  /// performance regardless of whether a cleaning callback is provided; in that
+  /// case the caching behavior does not depend on this return value.
   bool _cleaningValuePhase({
     Opt<Output> newValue = const Opt.none(),
     bool isDisposal = false,
