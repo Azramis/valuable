@@ -83,7 +83,7 @@ mixin ValuableWatcherMixin {
   /// Remove listener on the valuable, that may change scope, or that about to be disposed
   void _unwatch(Valuable valuable) => _watched.remove(valuable)?.dispose();
 
-  /// Allow to inherited class to take on watched valuable disposal
+  /// Allows inheriting classes to react when a watched Valuable is disposed.
   @protected
   @visibleForOverriding
   void onWatchedValuableDispose(Valuable valuable) {}
