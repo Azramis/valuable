@@ -146,6 +146,9 @@ mixin ValuableWatcherMixin {
   }
 }
 
+typedef ValuableStatefulWidgetParam<P, T extends StatefulWidget> =
+    Valuable<P> Function(T widget);
+
 /// A mixin to provide a scope for Valuables, allowing to easily manage their lifecycle
 mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
   final ValuableScope _valuableScope = ValuableScope();
@@ -157,4 +160,57 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
   }
 
   ValuableScope get vScope => _valuableScope;
+
+  final _interops =
+      <ValuableStatefulWidgetParam<dynamic, T>, Valuable<dynamic>>{};
+
+  /// Get a Valuable from the widget, and keep it in the scope, so it will be automatically disposed when the State is disposed
+  /// If the extracted Valuable change, the computed valuable will be automatically updated with the new value
+  ///
+  /// [extractor] is a function that extract a Valuable from the widget, it should be pure, and not have any side effect,
+  /// because it will be called multiple times, and should return the same Valuable for the same widget
+  ///
+  /// Exemple of use :
+  /// ```dart
+  /// class MyWidget extends StatefulWidget {
+  ///   final Valuable<String> title;
+  ///
+  ///   MyWidget({required this.title});
+  /// }
+  ///
+  /// class _MyWidgetState extends State<MyWidget> with StateValuableScopeMixin<MyWidget> {
+  ///   late final titleValuable = interopValuableArg((widget) => widget.title);
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///    return ValuableConsumer(
+  ///      builder: (context, watch, child) => Text(watch(titleValuable)),
+  ///    );
+  ///   }
+  /// }
+  /// ```
+  @protected
+  Valuable<P> interopValuableArg<P>(
+    ValuableStatefulWidgetParam<P, T> extractor,
+  ) {
+    return _interops.putIfAbsent(
+          extractor,
+          () => _valuableScope.computed(
+            (watch, {valuableContext}) => watch(extractor(widget)),
+          ),
+        )
+        as Valuable<P>;
+  }
+
+  @override
+  void didUpdateWidget(covariant T oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    for (final extractor in _interops.keys) {
+      if (extractor(oldWidget) != extractor(widget)) {
+        // If the extracted valuable changed, we need to update the computed valuable
+        final valuable = _interops[extractor]!;
+        valuable.markToReevaluate();
+      }
+    }
+  }
 }
