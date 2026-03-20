@@ -9,8 +9,12 @@ final class ValuableScope {
   ValuableScope();
 
   final _disposeCalls = <VoidCallback>{};
+  bool _isDisposed = false;
 
+  /// Dispose all the scoped entities, and call all the registered dispose callbacks
   void dispose() {
+    if (_isDisposed) return;
+    _isDisposed = true;
     for (final call in _disposeCalls) {
       call();
     }
@@ -18,13 +22,20 @@ final class ValuableScope {
   }
 
   V _scope<V extends Object>(V object) {
+    if (_isDisposed) {
+      throw StateError('ValuableScope has been disposed');
+    }
+
     switch (object) {
       case Valuable valuable:
         _disposeCalls.add(valuable.dispose);
+        break;
       case ValuableCallback callback:
         _disposeCalls.add(callback.dispose);
+        break;
       case ValuableScope scope:
         _disposeCalls.add(scope.dispose);
+        break;
       default:
     }
 
