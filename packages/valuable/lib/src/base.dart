@@ -213,21 +213,9 @@ abstract class Valuable<Output> extends ChangeNotifier
     cleanWatched();
 
     final value = getValueDefinition(_reevaluatingNeeded, context);
+    final willCacheForCleaning = _cleaningValuePhase(newValue: Opt.some(value));
 
-    // If a cleaning callback is provided, we call it with the previous value. We must therefore save
-    // the previous value before updating the cache, even when the cache is not used because of the
-    // ValuableContext dependency. However, when `evaluateWithContext` is true, `getValue` may be
-    // called repeatedly with the same instance. In that case we must avoid running the cleaning phase
-    // on the same instance that we are about to return, to prevent use-after-dispose bugs.
-    final bool hasCachedValue = _valueCache.isProvided;
-    final bool isSameInstanceAsCached =
-        hasCachedValue && identical(_valueCache.currentValue, value);
-
-    final bool shouldRunCleaning =
-        !isSameInstanceAsCached &&
-        _cleaningValuePhase(newValue: Opt.some(value));
-
-    if (shouldRunCleaning || !evaluateWithContext) {
+    if (willCacheForCleaning || !evaluateWithContext) {
       _valueCache.currentValue = value;
     }
     // We are reevaluating the Valuable, so we can unmark it
@@ -240,8 +228,12 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// value before updating it with the new one, or before disposing the Valuable
   /// if [isDisposal] is true.
   ///
-  /// Returns `true` if the cleaning callback is provided, `false` otherwise.
+  /// When [isDisposal] is true, the [newValue] is not relevant, so it will be set to [Opt.none()].
   ///
+  /// [_cleaningValueCallback] will be called only if there is a cached value, and if the new value is different from the cached one,
+  /// to prevent use-after-dispose bugs when the new value is the same instance as the current one.
+  ///
+  /// Returns true if the [_cleaningValueCallback] is provided.
   /// The return value is used by [getValue] to decide whether a value must be kept
   /// in the cache when [evaluateWithContext] is `true` (i.e. when caching is
   /// otherwise disabled): if a cleaning callback exists, the previous value is
@@ -256,13 +248,30 @@ abstract class Valuable<Output> extends ChangeNotifier
     bool isDisposal = false,
   }) {
     final valueCleaningCallback = _cleaningValueCallback;
-    if (_valueCache.isProvided && valueCleaningCallback != null) {
+    // If there is no cleaning callback, then there is no need to run the cleaning phase, and we can directly return
+    if (valueCleaningCallback == null) return false;
+
+    // If a cleaning callback is provided, we call it with the previous value. We must therefore save
+    // the previous value before updating the cache, even when the cache is not used because of the
+    // ValuableContext dependency. However, when `evaluateWithContext` is true, `getValue` may be
+    // called repeatedly with the same instance. In that case we must avoid running the cleaning phase
+    // on the same instance that we are about to return, to prevent use-after-dispose bugs.
+    final bool hasCachedValue = _valueCache.isProvided;
+    final bool shouldRunCleaning =
+        hasCachedValue &&
+        newValue.fold(
+          (v) => !identical(_valueCache.currentValue, v),
+          () => true,
+        );
+
+    if (shouldRunCleaning) {
       // If the cache is provided, then we are in a reevaluation or disposal phase,
       // so we can call the cleaning callback with the previous value and the optional new one.
       // The [isDisposal] flag tells the callback whether this is a disposal (newValue may be ignored) or a normal reevaluation.
       valueCleaningCallback(_valueCache.currentValue, newValue, isDisposal);
     }
-    return valueCleaningCallback != null;
+
+    return true;
   }
 
   /// This method should be redefined in ever sub-classes to determine how works
