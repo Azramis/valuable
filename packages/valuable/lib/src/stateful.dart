@@ -58,11 +58,11 @@ final class _StatefulValuableImpl<Output> extends Valuable<Output>
   _StatefulValuableImpl(Output initialState, {super.cleaningValueCallback})
     : _state = initialState,
       super(
+        // We can directly set the initial state in the cache, because it's the
+        // first value of the Valuable, so there is no previous value to clean,
+        // and no need to notify dependents.
         initCacheValue: Opt.some(initialState),
       );
-      // We can directly set the initial state in the cache, because it's the
-      // first value of the Valuable, so there is no previous value to clean,
-      // and no need to notify dependents.
 
   @override
   void setValue(Output value) {
