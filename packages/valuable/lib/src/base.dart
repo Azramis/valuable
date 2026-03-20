@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:valuable/src/async.dart';
 import 'package:valuable/src/callable.dart';
 import 'package:valuable/src/errors.dart';
-import 'package:valuable/src/exceptions.dart';
 import 'package:valuable/src/history.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/widgets.dart';
+
+part 'exceptions.dart';
 
 sealed class Opt<T> {
   const Opt._();

@@ -2,7 +2,6 @@ export 'src/async.dart';
 export 'src/base.dart';
 export 'src/callable.dart';
 export 'src/collections.dart';
-export 'src/exceptions.dart';
 export 'src/extensions.dart';
 export 'src/history.dart';
 export 'src/linker.dart';

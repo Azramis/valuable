@@ -1,4 +1,4 @@
-import 'package:valuable/src/base.dart';
+part of 'base.dart';
 
 /// For Valuable to have its own Exceptions
 sealed class ValuableException implements Exception {
