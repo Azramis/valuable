@@ -1,5 +1,17 @@
+import 'package:valuable/src/base.dart';
+
 /// For Valuable to have its own Exceptions
-sealed class ValuableException implements Exception {}
+sealed class ValuableException implements Exception {
+  const ValuableException();
+}
 
 /// For case of illegal use when using Valuable
-final class ValuableIllegalUseException extends ValuableException {}
+final class ValuableIllegalUseException extends ValuableException {
+  const ValuableIllegalUseException();
+}
+
+/// For case of trying to read a Valuable that is already disposed
+final class ValuableDisposedException extends ValuableException {
+  ValuableDisposedException(this.valuable);
+  final Valuable valuable;
+}

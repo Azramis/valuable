@@ -193,6 +193,11 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// Get the current value of the Valuable
   @mustCallSuper
   Output getValue([ValuableContext? context = const ValuableContext()]) {
+    // Valuable is not mounted anymore, it can't be read, so we throw an error to prevent use after dispose bugs
+    if (!isMounted) {
+      throw ValuableDisposedException(this);
+    }
+
     // Check if the valuable is dependent of the ValuableContext to evaluate
     // If not, check if it's invalidation phase
     // If not, check for the cache to be provided
@@ -310,6 +315,14 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Build an [HistorizedValuable] based on this Valuable
   HistorizedValuable<Output> historize() => HistorizedValuable<Output>(this);
+
+  @override
+  void onWatchedValuableDispose(_) {
+    // A watched Valuable was disposed, current value can't be computed anymore,
+    // as one of its dependencies is now unreadable, so we need to dispose this Valuable as well
+    // to prevent it to be read with an inconsistent state, and to clean all the links to the other Valuables that may cause memory leak
+    dispose();
+  }
 
   /// Should be called to clean all links to other Valuables, and all the rest
   @override
