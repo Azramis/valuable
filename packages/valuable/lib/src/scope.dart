@@ -235,4 +235,6 @@ final class ValuableScope {
 
   ValuableCallback microtaskCallback(ValuableCallbackPrototype callback) =>
       _scope(ValuableCallback.microtask(callback));
+
+  ValuableScope nestedScope() => _scope(ValuableScope());
 }
