@@ -622,11 +622,9 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
     ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          future,
-         dataValue: (ValuableContext? context, Res result) => result as Output,
-         noDataValue: (ValuableContext? context) => noDataValue,
-         errorValue:
-             (ValuableContext? context, Object error, StackTrace stackTrace) =>
-                 errorValue,
+         dataValue: (_, Res result) => result as Output,
+         noDataValue: (_) => noDataValue,
+         errorValue: (_, _, _) => errorValue,
          cleaningValueCallback: cleaningValueCallback,
        );
 
@@ -767,10 +765,9 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
     ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          stream,
-         dataValue: (ValuableContext? context, Msg msg) => msg as Output,
-         errorValue: (ValuableContext? context, Object error, StackTrace st) =>
-             errorValue,
-         doneValue: (ValuableContext? context) => doneValue,
+         dataValue: (_, Msg msg) => msg as Output,
+         errorValue: (_, _, _) => errorValue,
+         doneValue: (_) => doneValue,
          initialData: initialData,
          cleaningValueCallback: cleaningValueCallback,
        );
