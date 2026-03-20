@@ -159,6 +159,8 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
+  /// Access to the ValuableScope of this State, allowing to create valuables that will be automatically disposed with the State
+  @protected
   ValuableScope get vScope => _valuableScope;
 
   final _interops =
