@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:valuable/src/async.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/callable.dart';
+import 'package:valuable/src/disposable.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/stateful.dart';
 
@@ -12,41 +13,34 @@ import 'package:valuable/src/stateful.dart';
 ///
 /// By using a scope, you can ensure that all the valuables and callbacks created within the scope are properly disposed when the scope is disposed,
 /// preventing memory leaks and ensuring that resources are properly released.
-final class ValuableScope {
+final class ValuableScope with VDisposableMixin {
   ValuableScope();
 
-  final _disposeCalls = <VoidCallback>{};
-  bool _isDisposed = false;
+  final _disposables = <VDisposable, VoidCallback>{};
 
   /// Dispose all the scoped entities, and call all the registered dispose callbacks
-  void dispose() {
-    if (_isDisposed) return;
-    _isDisposed = true;
-    for (final call in _disposeCalls) {
-      call();
+  @override
+  void disposeInternal() {
+    for (final entry in _disposables.entries) {
+      // Begin by removing the listener to prevent any new callback from being called during the dispose process, then dispose the object itself
+      entry.value();
+      entry.key.dispose();
     }
-    _disposeCalls.clear();
+    // Clear the disposables map to release references to the disposed objects and callbacks
+    _disposables.clear();
   }
 
-  V _scope<V extends Object>(V object) {
-    if (_isDisposed) {
+  V _scope<V extends VDisposable>(V disposable) {
+    if (isDisposed) {
       throw StateError('ValuableScope has been disposed');
     }
+    // Listen to the dispose event of the object, and remove it from the disposables map when it is disposed
+    final removeCallback = disposable.listenDispose(
+      () => _disposables.remove(disposable),
+    );
+    _disposables.putIfAbsent(disposable, () => removeCallback);
 
-    switch (object) {
-      case Valuable valuable:
-        _disposeCalls.add(valuable.dispose);
-        break;
-      case ValuableCallback callback:
-        _disposeCalls.add(callback.dispose);
-        break;
-      case ValuableScope scope:
-        _disposeCalls.add(scope.dispose);
-        break;
-      default:
-    }
-
-    return object;
+    return disposable;
   }
 
   /// See [Valuable.value]

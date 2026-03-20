@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:valuable/src/async.dart';
 import 'package:valuable/src/callable.dart';
+import 'package:valuable/src/disposable.dart';
 import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/history.dart';
 import 'package:valuable/src/mixins.dart';
@@ -123,7 +124,8 @@ class ValuableContext {
 /// In addition, it's even possible to pass a [ValuableContext] to specify the context
 /// where the value is needed.
 abstract class Valuable<Output> extends ChangeNotifier
-    with ValuableWatcherMixin {
+    with ValuableWatcherMixin
+    implements VDisposable {
   final _valueCache = _ValueCache<Output>();
 
   /// Determines if the valuable use the cache or not
@@ -153,6 +155,8 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Returns if this object is still mounted
   bool get isMounted => _isMounted.value;
+  @override
+  bool get isDisposed => !isMounted;
 
   /// Factory [Valuable.value] to build a simple Valuable on a final value
   factory Valuable.value(
@@ -318,6 +322,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   ///
   /// [onDispose] will be called when this Valuable is disposed
   /// Returns a function to remove the listener
+  @override
   VoidCallback listenDispose(VoidCallback onDispose) {
     _isMounted.addListener(onDispose);
     return () => _isMounted.removeListener(onDispose);
