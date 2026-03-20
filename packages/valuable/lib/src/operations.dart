@@ -311,7 +311,7 @@ class ValuableCaseItem<Switch, Output> {
 
 class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   final Valuable<Switch> testable;
-  final List<ValuableCaseItem<Switch, Output>>? cases;
+  final Iterable<ValuableCaseItem<Switch, Output>>? cases;
   final ValuableParentWatcher<Output> defaultCase;
 
   ValuableSwitch(
@@ -329,7 +329,7 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   ValuableSwitch.value(
     Valuable<Switch> testable, {
     required Output defaultValue,
-    List<ValuableCaseItem<Switch, Output>>? cases,
+    Iterable<ValuableCaseItem<Switch, Output>>? cases,
     ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          testable,
