@@ -11,7 +11,7 @@ final class ValuableIllegalUseException extends ValuableException {
 }
 
 /// For case of trying to read a Valuable that is already disposed
-final class ValuableDisposedException extends ValuableException {
+final class ValuableDisposedException<T> extends ValuableException {
   ValuableDisposedException(this.valuable);
-  final Valuable valuable;
+  final Valuable<T> valuable;
 }
