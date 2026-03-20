@@ -5,6 +5,13 @@ import 'package:valuable/src/callable.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/stateful.dart';
 
+/// A class to manage the lifecycle of multiple valuables and callbacks, and dispose them all together when needed
+///
+/// A scope can be useful to manage the lifecycle of valuables and callbacks in a specific part of the application,
+/// for example in a widget, a service, or any other entity that needs to create valuables and callbacks and dispose them when they are no longer needed.
+///
+/// By using a scope, you can ensure that all the valuables and callbacks created within the scope are properly disposed when the scope is disposed,
+/// preventing memory leaks and ensuring that resources are properly released.
 final class ValuableScope {
   ValuableScope();
 
@@ -42,6 +49,7 @@ final class ValuableScope {
     return object;
   }
 
+  /// See [Valuable.value]
   Valuable<T> value<T>(
     T value, {
     ValuableValueCleaningCallback<T>? cleaningValueCallback,
@@ -49,6 +57,7 @@ final class ValuableScope {
     Valuable<T>.value(value, cleaningValueCallback: cleaningValueCallback),
   );
 
+  /// See [Valuable.computed]
   Valuable<T> computed<T>(
     ValuableParentWatcher<T> compute, {
     bool evaluateWithContext = false,
@@ -61,6 +70,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [Valuable.listenable]
   Valuable<T> listenable<T>(
     ValueListenable<T> listenable, {
     ValuableValueCleaningCallback<T>? cleaningValueCallback,
@@ -71,6 +81,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [Valuable.listenableComputed]
   Valuable<T> listenableComputed<L extends Listenable, T>(
     L listenable,
     T Function(L listenable) computation, {
@@ -83,6 +94,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [StatefulValuable]
   StatefulValuable<T> stateful<T>(
     T initialState, {
     ValuableValueCleaningCallback<T>? cleaningValueCallback,
@@ -93,12 +105,15 @@ final class ValuableScope {
     ),
   );
 
+  /// See [ValuableBoolGroup.and]
   Valuable<bool> groupAnd(Iterable<Valuable<bool>> valuables) =>
       _scope(ValuableBoolGroup.and(valuables));
 
+  /// See [ValuableBoolGroup.or]
   Valuable<bool> groupOr(Iterable<Valuable<bool>> valuables) =>
       _scope(ValuableBoolGroup.or(valuables));
 
+  /// See [FutureValuable]
   Valuable<T> future<T, R>(
     Valuable<Future<R>> future, {
     required ValuableGetFutureResult<T, R> dataValue,
@@ -117,6 +132,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [FutureValuable.values]
   Valuable<T> futureToValues<T, R>(
     Valuable<Future<R>> future, {
     required T noDataValue,
@@ -131,10 +147,12 @@ final class ValuableScope {
     ),
   );
 
+  /// See [FutureValuable.asyncVal]
   Valuable<ValuableAsyncValue<T>> futureToAsyncVal<T>(
     Valuable<Future<T>> future,
   ) => _scope(FutureValuable.asyncVal(future));
 
+  /// See [StreamValuable]
   Valuable<T> stream<T, R>(
     Valuable<Stream<R>> stream, {
     required ValuableGetStreamData<T, R> dataValue,
@@ -155,6 +173,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [StreamValuable.values]
   Valuable<T> streamToValues<T, R>(
     Valuable<Stream<R>> stream, {
     required T initialData,
@@ -171,10 +190,12 @@ final class ValuableScope {
     ),
   );
 
+  /// See [StreamValuable.asyncVal]
   Valuable<ValuableAsyncValue<T>> streamToAsyncVal<T>(
     Valuable<Stream<T>> stream,
   ) => _scope(StreamValuable.asyncVal(stream));
 
+  /// See [ValuableIf]
   Valuable<T> ifThen<T>(
     Valuable<bool> testable,
     ValuableParentWatcher<T> thenCase, {
@@ -193,6 +214,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [ValuableIf.value]
   Valuable<T> ifThenValue<T>(
     Valuable<bool> testable,
     T thenValue, {
@@ -207,6 +229,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [ValuableSwitch]
   Valuable<T> switchCase<T, S>(
     Valuable<S> switchable, {
     required ValuableParentWatcher<T> defaultCase,
@@ -224,6 +247,7 @@ final class ValuableScope {
     ),
   );
 
+  /// See [ValuableSwitch.value]
   Valuable<T> switchCaseValue<T, S>(
     Valuable<S> switchable, {
     required T defaultCase,
@@ -238,14 +262,20 @@ final class ValuableScope {
     ),
   );
 
+  /// See [ValuableCallback.immediate]
   ValuableCallback callback(ValuableCallbackPrototype callback) =>
       _scope(ValuableCallback.immediate(callback));
 
+  /// See [ValuableCallback.future]
   ValuableCallback futureCallback(ValuableCallbackPrototype callback) =>
       _scope(ValuableCallback.future(callback));
 
+  /// See [ValuableCallback.microtask]
   ValuableCallback microtaskCallback(ValuableCallbackPrototype callback) =>
       _scope(ValuableCallback.microtask(callback));
 
+  /// Build a nested scope, that will be automatically disposed when the parent scope is disposed
+  ///
+  /// See [ValuableScope] for more details about scopes
   ValuableScope nestedScope() => _scope(ValuableScope());
 }
