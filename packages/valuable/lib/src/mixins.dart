@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:valuable/src/base.dart';
+import 'package:valuable/src/scope.dart';
 
 class _ValuableWatchedInfos<T> {
   final VoidCallback removeValueListener;
@@ -142,4 +144,17 @@ mixin ValuableWatcherMixin {
 
     _watched.clear();
   }
+}
+
+/// A mixin to provide a scope for Valuables, allowing to easily manage their lifecycle
+mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
+  final ValuableScope _valuableScope = ValuableScope();
+
+  @override
+  void dispose() {
+    _valuableScope.dispose();
+    super.dispose();
+  }
+
+  ValuableScope get vScope => _valuableScope;
 }
