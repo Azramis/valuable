@@ -226,4 +226,13 @@ final class ValuableScope {
       cleaningValueCallback: cleaningValueCallback,
     ),
   );
+
+  ValuableCallback callback(ValuableCallbackPrototype callback) =>
+      _scope(ValuableCallback.immediate(callback));
+
+  ValuableCallback futureCallback(ValuableCallbackPrototype callback) =>
+      _scope(ValuableCallback.future(callback));
+
+  ValuableCallback microtaskCallback(ValuableCallbackPrototype callback) =>
+      _scope(ValuableCallback.microtask(callback));
 }
