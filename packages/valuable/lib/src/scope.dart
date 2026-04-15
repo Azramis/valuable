@@ -35,10 +35,11 @@ final class ValuableScope with VDisposableMixin {
       throw StateError('ValuableScope has been disposed');
     }
     // Listen to the dispose event of the object, and remove it from the disposables map when it is disposed
-    final removeCallback = disposable.listenDispose(
-      () => _disposables.remove(disposable),
+    _disposables.putIfAbsent(
+      disposable,
+      // Listen only if the disposable is not already in the map, to avoid listening multiple times to the same object in case of multiple calls to _scope with the same object
+      () => disposable.listenDispose(() => _disposables.remove(disposable)),
     );
-    _disposables.putIfAbsent(disposable, () => removeCallback);
 
     return disposable;
   }
