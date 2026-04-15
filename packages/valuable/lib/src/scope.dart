@@ -230,7 +230,6 @@ final class ValuableScope with VDisposableMixin {
     required ValuableParentWatcher<T> defaultCase,
     List<ValuableCaseItem<S, T>>? cases,
     ValuableValueCleaningCallback<T>? cleaningValueCallback,
-    bool evaluateCasesWithContext = false,
     bool evaluateDefaultCaseWithContext = false,
   }) => _scope(
     ValuableSwitch(
