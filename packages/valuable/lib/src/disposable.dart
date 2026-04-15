@@ -38,7 +38,10 @@ abstract mixin class VDisposableMixin implements VDisposable {
     try {
       disposeInternal();
     } finally {
-      for (final listener in _disposeListeners) {
+      // To avoid concurrent modification error, we create a copy of the listeners list before iterating it,
+      // and we clear the original list to release references to the listeners and allow them to be garbage collected
+      final listeners = List.from(_disposeListeners);
+      for (final listener in listeners) {
         listener();
       }
       _disposeListeners.clear();
