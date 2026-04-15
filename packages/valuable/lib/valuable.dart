@@ -7,4 +7,5 @@ export 'src/history.dart';
 export 'src/linker.dart';
 export 'src/operations.dart';
 export 'src/stateful.dart';
+export 'src/scope.dart';
 export 'src/widgets.dart';
