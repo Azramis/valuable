@@ -172,7 +172,7 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
   /// [extractor] is a function that extract a Valuable from the widget, it should be pure, and not have any side effect,
   /// because it will be called multiple times, and should return the same Valuable for the same widget
   ///
-  /// Exemple of use :
+  /// Example of use :
   /// ```dart
   /// class MyWidget extends StatefulWidget {
   ///   final Valuable<String> title;
