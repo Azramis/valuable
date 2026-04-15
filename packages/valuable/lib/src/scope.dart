@@ -101,11 +101,11 @@ final class ValuableScope with VDisposableMixin {
   );
 
   /// See [ValuableBoolGroup.and]
-  Valuable<bool> groupAnd(Iterable<Valuable<bool>> valuables) =>
+  Valuable<bool> groupAnd(List<Valuable<bool>> valuables) =>
       _scope(ValuableBoolGroup.and(valuables));
 
   /// See [ValuableBoolGroup.or]
-  Valuable<bool> groupOr(Iterable<Valuable<bool>> valuables) =>
+  Valuable<bool> groupOr(List<Valuable<bool>> valuables) =>
       _scope(ValuableBoolGroup.or(valuables));
 
   /// See [FutureValuable]
@@ -228,7 +228,7 @@ final class ValuableScope with VDisposableMixin {
   Valuable<T> switchCase<T, S>(
     Valuable<S> switchable, {
     required ValuableParentWatcher<T> defaultCase,
-    List<ValuableCaseItem<S, T>>? cases,
+    List<ValuableCaseItem<S, T>> cases = const [],
     ValuableValueCleaningCallback<T>? cleaningValueCallback,
     bool evaluateDefaultCaseWithContext = false,
   }) => _scope(
@@ -245,7 +245,7 @@ final class ValuableScope with VDisposableMixin {
   Valuable<T> switchCaseValue<T, S>(
     Valuable<S> switchable, {
     required T defaultCase,
-    List<ValuableCaseItem<S, T>>? cases,
+    List<ValuableCaseItem<S, T>> cases = const [],
     ValuableValueCleaningCallback<T>? cleaningValueCallback,
   }) => _scope(
     ValuableSwitch.value(

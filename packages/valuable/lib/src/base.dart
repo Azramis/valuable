@@ -513,16 +513,16 @@ final class ValuableBoolGroup extends Valuable<bool> {
   final _BoolGroupType _type;
 
   /// All the constraints to be used in the group to determine the value
-  final Iterable<Valuable<bool>> constraints;
+  final List<Valuable<bool>> constraints;
 
   ValuableBoolGroup._(this._type, this.constraints);
 
   /// Constructor for an AND logical group
-  ValuableBoolGroup.and(Iterable<Valuable<bool>> constraints)
+  ValuableBoolGroup.and(List<Valuable<bool>> constraints)
     : this._(_BoolGroupType.and, constraints);
 
   /// Constructor for an OR logical group
-  ValuableBoolGroup.or(Iterable<Valuable<bool>> constraints)
+  ValuableBoolGroup.or(List<Valuable<bool>> constraints)
     : this._(_BoolGroupType.or, constraints);
 
   @override

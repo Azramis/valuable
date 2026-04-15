@@ -311,25 +311,25 @@ class ValuableCaseItem<Switch, Output> {
 
 class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   final Valuable<Switch> testable;
-  final Iterable<ValuableCaseItem<Switch, Output>>? cases;
+  final List<ValuableCaseItem<Switch, Output>> cases;
   final ValuableParentWatcher<Output> defaultCase;
 
   ValuableSwitch(
     this.testable, {
     required this.defaultCase,
     bool evaluateDefaultCaseWithContext = false,
-    this.cases,
+    this.cases = const [],
     super.cleaningValueCallback,
   }) : super(
          evaluateWithContext:
              evaluateDefaultCaseWithContext ||
-             (cases?.any((caseItem) => caseItem.evaluateWithContext) ?? false),
+             (cases.any((caseItem) => caseItem.evaluateWithContext)),
        );
 
   ValuableSwitch.value(
     Valuable<Switch> testable, {
     required Output defaultValue,
-    Iterable<ValuableCaseItem<Switch, Output>>? cases,
+    List<ValuableCaseItem<Switch, Output>> cases = const [],
     ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          testable,
@@ -346,10 +346,10 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
     bool matched = false;
     late Output value;
 
-    if (cases?.isNotEmpty ?? false) {
+    if (cases.isNotEmpty) {
       final testable = watch(this.testable, valuableContext: valuableContext);
 
-      for (final caseItem in cases!) {
+      for (final caseItem in cases) {
         final bool isMatch = testable == caseItem.caseValue;
 
         if (isMatch) {
