@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-@internal
 abstract interface class VDisposable {
   /// Allows to be notified when this Object is disposed
   ///
@@ -14,7 +13,6 @@ abstract interface class VDisposable {
   void dispose();
 }
 
-@internal
 abstract mixin class VDisposableMixin implements VDisposable {
   final _disposeListeners = <VoidCallback>{};
   bool _isDisposed = false;
