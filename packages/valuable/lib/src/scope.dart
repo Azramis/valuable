@@ -34,6 +34,11 @@ final class ValuableScope with VDisposableMixin {
     if (isDisposed) {
       throw StateError('ValuableScope has been disposed');
     }
+
+    if (disposable.isDisposed) {
+      throw StateError('Cannot add a disposed object to the scope');
+    }
+
     // Listen to the dispose event of the object, and remove it from the disposables map when it is disposed
     _disposables.putIfAbsent(
       disposable,
