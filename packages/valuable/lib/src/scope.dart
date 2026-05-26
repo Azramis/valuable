@@ -39,7 +39,7 @@ final class ValuableScope with VDisposableMixin {
               stack: s,
               library: 'valuable',
               context: ErrorDescription(
-                'while running cleaning callback during disposal of ${entry.key}',
+                'while removing dispose listener during disposal of ${entry.key}',
               ),
               informationCollector: () => <DiagnosticsNode>[
                 DiagnosticsProperty<VDisposable>('disposable', entry.key),
