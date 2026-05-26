@@ -208,10 +208,14 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
   @override
   void didUpdateWidget(covariant T oldWidget) {
     super.didUpdateWidget(oldWidget);
-    for (final extractor in _interops.keys) {
+    final extractors = List.from(_interops.keys, growable: false);
+
+    for (final extractor in extractors) {
+      final valuable = _interops[extractor];
+      if (valuable == null) continue;
+
       if (extractor(oldWidget) != extractor(widget)) {
         // If the extracted valuable changed, we need to update the computed valuable
-        final valuable = _interops[extractor]!;
         valuable.markToReevaluate();
       }
     }
