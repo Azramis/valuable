@@ -23,8 +23,33 @@ final class ValuableScope with VDisposableMixin {
   void disposeInternal() {
     for (final entry in _disposables.entries) {
       // Begin by removing the listener to prevent any new callback from being called during the dispose process, then dispose the object itself
-      entry.value();
-      entry.key.dispose();
+      try {
+        entry.value();
+      } catch (e, s) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: 'valuable',
+            context: ErrorDescription(
+              'while running cleaning callback during disposal of ${entry.key}',
+            ),
+          ),
+        );
+      }
+
+      try {
+        entry.key.dispose();
+      } catch (e, s) {
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: 'valuable',
+            context: ErrorDescription('while disposing ${entry.key}'),
+          ),
+        );
+      }
     }
     // Clear the disposables map to release references to the disposed objects and callbacks
     _disposables.clear();
