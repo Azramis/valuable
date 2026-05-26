@@ -200,7 +200,7 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
           () => _valuableScope.computed(
             (watch, {valuableContext}) =>
                 watch(extractor(widget), valuableContext: valuableContext),
-          ),
+          )..listenDispose(() => _interops.remove(extractor)),
         )
         as Valuable<P>;
   }
