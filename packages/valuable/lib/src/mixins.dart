@@ -155,8 +155,22 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
 
   @override
   void dispose() {
-    _valuableScope.dispose();
-    super.dispose();
+    try {
+      _valuableScope.dispose();
+    } catch (e, s) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'valuable',
+          context: ErrorDescription(
+            'while disposing ValuableScope in ${runtimeType}.dispose()',
+          ),
+        ),
+      );
+    } finally {
+      super.dispose();
+    }
   }
 
   /// Access to the ValuableScope of this State, allowing to create valuables that will be automatically disposed with the State
