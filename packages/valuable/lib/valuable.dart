@@ -6,6 +6,7 @@ export 'src/disposable.dart';
 export 'src/extensions.dart';
 export 'src/history.dart';
 export 'src/linker.dart';
+export 'src/mixins.dart';
 export 'src/operations.dart';
 export 'src/stateful.dart';
 export 'src/scope.dart';
