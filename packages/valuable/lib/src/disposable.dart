@@ -38,13 +38,28 @@ abstract mixin class VDisposableMixin implements VDisposable {
     try {
       disposeInternal();
     } finally {
-      // To avoid concurrent modification error, we create a copy of the listeners list before iterating it,
-      // and we clear the original list to release references to the listeners and allow them to be garbage collected
-      final listeners = List.from(_disposeListeners);
-      for (final listener in listeners) {
-        listener();
-      }
+      // To avoid concurrent modification errors, we create a snapshot of the
+      // listeners before iterating them. Clear first so we always drop
+      // references even if a listener throws.
+      final listeners = List<VoidCallback>.from(_disposeListeners);
       _disposeListeners.clear();
+
+      for (final listener in listeners) {
+        try {
+          listener();
+        } catch (e, s) {
+          FlutterError.reportError(
+            FlutterErrorDetails(
+              exception: e,
+              stack: s,
+              library: 'valuable',
+              context: ErrorDescription(
+                'while notifying dispose listener of $runtimeType',
+              ),
+            ),
+          );
+        }
+      }
     }
   }
 
