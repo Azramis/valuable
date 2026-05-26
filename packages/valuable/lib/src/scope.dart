@@ -25,7 +25,12 @@ final class ValuableScope with VDisposableMixin {
     StackTrace? firstStackTrace;
 
     try {
-      for (final entry in _disposables.entries) {
+      final entries = List<MapEntry<VDisposable, VoidCallback>>.from(
+        _disposables.entries,
+      );
+      for (final entry in entries) {
+        if (entry.key.isDisposed) continue;
+
         // Begin by removing the listener to prevent any new callback from being called during the dispose process, then dispose the object itself
         try {
           entry.value();
