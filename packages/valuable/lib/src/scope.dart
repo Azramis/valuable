@@ -21,38 +21,63 @@ final class ValuableScope with VDisposableMixin {
   /// Dispose all the scoped entities, and call all the registered dispose callbacks
   @override
   void disposeInternal() {
-    for (final entry in _disposables.entries) {
-      // Begin by removing the listener to prevent any new callback from being called during the dispose process, then dispose the object itself
-      try {
-        entry.value();
-      } catch (e, s) {
-        FlutterError.reportError(
-          FlutterErrorDetails(
-            exception: e,
-            stack: s,
-            library: 'valuable',
-            context: ErrorDescription(
-              'while running cleaning callback during disposal of ${entry.key}',
-            ),
-          ),
-        );
-      }
+    Object? firstError;
+    StackTrace? firstStackTrace;
 
-      try {
-        entry.key.dispose();
-      } catch (e, s) {
-        FlutterError.reportError(
-          FlutterErrorDetails(
-            exception: e,
-            stack: s,
-            library: 'valuable',
-            context: ErrorDescription('while disposing ${entry.key}'),
-          ),
-        );
+    try {
+      for (final entry in _disposables.entries) {
+        // Begin by removing the listener to prevent any new callback from being called during the dispose process, then dispose the object itself
+        try {
+          entry.value();
+        } catch (e, s) {
+          firstError ??= e;
+          firstStackTrace ??= s;
+
+          FlutterError.reportError(
+            FlutterErrorDetails(
+              exception: e,
+              stack: s,
+              library: 'valuable',
+              context: ErrorDescription(
+                'while running cleaning callback during disposal of ${entry.key}',
+              ),
+              informationCollector: () => <DiagnosticsNode>[
+                DiagnosticsProperty<VDisposable>('disposable', entry.key),
+              ],
+            ),
+          );
+        }
+
+        try {
+          entry.key.dispose();
+        } catch (e, s) {
+          firstError ??= e;
+          firstStackTrace ??= s;
+
+          FlutterError.reportError(
+            FlutterErrorDetails(
+              exception: e,
+              stack: s,
+              library: 'valuable',
+              context: ErrorDescription('while disposing ${entry.key}'),
+              informationCollector: () => <DiagnosticsNode>[
+                DiagnosticsProperty<VDisposable>('disposable', entry.key),
+              ],
+            ),
+          );
+        }
       }
+    } finally {
+      // Clear the disposables map to release references to the disposed objects and callbacks
+      _disposables.clear();
     }
-    // Clear the disposables map to release references to the disposed objects and callbacks
-    _disposables.clear();
+
+    if (firstError != null) {
+      Error.throwWithStackTrace(
+        firstError,
+        firstStackTrace ?? StackTrace.current,
+      );
+    }
   }
 
   V _scope<V extends VDisposable>(V disposable) {
