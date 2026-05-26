@@ -344,7 +344,22 @@ abstract class Valuable<Output> extends ChangeNotifier
   @pragma('vm:notify-debugger-on-exception')
   void dispose() {
     if (isMounted) {
-      _isMounted.value = false;
+      try {
+        _isMounted.value = false;
+      } catch (e, s) {
+        // An error occured during dispose notification (outside this scope, in a listener for example),
+        // we report it but we don't rethrow it because we want to ensure that the dispose process is still completed,
+        // and all the references are cleared to prevent memory leak, even if some listeners throw errors during the dispose notification
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: 'valuable',
+            context: ErrorDescription('while disposing $runtimeType'),
+          ),
+        );
+      }
+
       try {
         // Last chance to clean the value with the cleaning callback, if provided,
         // to prevent memory leak, by calling the cleaning callback with isDisposal = true,
