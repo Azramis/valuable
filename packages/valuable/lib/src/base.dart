@@ -324,6 +324,10 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// Returns a function to remove the listener
   @override
   VoidCallback listenDispose(VoidCallback onDispose) {
+    if (isDisposed) {
+      throw StateError('Valuable already disposed');
+    }
+
     _isMounted.addListener(onDispose);
     return () => _isMounted.removeListener(onDispose);
   }
