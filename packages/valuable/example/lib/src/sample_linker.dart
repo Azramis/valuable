@@ -94,6 +94,13 @@ class __LinkableContainerState extends State<_LinkableContainer>
   }
 
   @override
+  void dispose() {
+    widget.widthLinker?.unlink(_widthValuable);
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Positioned(
       top: 0,
