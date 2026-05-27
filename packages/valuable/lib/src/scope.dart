@@ -3,6 +3,7 @@ import 'package:valuable/src/async.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/callable.dart';
 import 'package:valuable/src/disposable.dart';
+import 'package:valuable/src/linker.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/stateful.dart';
 
@@ -327,6 +328,9 @@ final class ValuableScope with VDisposableMixin {
   /// See [ValuableCallback.microtask]
   ValuableCallback microtaskCallback(ValuableCallbackPrototype callback) =>
       _scope(ValuableCallback.microtask(callback));
+
+  ValuableLinker<T> linker<T>(T defaultValue) =>
+      _scope(ValuableLinker<T>(defaultValue));
 
   /// Build a nested scope, that will be automatically disposed when the parent scope is disposed
   ///
