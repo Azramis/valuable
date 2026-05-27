@@ -164,7 +164,7 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
           stack: s,
           library: 'valuable',
           context: ErrorDescription(
-            'while disposing ValuableScope in ${runtimeType}.dispose()',
+            'while disposing ValuableScope in $runtimeType.dispose()',
           ),
         ),
       );
