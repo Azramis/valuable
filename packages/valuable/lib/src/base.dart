@@ -215,7 +215,7 @@ abstract class Valuable<Output> extends ChangeNotifier
       return _valueCache.currentValue;
     }
     // Before reading/calculating the value, the watched Valuables tree is cleaned
-    // in order to remove the dependencies that may disapear.
+    // in order to remove the dependencies that may disappear.
     cleanWatched();
 
     final value = getValueDefinition(_reevaluatingNeeded, context);

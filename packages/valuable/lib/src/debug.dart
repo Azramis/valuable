@@ -14,7 +14,7 @@ sealed class ValuableDebugSession {
   /// Number of currently mounted valuables (not disposed yet)
   ///
   /// Allow to know if there is a memory leak.
-  /// If this number is non null in a context where there should be no mounted valuables,
+  /// If this number is non-zero in a context where there should be no mounted valuables,
   /// it means that some valuables are not properly disposed, and so there is a memory leak.
   int get mountedValuablesCount;
 
@@ -27,7 +27,7 @@ sealed class ValuableDebugSession {
   /// Number of currently mounted callables (not disposed yet)
   ///
   /// Allow to know if there is a memory leak.
-  /// If this number is non null in a context where there should be no mounted callables,
+  /// If this number is non-zero in a context where there should be no mounted callables,
   /// it means that some callables are not properly disposed, and so there is a memory leak.
   int get mountedCallablesCount;
 
