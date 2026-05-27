@@ -211,7 +211,7 @@ mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
   ) {
     return _interops.putIfAbsent(
           extractor,
-          () => _valuableScope.computed(
+          () => _valuableScope.computed<P>(
             (watch, {valuableContext}) =>
                 watch(extractor(widget), valuableContext: valuableContext),
           )..listenDispose(() => _interops.remove(extractor)),
