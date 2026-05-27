@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/callable.dart';
@@ -126,25 +128,62 @@ final class _ValuableDebugSessionImpl implements ValuableDebugSession {
           "+------------------------------------------------------------------------------+";
       void separate() => buffer.writeln(separator);
       void oneText(String text, [bool center = true]) {
+        const insets = 4; // 2 space and 2 "|" in the separator
+        final maxTextLength = separator.length - insets;
+        final textLength = min(text.length, maxTextLength);
+        final truncatedText = textLength < text.length
+            ? "${text.substring(0, textLength - 3)}..."
+            : text;
+
         final leftPadding = center
-            ? ((separator.length - 2 - text.length) / 2).floor()
+            ? (separator.length - insets - textLength) ~/ 2
             : 1;
-        final rightPadding = separator.length - 2 - text.length - leftPadding;
-        buffer.writeln("|${" " * leftPadding}$text${" " * rightPadding}|");
+
+        final rightPadding =
+            separator.length - insets - textLength - leftPadding;
+        buffer.writeln(
+          "| ${" " * leftPadding}$truncatedText${" " * rightPadding} |",
+        );
       }
 
       void twoTexts(String leftText, String rightText) {
-        final leftPadding = 1;
-        final rightPadding = 1;
-        final middlePadding =
-            separator.length -
-            2 -
-            leftPadding -
-            rightPadding -
-            leftText.length -
-            rightText.length;
+        const leftPadding = 2; // 1 space and 1 "|" in the separator
+        const rightPadding = 2; // 1 space and 1 "|" in the separator
+        const middlePaddingMin = 2; // 2 space between the two texts
+        final remainingLength =
+            separator.length - leftPadding - rightPadding - middlePaddingMin;
+
+        final leftTextLength = leftText.length;
+        final rightTextLength = rightText.length;
+
+        String truncatedLeftText = leftText;
+        String truncatedRightText = rightText;
+        int middlePadding = remainingLength;
+
+        if (leftTextLength + rightTextLength < remainingLength) {
+          middlePadding =
+              remainingLength -
+              leftTextLength -
+              rightTextLength +
+              middlePaddingMin;
+        } else {
+          middlePadding = middlePaddingMin;
+          if (leftTextLength < remainingLength ~/ 2) {
+            truncatedRightText =
+                "${rightText.substring(0, remainingLength - leftTextLength - (middlePadding + middlePaddingMin) - 3)}...";
+          } else if (rightTextLength < remainingLength ~/ 2) {
+            truncatedLeftText =
+                "${leftText.substring(0, remainingLength - rightTextLength - (middlePadding + middlePaddingMin) - 3)}...";
+          } else {
+            truncatedLeftText =
+                "${leftText.substring(0, (remainingLength ~/ 2) - 3)}...";
+            truncatedRightText =
+                "${rightText.substring(0, (remainingLength ~/ 2) - 3)}...";
+          }
+        }
+
         buffer.writeln(
-          "|${" " * leftPadding}$leftText${" " * middlePadding}$rightText${" " * rightPadding}|",
+          "| $truncatedLeftText${" " * middlePadding}$truncatedRightText |",
         );
       }
 
