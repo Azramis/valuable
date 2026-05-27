@@ -353,7 +353,7 @@ abstract class Valuable<Output> extends ChangeNotifier
       try {
         _isMounted.value = false;
       } catch (e, s) {
-        // An error occured during dispose notification (outside this scope, in a listener for example),
+        // An error occurred during dispose notification (outside this scope, in a listener for example),
         // we report it but we don't rethrow it because we want to ensure that the dispose process is still completed,
         // and all the references are cleared to prevent memory leak, even if some listeners throw errors during the dispose notification
         FlutterError.reportError(
