@@ -329,6 +329,7 @@ final class ValuableScope with VDisposableMixin {
   ValuableCallback microtaskCallback(ValuableCallbackPrototype callback) =>
       _scope(ValuableCallback.microtask(callback));
 
+  /// See [ValuableLinker]
   ValuableLinker<T> linker<T>(T defaultValue) =>
       _scope(ValuableLinker<T>(defaultValue));
 
