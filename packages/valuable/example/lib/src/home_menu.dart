@@ -8,6 +8,7 @@ import 'package:example/src/sample_linker.dart';
 import 'package:example/src/sample_stream.dart';
 import 'package:example/src/sample_text.dart';
 import 'package:flutter/material.dart';
+import 'package:valuable/valuable.dart';
 
 class HomeMenu extends StatelessWidget {
   HomeMenu({super.key});
@@ -72,7 +73,14 @@ class HomeMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info),
+            onPressed: ValuableDebugSession().printDebugInfo,
+          ),
+        ],
+      ),
       body: GridView.builder(
         itemCount: _menus.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

@@ -10,14 +10,18 @@ class SampleAnimation extends StatefulWidget {
 }
 
 class _SampleAnimationState extends State<SampleAnimation>
-    with TickerProviderStateMixin {
-  late final AnimationController _animate = AnimationController(
+    with TickerProviderStateMixin, StateValuableScopeMixin<SampleAnimation> {
+  late final _animate = AnimationController(
     vsync: this,
     duration: const Duration(seconds: 30),
   );
-  late final Valuable<String> _valuable = _animate.toValuable().map(
-    (e) => e.toString(),
-  );
+  late final _valuable = _animate.toValuable(vScope).map((e) => e.toString());
+
+  @override
+  void dispose() {
+    _animate.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:valuable/valuable.dart';
 
-class SampleColorPickerWidget extends StatelessWidget {
-  final StatefulValuable<double> redVal = StatefulValuable<double>(0);
-  final StatefulValuable<double> greenVal = StatefulValuable<double>(0);
-  final StatefulValuable<double> blueVal = StatefulValuable<double>(0);
+class SampleColorPickerWidget extends StatefulWidget {
+  const SampleColorPickerWidget({super.key});
 
-  late final Valuable<Color> myColor = Valuable.computed((
-    watch, {
-    valuableContext,
-  }) {
-    return Color.fromARGB(
+  @override
+  State<SampleColorPickerWidget> createState() =>
+      _SampleColorPickerWidgetState();
+}
+
+class _SampleColorPickerWidgetState extends State<SampleColorPickerWidget>
+    with StateValuableScopeMixin<SampleColorPickerWidget> {
+  late final _redVal = vScope.stateful<double>(0);
+  late final _greenVal = vScope.stateful<double>(0);
+  late final _blueVal = vScope.stateful<double>(0);
+
+  late final _myColor = vScope.computed(
+    (watch, {valuableContext}) => Color.fromARGB(
       255,
-      watch(redVal).toInt(),
-      watch(greenVal).toInt(),
-      watch(blueVal).toInt(),
-    );
-  });
-
-  SampleColorPickerWidget({super.key});
+      watch(_redVal).toInt(),
+      watch(_greenVal).toInt(),
+      watch(_blueVal).toInt(),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +31,10 @@ class SampleColorPickerWidget extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          RGBValueSlider(rgbValue: redVal, title: "RED"),
-          RGBValueSlider(rgbValue: greenVal, title: "GREEN"),
-          RGBValueSlider(rgbValue: blueVal, title: "BLUE"),
-          Expanded(child: ColorShow(myColor: myColor)),
+          RGBValueSlider(rgbValue: _redVal, title: "RED"),
+          RGBValueSlider(rgbValue: _greenVal, title: "GREEN"),
+          RGBValueSlider(rgbValue: _blueVal, title: "BLUE"),
+          Expanded(child: ColorShow(myColor: _myColor)),
         ],
       ),
     );

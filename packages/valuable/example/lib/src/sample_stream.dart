@@ -7,31 +7,27 @@ class SampleStreamWidget extends StatefulWidget {
   State<SampleStreamWidget> createState() => _SampleStreamWidgetState();
 }
 
-class _SampleStreamWidgetState extends State<SampleStreamWidget> {
-  final StatefulValuable<int> countdownValue = StatefulValuable(10);
-  final StatefulValuable<Duration> durationValue = StatefulValuable(
-    const Duration(seconds: 1),
-  );
+class _SampleStreamWidgetState extends State<SampleStreamWidget>
+    with StateValuableScopeMixin<SampleStreamWidget> {
+  late final _countdownValue = vScope.stateful(10);
+  late final _durationValue = vScope.stateful(const Duration(seconds: 1));
 
-  late final Valuable<Stream<int>> streamValue = Valuable<Stream<int>>.computed(
-    (watch, {valuableContext}) async* {
-      Duration duration = watch(durationValue);
+  late final _streamValue = vScope.computed((watch, {valuableContext}) async* {
+    Duration duration = watch(_durationValue);
+    await Future.delayed(duration);
+
+    int countdown = watch(_countdownValue);
+    yield countdown;
+
+    await Future.delayed(duration);
+
+    while (countdown > 0) {
+      yield --countdown;
       await Future.delayed(duration);
+    }
+  });
 
-      int countdown = watch(countdownValue);
-      yield countdown;
-
-      await Future.delayed(duration);
-
-      while (countdown > 0) {
-        yield --countdown;
-        await Future.delayed(duration);
-      }
-    },
-  );
-
-  late final StreamValuable<ValuableAsyncValue<int>, int> streamValuable =
-      StreamValuable.asyncVal(streamValue);
+  late final _streamValuable = vScope.streamToAsyncVal(_streamValue);
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +36,9 @@ class _SampleStreamWidgetState extends State<SampleStreamWidget> {
       body: Center(
         child: Column(
           children: <Widget>[
-            ValuableCountdownSlider(countdown: countdownValue),
-            ValuableDurationSlider(duration: durationValue),
-            ValuableText(streamValuable),
+            ValuableCountdownSlider(countdown: _countdownValue),
+            ValuableDurationSlider(duration: _durationValue),
+            ValuableText(_streamValuable),
           ],
         ),
       ),
@@ -85,7 +81,7 @@ class ValuableDurationSlider extends ValuableWidget {
 }
 
 class ValuableText extends ValuableWidget {
-  final StreamValuable<ValuableAsyncValue<int>, int> textValuable;
+  final Valuable<ValuableAsyncValue<int>> textValuable;
 
   const ValuableText(this.textValuable, {super.key});
 
