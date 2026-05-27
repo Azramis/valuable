@@ -9,13 +9,42 @@ sealed class ValuableDebugSession {
       ? _ValuableDebugSessionImpl()
       : _FictiveValuableDebugSession());
 
+  /// Number of currently mounted valuables (not disposed yet)
+  ///
+  /// Allow to know if there is a memory leak.
+  /// If this number is non null in a context where there should be no mounted valuables,
+  /// it means that some valuables are not properly disposed, and so there is a memory leak.
   int get mountedValuablesCount;
+
+  /// Total number of ever existed valuables (including disposed ones)
+  ///
+  /// Using this count with [mountedValuablesCount] can help compute
+  /// the number of already disposed valuables.
   int get totalValuablesCount;
 
+  /// Number of currently mounted callables (not disposed yet)
+  ///
+  /// Allow to know if there is a memory leak.
+  /// If this number is non null in a context where there should be no mounted callables,
+  /// it means that some callables are not properly disposed, and so there is a memory leak.
   int get mountedCallablesCount;
-  int get totalCallablesCount;
-  int get inLoopCallablesCount;
 
+  /// Total number of ever existed callables (including disposed ones)
+  ///
+  /// Using this count with [mountedCallablesCount] can help compute
+  /// the number of already disposed callables.
+  int get totalCallablesCount;
+
+  /// Number of callables that are aware of events (callables that have been executed at least one time)
+  ///
+  /// Events aware callables are callables that have been executed at least one time,
+  /// and that can automatically re-call when a watched [Valuable] change.
+  int get eventsAwareCallablesCount;
+
+  /// Print debug info about Valuable and ValuableCallback instances
+  ///
+  /// This method can be used to detect memory leaks, by checking if there is still mounted valuables or callables
+  /// in a context where there should be no mounted valuables or callables.
   void printDebugInfo();
 }
 
@@ -33,9 +62,9 @@ extension ValuableDebugExtension on ValuableDebugSession {
     }
   }
 
-  void addInLoopCallable(ValuableCallback callback) {
+  void setCallableEventsAware(ValuableCallback callback) {
     if (this is _ValuableDebugSessionImpl) {
-      (this as _ValuableDebugSessionImpl)._addInLoopCallable(callback);
+      (this as _ValuableDebugSessionImpl)._setCallableEventsAware(callback);
     }
   }
 }
@@ -43,7 +72,7 @@ extension ValuableDebugExtension on ValuableDebugSession {
 final class _ValuableDebugSessionImpl implements ValuableDebugSession {
   final Set<Valuable> _mountedValuables = {};
   final Set<ValuableCallback> _mountedCallables = {};
-  final Set<ValuableCallback> _inLoopCallables = {};
+  final Set<ValuableCallback> _eventsAwareCallables = {};
 
   int _totalValuablesCount = 0;
   int _totalCallablesCount = 0;
@@ -69,15 +98,15 @@ final class _ValuableDebugSessionImpl implements ValuableDebugSession {
     _mountedCallables.add(callback);
     callback.listenDispose(() {
       _mountedCallables.remove(callback);
-      _inLoopCallables.remove(callback);
+      _eventsAwareCallables.remove(callback);
     });
   }
 
-  void _addInLoopCallable(ValuableCallback callback) {
-    if (_inLoopCallables.contains(callback)) return;
+  void _setCallableEventsAware(ValuableCallback callback) {
+    if (_eventsAwareCallables.contains(callback)) return;
     if (!_mountedCallables.contains(callback)) return;
 
-    _inLoopCallables.add(callback);
+    _eventsAwareCallables.add(callback);
   }
 
   @override
@@ -87,7 +116,7 @@ final class _ValuableDebugSessionImpl implements ValuableDebugSession {
   int get totalCallablesCount => _totalCallablesCount;
 
   @override
-  int get inLoopCallablesCount => _inLoopCallables.length;
+  int get eventsAwareCallablesCount => _eventsAwareCallables.length;
 
   @override
   void printDebugInfo() {
@@ -131,7 +160,10 @@ final class _ValuableDebugSessionImpl implements ValuableDebugSession {
       separate();
       twoTexts("Mounted callables count", mountedCallablesCount.toString());
       separate();
-      twoTexts("In loop callables count", inLoopCallablesCount.toString());
+      twoTexts(
+        "Events aware callables count",
+        eventsAwareCallablesCount.toString(),
+      );
       separate();
 
       print(buffer.toString());
@@ -166,7 +198,7 @@ final class _FictiveValuableDebugSession implements ValuableDebugSession {
   int get totalCallablesCount => 0;
 
   @override
-  int get inLoopCallablesCount => 0;
+  int get eventsAwareCallablesCount => 0;
 
   @override
   void printDebugInfo() {}

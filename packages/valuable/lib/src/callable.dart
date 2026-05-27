@@ -60,7 +60,7 @@ sealed class ValuableCallback with ValuableWatcherMixin, VDisposableMixin {
   void _internalCall({ValuableContext? valuableContext}) {
     if (isDisposed) return;
 
-    ValuableDebugSession().addInLoopCallable(this);
+    ValuableDebugSession().setCallableEventsAware(this);
     cleanWatched();
     _lastUsedValuableContext = valuableContext ?? this.valuableContext;
     _callback(watch, valuableContext: _lastUsedValuableContext);
