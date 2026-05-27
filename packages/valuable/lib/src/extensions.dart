@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/operations.dart';
+import 'package:valuable/src/scope.dart';
 import 'package:valuable/src/stateful.dart';
 
 /// Extension to define operators for [Valuable<bool>]
@@ -450,13 +451,18 @@ extension DoubleStateOperations on StatefulValuable<double> {
 /// Method to transform a [ValueListenable] to a [Valuable]
 extension ValueListenableValuable<T> on ValueListenable<T> {
   /// Method to transform a [ValueListenable] to a [Valuable]
-  Valuable<T> toValuable() => Valuable.listenable(this);
+  Valuable<T> toValuable([ValuableScope? scope]) =>
+      scope?.listenable(this) ?? Valuable.listenable(this);
 }
 
 /// Method to transform a [ValueListenable] to a [Valuable]
 extension ListenableValuable<L extends Listenable> on L {
   /// Method to transform a [ValueListenable] to a [Valuable]
-  Valuable<T> toComputedValuable<T>(T Function(L listenable) computation) =>
+  Valuable<T> toComputedValuable<T>(
+    T Function(L listenable) computation, [
+    ValuableScope? scope,
+  ]) =>
+      scope?.listenableComputed(this, computation) ??
       Valuable.listenableComputed(this, computation);
 }
 
