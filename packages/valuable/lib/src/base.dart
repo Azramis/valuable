@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:valuable/src/async.dart';
 import 'package:valuable/src/callable.dart';
+import 'package:valuable/src/debug.dart';
 import 'package:valuable/src/disposable.dart';
 import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/history.dart';
@@ -151,6 +152,7 @@ abstract class Valuable<Output> extends ChangeNotifier
        _evaluateWithContext = evaluateWithContext,
        _cleaningValueCallback = cleaningValueCallback {
     initCacheValue.tap(onSome: (value) => _valueCache.currentValue = value);
+    ValuableDebugSession().mountValuable(this);
   }
 
   /// Returns if this object is still mounted
@@ -647,6 +649,8 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
     );
   });
 
+  late final VoidCallback _unregisterListenDisposeFromCallback;
+
   /// Constructor to provide each functions
   FutureValuable(
     Valuable<Future<Res>> future, {
@@ -656,6 +660,7 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
     super.evaluateWithContext = false,
     super.cleaningValueCallback,
   }) : _valuableFuture = future {
+    _unregisterListenDisposeFromCallback = _callback.listenDispose(dispose);
     _callback();
   }
 
@@ -711,6 +716,7 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
   @override
   void dispose() {
     super.dispose();
+    _unregisterListenDisposeFromCallback();
     _callback.dispose();
   }
 }
@@ -789,6 +795,8 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
     );
   });
 
+  late final VoidCallback _unregisterListenDisposeFromCallback;
+
   /// Constructor to provide each functions
   StreamValuable(
     Valuable<Stream<Msg>> stream, {
@@ -800,6 +808,7 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
     super.cleaningValueCallback,
   }) : _valuableStream = stream {
     _defaultValuer = (_) => initialData;
+    _unregisterListenDisposeFromCallback = _callback.listenDispose(dispose);
     _callback();
   }
 
@@ -848,6 +857,7 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
   @override
   void dispose() {
     _subscription?.cancel(); // Cancel subscription to free memory
+    _unregisterListenDisposeFromCallback();
     _callback.dispose();
     super.dispose();
   }
