@@ -318,13 +318,14 @@ class ValuableSwitch<Switch, Output> extends Valuable<Output> {
     this.testable, {
     required this.defaultCase,
     bool evaluateDefaultCaseWithContext = false,
-    this.cases = const [],
+    List<ValuableCaseItem<Switch, Output>> cases = const [],
     super.cleaningValueCallback,
-  }) : super(
-         evaluateWithContext:
-             evaluateDefaultCaseWithContext ||
-             (cases.any((caseItem) => caseItem.evaluateWithContext)),
-       );
+  })  : this.cases = List.unmodifiable(cases),
+        super(
+          evaluateWithContext:
+              evaluateDefaultCaseWithContext ||
+              (cases.any((caseItem) => caseItem.evaluateWithContext)),
+        );
 
   ValuableSwitch.value(
     Valuable<Switch> testable, {
