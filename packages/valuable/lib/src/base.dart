@@ -366,7 +366,6 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Should be called to clean all links to other Valuables, and all the rest
   @override
-  @pragma('vm:notify-debugger-on-exception')
   void dispose() {
     if (isMounted) {
       try {
