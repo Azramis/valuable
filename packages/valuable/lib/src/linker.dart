@@ -36,7 +36,7 @@ mixin ValuableLinkerMixin<Output> on Valuable<Output>
   @override
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) {
     return watch.def(linkedValuable, defaultValue, valuableContext: context);
   }

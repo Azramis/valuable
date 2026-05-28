@@ -43,7 +43,7 @@ mixin StatefulValuableMixin<Output> on Valuable<Output>
   @protected
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) => state;
 }
 

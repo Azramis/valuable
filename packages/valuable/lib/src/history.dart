@@ -58,10 +58,7 @@ mixin _HistorizedValuableMixin<T> on Valuable<T>
   void _historize(T value) => _history.addLast(ValuableHistoryNode<T>._(value));
 
   @override
-  T getValueDefinition(
-    bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
-  ]) {
+  T getValueDefinition(bool reevaluatingNeeded, [ValuableContext? context]) {
     T value = watch(_innerValuable, valuableContext: context);
 
     if (_shouldHistorize(value)) {

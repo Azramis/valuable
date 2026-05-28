@@ -199,7 +199,7 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Get the current value of the Valuable
   @mustCallSuper
-  Output getValue([ValuableContext? context = const ValuableContext()]) {
+  Output getValue([ValuableContext? context]) {
     // Valuable is not mounted anymore, it can't be read, so we throw an error to prevent use after dispose bugs
     if (!isMounted) {
       throw ValuableDisposedException(this);
@@ -285,7 +285,7 @@ abstract class Valuable<Output> extends ChangeNotifier
   @protected
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]);
 
   @protected
@@ -494,7 +494,7 @@ final class _Valuable<Output> extends Valuable<Output> {
   @override
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) => computation(watch, valuableContext: context);
 }
 
@@ -512,10 +512,8 @@ final class _ValuableListenable<L extends Listenable, V> extends Valuable<V> {
   }
 
   @override
-  V getValueDefinition(
-    bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
-  ]) => _computation(_listenable);
+  V getValueDefinition(bool reevaluatingNeeded, [ValuableContext? context]) =>
+      _computation(_listenable);
 
   @override
   void dispose() {
@@ -550,7 +548,7 @@ final class ValuableBoolGroup extends Valuable<bool> {
   @protected
   bool getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? valuableContext = const ValuableContext(),
+    ValuableContext? valuableContext,
   ]) {
     bool retour = _type == _BoolGroupType.and;
 
@@ -697,7 +695,7 @@ final class FutureValuable<Output, Res> extends Valuable<Output> {
   @protected
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) {
     Output retour;
     if (_isComplete) {
@@ -851,7 +849,7 @@ final class StreamValuable<Output, Msg> extends Valuable<Output> {
   @protected
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) => _currentValuer(context);
 
   @override
