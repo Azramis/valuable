@@ -131,7 +131,7 @@ abstract class Valuable<Output> extends ChangeNotifier
 
   /// Determines if the valuable use the cache or not
   ///
-  /// If the valuable depends on the ValuableContext provide in the [getValue] method
+  /// If the valuable depends on the ValuableContext provided in the [getValue] method
   /// then it's not possible to use the cache, because of the volatility of the value
   final bool _evaluateWithContext;
   @override
