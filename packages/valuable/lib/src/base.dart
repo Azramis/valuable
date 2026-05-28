@@ -330,8 +330,27 @@ abstract class Valuable<Output> extends ChangeNotifier
       throw StateError('Valuable already disposed');
     }
 
-    _isMounted.addListener(onDispose);
-    return () => _isMounted.removeListener(onDispose);
+    void safeDispose() {
+      try {
+        onDispose();
+      } catch (e, s) {
+        // An error occurred during dispose notification, we report it but we don't rethrow it because we want to ensure that the dispose process is still completed,
+        // and all the references are cleared to prevent memory leak, even if some listeners throw errors during the dispose notification
+        FlutterError.reportError(
+          FlutterErrorDetails(
+            exception: e,
+            stack: s,
+            library: 'valuable',
+            context: ErrorDescription(
+              'while notifying dispose listener of $runtimeType',
+            ),
+          ),
+        );
+      }
+    }
+
+    _isMounted.addListener(safeDispose);
+    return () => _isMounted.removeListener(safeDispose);
   }
 
   /// Build an [HistorizedValuable] based on this Valuable
