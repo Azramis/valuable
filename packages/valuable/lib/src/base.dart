@@ -10,7 +10,6 @@ import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/history.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
-import 'package:valuable/src/widgets.dart';
 
 part 'exceptions.dart';
 
