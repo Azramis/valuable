@@ -76,7 +76,7 @@ class HomeMenu extends StatelessWidget {
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: Icon(Icons.info),
+            icon: const Icon(Icons.info),
             onPressed: ValuableDebugSession().printDebugInfo,
           ),
         ],
