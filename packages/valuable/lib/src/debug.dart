@@ -205,7 +205,7 @@ final class _ValuableDebugSessionImpl implements ValuableDebugSession {
       );
       separate();
 
-      print(buffer.toString());
+      debugPrint(buffer.toString());
 
       if (mountedValuablesCount > 0) {
         buffer.clear();
@@ -217,7 +217,7 @@ final class _ValuableDebugSessionImpl implements ValuableDebugSession {
           twoTexts(valuable.toString(), valuable.runtimeType.toString());
         }
         separate();
-        print(buffer.toString());
+        debugPrint(buffer.toString());
       }
     }
   }
