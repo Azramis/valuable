@@ -7,8 +7,9 @@ class SampleTextWidget extends StatefulWidget {
   State<SampleTextWidget> createState() => _SampleTextWidgetState();
 }
 
-class _SampleTextWidgetState extends State<SampleTextWidget> {
-  final StatefulValuable<String> textValue = StatefulValuable<String>("");
+class _SampleTextWidgetState extends State<SampleTextWidget>
+    with StateValuableScopeMixin<SampleTextWidget> {
+  late final _textValue = vScope.stateful("");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,8 +17,8 @@ class _SampleTextWidgetState extends State<SampleTextWidget> {
       body: Center(
         child: Column(
           children: <Widget>[
-            TextField(onChanged: (value) => textValue.setValue(value)),
-            ValuableText(textValue),
+            TextField(onChanged: (value) => _textValue.setValue(value)),
+            ValuableText(_textValue),
           ],
         ),
       ),

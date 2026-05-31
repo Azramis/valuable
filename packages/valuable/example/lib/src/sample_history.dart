@@ -11,13 +11,12 @@ class SampleHistory extends StatefulWidget {
   State<SampleHistory> createState() => _SampleHistoryState();
 }
 
-class _SampleHistoryState extends State<SampleHistory> {
-  final ReWritableHistorizedValuable<double> operand1 =
-      StatefulValuable<double>(0).historizeRW();
-  final ReWritableHistorizedValuable<double> operand2 =
-      StatefulValuable<double>(0).historizeRW();
+class _SampleHistoryState extends State<SampleHistory>
+    with StateValuableScopeMixin<SampleHistory> {
+  late final _operand1 = vScope.stateful<double>(0).historizeRW();
+  late final _operand2 = vScope.stateful<double>(0).historizeRW();
 
-  late final HistorizedValuable<num> result = (operand1 * operand2).historize();
+  late final _result = (_operand1 * _operand2).historize();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,17 +25,17 @@ class _SampleHistoryState extends State<SampleHistory> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _ValuableMultiplicator(
-            operand1: operand1,
-            operand2: operand2,
-            result: result,
+            operand1: _operand1,
+            operand2: _operand2,
+            result: _result,
           ),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(child: _HistoryViewer(operand1, title: "Operand 1")),
-                Expanded(child: _HistoryViewer(operand2, title: "Operand 2")),
-                Expanded(child: _HistoryViewer(result, title: "Result")),
+                Expanded(child: _HistoryViewer(_operand1, title: "Operand 1")),
+                Expanded(child: _HistoryViewer(_operand2, title: "Operand 2")),
+                Expanded(child: _HistoryViewer(_result, title: "Result")),
               ],
             ),
           ),
@@ -46,20 +45,31 @@ class _SampleHistoryState extends State<SampleHistory> {
   }
 }
 
-class _ValuableMultiplicator extends StatelessWidget {
+class _ValuableMultiplicator extends StatefulWidget {
+  const _ValuableMultiplicator({
+    required this.operand1,
+    required this.operand2,
+    required this.result,
+  });
+
   final StatefulValuable<double> operand1;
   final StatefulValuable<double> operand2;
 
   final Valuable<num> result;
 
-  late final Valuable<String> operand1Txt = operand1.map((p0) => p0.toString());
-  late final Valuable<String> operand2Txt = operand2.map((p0) => p0.toString());
+  @override
+  State<_ValuableMultiplicator> createState() => _ValuableMultiplicatorState();
+}
 
-  _ValuableMultiplicator({
-    required this.operand1,
-    required this.operand2,
-    required this.result,
-  });
+class _ValuableMultiplicatorState extends State<_ValuableMultiplicator>
+    with StateValuableScopeMixin<_ValuableMultiplicator> {
+  late final Valuable<String> operand1Txt = interopValuableArg(
+    (w) => w.operand1,
+  ).map((p0) => p0.toString());
+
+  late final Valuable<String> operand2Txt = interopValuableArg(
+    (w) => w.operand2,
+  ).map((p0) => p0.toString());
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +78,7 @@ class _ValuableMultiplicator extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              _ValuableMultiplicatorOperand(operand: operand1),
+              _ValuableMultiplicatorOperand(operand: widget.operand1),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -77,12 +87,12 @@ class _ValuableMultiplicator extends StatelessWidget {
                   ValuableText(operand2Txt),
                 ],
               ),
-              _ValuableMultiplicatorOperand(operand: operand2),
+              _ValuableMultiplicatorOperand(operand: widget.operand2),
             ],
           ),
         ),
         const Center(child: Text("=")),
-        Expanded(child: _ValuableMultiplicatorResult(result)),
+        Expanded(child: _ValuableMultiplicatorResult(widget.result)),
       ],
     );
   }

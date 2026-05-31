@@ -1,9 +1,7 @@
-import 'package:flutter/scheduler.dart';
-import 'package:valuable/src/mixins.dart';
-import 'package:valuable/valuable.dart';
-
-import 'base.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:valuable/src/base.dart';
+import 'package:valuable/src/mixins.dart';
 
 /// Contract for the implementation function needed to build [Widget] for a [ValuableConsumer]
 typedef ValuableConsumerBuilder =

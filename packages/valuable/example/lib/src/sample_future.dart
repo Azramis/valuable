@@ -7,22 +7,24 @@ class SampleFutureWidget extends StatefulWidget {
   State<SampleFutureWidget> createState() => _SampleFutureWidgetState();
 }
 
-class _SampleFutureWidgetState extends State<SampleFutureWidget> {
-  final StatefulValuable<String> textValue = StatefulValuable("");
-  final StatefulValuable<Duration> durationValue = StatefulValuable(
+class _SampleFutureWidgetState extends State<SampleFutureWidget>
+    with StateValuableScopeMixin<SampleFutureWidget> {
+  late final _textValue = vScope.stateful<String>("");
+  late final _durationValue = vScope.stateful<Duration>(
     const Duration(seconds: 1),
   );
 
-  late final Valuable<Future<String>> futureTextValue =
-      Valuable<Future<String>>.computed((watch, {valuableContext}) async {
-        Duration duration = watch(durationValue);
-        await Future.delayed(duration);
+  late final _futureTextValue = vScope.computed((
+    watch, {
+    valuableContext,
+  }) async {
+    Duration duration = watch(_durationValue);
+    await Future.delayed(duration);
 
-        return watch(textValue);
-      });
+    return watch(_textValue);
+  });
 
-  late final FutureValuableAsyncValue<String> futureValuable = futureTextValue
-      .toFutureAsyncValue();
+  late final futureValuable = _futureTextValue.toFutureAsyncValue();
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +33,8 @@ class _SampleFutureWidgetState extends State<SampleFutureWidget> {
       body: Center(
         child: Column(
           children: <Widget>[
-            TextField(onChanged: (value) => textValue.setValue(value)),
-            ValuableDurationSlider(duration: durationValue),
+            TextField(onChanged: (value) => _textValue.setValue(value)),
+            ValuableDurationSlider(duration: _durationValue),
             ValuableText(futureValuable),
           ],
         ),
@@ -65,7 +67,7 @@ class ValuableText extends ValuableWidget {
 
   @override
   Widget build(BuildContext context, ValuableWatcher watch) {
-    ValuableAsyncValue<String> asyncValue = watch(textValuable);
+    final asyncValue = watch(textValuable);
 
     return asyncValue.map(
       onData: (data) => Text(data.data),

@@ -1,17 +1,21 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:valuable/src/base.dart';
+import 'package:valuable/src/scope.dart';
 
 class _ValuableWatchedInfos<T> {
   final VoidCallback removeValueListener;
   final VoidCallback removeDisposeListener;
   final List<ValuableWatcherSelector<T>> selectors;
   T previousWatchedValue;
+  bool evaluateWithContext;
 
   _ValuableWatchedInfos({
     required this.removeValueListener,
     required this.removeDisposeListener,
     required this.previousWatchedValue,
     List<ValuableWatcherSelector<T>>? selectors,
+    this.evaluateWithContext = false,
   }) : selectors = selectors ?? <ValuableWatcherSelector<T>>[];
 
   void dispose() {
@@ -25,6 +29,12 @@ class _ValuableWatchedInfos<T> {
 mixin ValuableWatcherMixin {
   final Map<Valuable, _ValuableWatchedInfos> _watched =
       <Valuable, _ValuableWatchedInfos>{};
+
+  @protected
+  @visibleForOverriding
+  @mustCallSuper
+  bool get evaluateWithContext =>
+      _watched.values.any((infos) => infos.evaluateWithContext);
 
   /// Watch a valuable, that eventually change
   @protected
@@ -40,6 +50,7 @@ mixin ValuableWatcherMixin {
       valuable,
       (infos) {
         if (infos is _ValuableWatchedInfos<T>) {
+          infos.evaluateWithContext = valuable.evaluateWithContext;
           infos.previousWatchedValue =
               result; // Save value for future comparaison
           if (selector != null) {
@@ -55,6 +66,7 @@ mixin ValuableWatcherMixin {
 
         final removeListener = valuable.listenDispose(() {
           _unwatch(valuable);
+          onWatchedValuableDispose(valuable);
         });
 
         return _ValuableWatchedInfos<T>(
@@ -62,6 +74,7 @@ mixin ValuableWatcherMixin {
           removeDisposeListener: removeListener,
           previousWatchedValue: result,
           selectors: [?selector],
+          evaluateWithContext: valuable.evaluateWithContext,
         );
       },
     );
@@ -71,6 +84,11 @@ mixin ValuableWatcherMixin {
 
   /// Remove listener on the valuable, that may change scope, or that about to be disposed
   void _unwatch(Valuable valuable) => _watched.remove(valuable)?.dispose();
+
+  /// Allows inheriting classes to react when a watched Valuable is disposed.
+  @protected
+  @visibleForOverriding
+  void onWatchedValuableDispose(Valuable valuable) {}
 
   void _callValuableChange<T>(Valuable<T> valuable) {
     if (_watched.containsKey(valuable)) {
@@ -125,5 +143,95 @@ mixin ValuableWatcherMixin {
     }
 
     _watched.clear();
+  }
+}
+
+typedef ValuableStatefulWidgetParam<P, T extends StatefulWidget> =
+    Valuable<P> Function(T widget);
+
+/// A mixin to provide a scope for Valuables, allowing to easily manage their lifecycle
+mixin StateValuableScopeMixin<T extends StatefulWidget> on State<T> {
+  final ValuableScope _valuableScope = ValuableScope();
+
+  @override
+  void dispose() {
+    try {
+      _valuableScope.dispose();
+    } catch (e, s) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: e,
+          stack: s,
+          library: 'valuable',
+          context: ErrorDescription(
+            'while disposing ValuableScope in $runtimeType.dispose()',
+          ),
+        ),
+      );
+    } finally {
+      super.dispose();
+    }
+  }
+
+  /// Access to the ValuableScope of this State, allowing to create valuables that will be automatically disposed with the State
+  @protected
+  ValuableScope get vScope => _valuableScope;
+
+  final _interops =
+      <ValuableStatefulWidgetParam<dynamic, T>, Valuable<dynamic>>{};
+
+  /// Get a Valuable from the widget, and keep it in the scope, so it will be automatically disposed when the State is disposed
+  /// If the extracted Valuable change, the computed valuable will be automatically updated with the new value
+  ///
+  /// [extractor] is a function that extract a Valuable from the widget, it should be pure, and not have any side effect,
+  /// because it will be called multiple times, and should return the same Valuable for the same widget
+  ///
+  /// Example of use :
+  /// ```dart
+  /// class MyWidget extends StatefulWidget {
+  ///   final Valuable<String> title;
+  ///
+  ///   MyWidget({required this.title});
+  /// }
+  ///
+  /// class _MyWidgetState extends State<MyWidget> with StateValuableScopeMixin<MyWidget> {
+  ///   late final titleValuable = interopValuableArg((widget) => widget.title);
+  ///
+  ///   @override
+  ///   Widget build(BuildContext context) {
+  ///    return ValuableConsumer(
+  ///      builder: (context, watch, child) => Text(watch(titleValuable)),
+  ///    );
+  ///   }
+  /// }
+  /// ```
+  @protected
+  Valuable<P> interopValuableArg<P>(
+    ValuableStatefulWidgetParam<P, T> extractor,
+  ) {
+    return _interops.putIfAbsent(
+          extractor,
+          () => _valuableScope.computed<P>(
+            (watch, {valuableContext}) =>
+                watch(extractor(widget), valuableContext: valuableContext),
+          )..listenDispose(() => _interops.remove(extractor)),
+        )
+        as Valuable<P>;
+  }
+
+  @override
+  void didUpdateWidget(covariant T oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final extractors = List.from(_interops.keys, growable: false);
+
+    for (final extractor in extractors) {
+      final valuable = _interops[extractor];
+      if (valuable == null) continue;
+
+      if (extractor(oldWidget) != extractor(widget)) {
+        // If the extracted valuable changed, we need to update the computed valuable
+        valuable.markToReevaluate();
+      }
+    }
   }
 }

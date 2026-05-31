@@ -10,8 +10,13 @@ abstract interface class StatefulValuable<Output> extends Valuable<Output> {
   @protected
   Output get state;
 
-  factory StatefulValuable(Output initialState) =>
-      _StatefulValuableImpl(initialState);
+  factory StatefulValuable(
+    Output initialState, {
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
+  }) => _StatefulValuableImpl(
+    initialState,
+    cleaningValueCallback: cleaningValueCallback,
+  );
 
   void setValue(Output value);
 
@@ -38,7 +43,7 @@ mixin StatefulValuableMixin<Output> on Valuable<Output>
   @protected
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) => state;
 }
 
@@ -50,7 +55,14 @@ final class _StatefulValuableImpl<Output> extends Valuable<Output>
   @override
   Output get state => _state;
 
-  _StatefulValuableImpl(Output initialState) : _state = initialState, super();
+  _StatefulValuableImpl(Output initialState, {super.cleaningValueCallback})
+    : _state = initialState,
+      super(
+        // We can directly set the initial state in the cache, because it's the
+        // first value of the Valuable, so there is no previous value to clean,
+        // and no need to notify dependents.
+        initCacheValue: Opt.some(initialState),
+      );
 
   @override
   void setValue(Output value) {

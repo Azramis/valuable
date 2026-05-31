@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:valuable/src/base.dart';
+import 'package:valuable/src/debug.dart';
+import 'package:valuable/src/disposable.dart';
 import 'package:valuable/src/mixins.dart';
 
 typedef ValuableCallbackPrototype =
     void Function(ValuableWatcher watch, {ValuableContext? valuableContext});
 
 /// User-defined callback that can watch Valuable to be automatically re-call
-sealed class ValuableCallback with ValuableWatcherMixin {
+sealed class ValuableCallback with ValuableWatcherMixin, VDisposableMixin {
   /// The real callback to execute
   final ValuableCallbackPrototype _callback;
 
@@ -33,7 +35,9 @@ sealed class ValuableCallback with ValuableWatcherMixin {
       _ValuableCallbackFuture;
 
   ///
-  ValuableCallback._(this._callback);
+  ValuableCallback._(this._callback) {
+    ValuableDebugSession().mountCallable(this);
+  }
 
   /// Allow to consider this instance as Function, so it can be used
   /// like this :
@@ -54,8 +58,9 @@ sealed class ValuableCallback with ValuableWatcherMixin {
   ValuableContext? _lastUsedValuableContext;
 
   void _internalCall({ValuableContext? valuableContext}) {
-    if (_isDisposed) return;
+    if (isDisposed) return;
 
+    ValuableDebugSession().setCallableEventsAware(this);
     cleanWatched();
     _lastUsedValuableContext = valuableContext ?? this.valuableContext;
     _callback(watch, valuableContext: _lastUsedValuableContext);
@@ -64,12 +69,14 @@ sealed class ValuableCallback with ValuableWatcherMixin {
   @override
   void onValuableChange() => call(valuableContext: _lastUsedValuableContext);
 
-  bool _isDisposed = false;
-
   /// Cleaning the ValuableCallback
-  void dispose() {
-    _isDisposed = true;
-    cleanWatched();
+  @override
+  void disposeInternal() => cleanWatched();
+
+  @override
+  void onWatchedValuableDispose(Valuable valuable) {
+    super.onWatchedValuableDispose(valuable);
+    dispose();
   }
 }
 

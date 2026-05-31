@@ -7,8 +7,10 @@ class SampleCheckboxWidget extends StatefulWidget {
   State<SampleCheckboxWidget> createState() => _SampleCheckboxWidgetState();
 }
 
-class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget> {
-  final StatefulValuable<bool> checkValue = StatefulValuable<bool>(false);
+class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget>
+    with StateValuableScopeMixin<SampleCheckboxWidget> {
+  late final _checkValue = vScope.stateful<bool>(false);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,12 +20,12 @@ class _SampleCheckboxWidgetState extends State<SampleCheckboxWidget> {
           children: <Widget>[
             ValuableConsumer(
               builder: (BuildContext context, ValuableWatcher watch, _) {
-                return watch(checkValue)
+                return watch(_checkValue)
                     ? const Icon(Icons.verified, color: Colors.green)
                     : const Icon(Icons.cancel, color: Colors.red);
               },
             ),
-            ValuableCheckbox(valuable: checkValue),
+            ValuableCheckbox(valuable: _checkValue),
           ],
         ),
       ),

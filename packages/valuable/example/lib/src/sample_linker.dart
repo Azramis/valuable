@@ -12,8 +12,9 @@ class SampleLinker extends StatefulWidget {
   State<SampleLinker> createState() => _SampleLinkerState();
 }
 
-class _SampleLinkerState extends State<SampleLinker> {
-  final ValuableLinker<double> widthLinker = ValuableLinker<double>(0);
+class _SampleLinkerState extends State<SampleLinker>
+    with StateValuableScopeMixin<SampleLinker> {
+  late final widthLinker = vScope.linker(0.0);
 
   @override
   Widget build(BuildContext context) {
@@ -58,25 +59,22 @@ class _LinkableContainer extends StatefulWidget {
 }
 
 class __LinkableContainerState extends State<_LinkableContainer>
-    with TickerProviderStateMixin {
-  late final AnimationController animationController = AnimationController(
+    with TickerProviderStateMixin, StateValuableScopeMixin<_LinkableContainer> {
+  late final _animationController = AnimationController(
     vsync: this,
     duration: const Duration(seconds: 2),
   );
-  late final Animation<Color?> animationColor = ColorTween(
+  late final _animationColor = ColorTween(
     begin: Colors.blue,
     end: Colors.amber,
-  ).animate(animationController);
+  ).animate(_animationController);
 
-  late final Valuable<double> animationValuable = animationController
-      .toValuable();
-  late final Valuable<Color?> colorValuable = animationColor.toValuable();
-  late final Valuable<double> widthValuable = Valuable<double>.computed((
-    watch, {
-    valuableContext,
-  }) {
-    return lerpDouble(minWidth, maxWidth, watch(animationValuable)) ?? 0;
-  });
+  late final _animationValuable = _animationController.toValuable(vScope);
+  late final _colorValuable = _animationColor.toValuable(vScope);
+  late final _widthValuable = vScope.computed(
+    (watch, {valuableContext}) =>
+        lerpDouble(minWidth, maxWidth, watch(_animationValuable)) ?? 0,
+  );
 
   static const double minWidth = 56;
   static const double maxWidth = 240;
@@ -84,15 +82,22 @@ class __LinkableContainerState extends State<_LinkableContainer>
   @override
   void initState() {
     super.initState();
-    widget.widthLinker?.link(widthValuable);
+    widget.widthLinker?.link(_widthValuable);
   }
 
   @override
   void didUpdateWidget(covariant _LinkableContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    oldWidget.widthLinker?.unlink();
-    widget.widthLinker?.link(widthValuable);
+    oldWidget.widthLinker?.unlink(_widthValuable);
+    widget.widthLinker?.link(_widthValuable);
+  }
+
+  @override
+  void dispose() {
+    widget.widthLinker?.unlink(_widthValuable);
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -102,14 +107,14 @@ class __LinkableContainerState extends State<_LinkableContainer>
       bottom: 0,
       left: 0,
       child: _ContainerValuable(
-        widthValuable: widthValuable,
-        colorValuable: colorValuable,
+        widthValuable: _widthValuable,
+        colorValuable: _colorValuable,
         child: IconButton(
           onPressed: () {
-            if (animationController.isDismissed) {
-              animationController.forward();
-            } else if (animationController.isCompleted) {
-              animationController.reverse();
+            if (_animationController.isDismissed) {
+              _animationController.forward();
+            } else if (_animationController.isCompleted) {
+              _animationController.reverse();
             }
           },
           icon: const Icon(Icons.animation),

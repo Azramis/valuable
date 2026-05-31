@@ -19,12 +19,19 @@ class SampleBoolOpe extends StatefulWidget {
   State<SampleBoolOpe> createState() => _SampleBoolOpeState();
 }
 
-class _SampleBoolOpeState extends State<SampleBoolOpe> {
-  final StatefulValuable<bool> _cbCheckSuper = StatefulValuable<bool>(false);
-  final StatefulValuable<bool> _cbCheck1 = StatefulValuable<bool>(false);
-  final StatefulValuable<bool> _cbCheck2 = StatefulValuable<bool>(false);
-  final StatefulValuable<bool> _cbCheck3 = StatefulValuable<bool>(false);
+class _SampleBoolOpeState extends State<SampleBoolOpe>
+    with StateValuableScopeMixin<SampleBoolOpe> {
+  late final _cbCheckSuper = vScope.stateful<bool>(false);
+  late final _cbCheck1 = vScope.stateful<bool>(false);
+  late final _cbCheck2 = vScope.stateful<bool>(false);
+  late final _cbCheck3 = vScope.stateful<bool>(false);
 
+  late final _cbCheck1OrSuper = _cbCheck1 | _cbCheckSuper;
+  late final _cbCheck2OrSuper = _cbCheck2 | _cbCheckSuper;
+  late final _cbCheck3OrSuper = _cbCheck3 | _cbCheckSuper;
+
+  late final _cbCheckAll = (_cbCheck1 & _cbCheck2 & _cbCheck3);
+  late final _cbCheckAllOrSuper = _cbCheckAll | _cbCheckSuper;
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -53,7 +60,7 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
           ValuableConsumer(
             builder: (context, watch, _) {
               return CheckboxListTile(
-                value: watch(_cbCheck1 | _cbCheckSuper),
+                value: watch(_cbCheck1OrSuper),
                 title: const Text("Case 1"),
                 onChanged: (value) => _cbCheck1.setValue(value!),
               );
@@ -62,7 +69,7 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
           ValuableConsumer(
             builder: (context, watch, _) {
               return CheckboxListTile(
-                value: watch(_cbCheck2 | _cbCheckSuper),
+                value: watch(_cbCheck2OrSuper),
                 title: const Text("Case 2"),
                 onChanged: (value) => _cbCheck2.setValue(value!),
               );
@@ -71,7 +78,7 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
           ValuableConsumer(
             builder: (context, watch, _) {
               return CheckboxListTile(
-                value: watch(_cbCheck3 | _cbCheckSuper),
+                value: watch(_cbCheck3OrSuper),
                 title: const Text("Case 3"),
                 onChanged: (value) => _cbCheck3.setValue(value!),
               );
@@ -81,9 +88,7 @@ class _SampleBoolOpeState extends State<SampleBoolOpe> {
             child: ValuableConsumer(
               builder: (context, watch, _) {
                 return Visibility(
-                  visible: watch(
-                    _cbCheckSuper | _cbCheck1 & _cbCheck2 & _cbCheck3,
-                  ),
+                  visible: watch(_cbCheckAllOrSuper),
                   child: Container(color: Colors.blue),
                 );
               },

@@ -68,10 +68,7 @@ final class ValuableCompare<T> extends Valuable<bool> {
     : this(operand1, CompareOperator.different, operand2);
 
   @override
-  bool getValueDefinition(
-    bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
-  ]) {
+  bool getValueDefinition(bool reevaluatingNeeded, [ValuableContext? context]) {
     return _compareWithOperator(context);
   }
 
@@ -165,7 +162,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
   @override
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) {
     return _compareWithOperator(context);
   }
@@ -271,7 +268,7 @@ class ValuableStringOperation extends Valuable<String> {
   @override
   String getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? context = const ValuableContext(),
+    ValuableContext? context,
   ]) {
     return _compareWithOperator(context);
   }
@@ -294,8 +291,13 @@ class ValuableStringOperation extends Valuable<String> {
 class ValuableCaseItem<Switch, Output> {
   final Switch caseValue;
   final ValuableParentWatcher<Output> getValue;
+  final bool evaluateWithContext;
 
-  ValuableCaseItem(this.caseValue, this.getValue);
+  ValuableCaseItem(
+    this.caseValue,
+    this.getValue, {
+    this.evaluateWithContext = false,
+  });
 
   ValuableCaseItem.value(Switch caseValue, Output value)
     : this(
@@ -306,33 +308,46 @@ class ValuableCaseItem<Switch, Output> {
 
 class ValuableSwitch<Switch, Output> extends Valuable<Output> {
   final Valuable<Switch> testable;
-  final List<ValuableCaseItem<Switch, Output>>? cases;
+  final List<ValuableCaseItem<Switch, Output>> cases;
   final ValuableParentWatcher<Output> defaultCase;
 
-  ValuableSwitch(this.testable, {required this.defaultCase, this.cases});
+  ValuableSwitch(
+    this.testable, {
+    required this.defaultCase,
+    bool evaluateDefaultCaseWithContext = false,
+    List<ValuableCaseItem<Switch, Output>> cases = const [],
+    super.cleaningValueCallback,
+  }) : cases = List.unmodifiable(cases),
+       super(
+         evaluateWithContext:
+             evaluateDefaultCaseWithContext ||
+             (cases.any((caseItem) => caseItem.evaluateWithContext)),
+       );
 
   ValuableSwitch.value(
     Valuable<Switch> testable, {
     required Output defaultValue,
-    List<ValuableCaseItem<Switch, Output>>? cases,
+    List<ValuableCaseItem<Switch, Output>> cases = const [],
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          testable,
          defaultCase: (watch, {valuableContext}) => defaultValue,
          cases: cases,
+         cleaningValueCallback: cleaningValueCallback,
        );
 
   @override
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? valuableContext = const ValuableContext(),
+    ValuableContext? valuableContext,
   ]) {
     bool matched = false;
     late Output value;
 
-    if (cases?.isNotEmpty ?? false) {
+    if (cases.isNotEmpty) {
       final testable = watch(this.testable, valuableContext: valuableContext);
 
-      for (final caseItem in cases!) {
+      for (final caseItem in cases) {
         final bool isMatch = testable == caseItem.caseValue;
 
         if (isMatch) {
@@ -355,12 +370,23 @@ class ValuableIf<Output> extends Valuable<Output> {
   final ValuableParentWatcher<Output> thenCase;
   final ValuableParentWatcher<Output> elseCase;
 
-  ValuableIf(this.testable, this.thenCase, {required this.elseCase});
+  ValuableIf(
+    this.testable,
+    this.thenCase, {
+    required this.elseCase,
+    super.cleaningValueCallback,
+    bool evaluateThenCaseWithContext = false,
+    bool evaluateElseCaseWithContext = false,
+  }) : super(
+         evaluateWithContext:
+             evaluateThenCaseWithContext || evaluateElseCaseWithContext,
+       );
 
   ValuableIf.value(
     Valuable<bool> testable,
     Output thenValue, {
     required Output elseValue,
+    ValuableValueCleaningCallback<Output>? cleaningValueCallback,
   }) : this(
          testable,
          (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
@@ -368,12 +394,13 @@ class ValuableIf<Output> extends Valuable<Output> {
          elseCase:
              (ValuableWatcher watch, {ValuableContext? valuableContext}) =>
                  elseValue,
+         cleaningValueCallback: cleaningValueCallback,
        );
 
   @override
   Output getValueDefinition(
     bool reevaluatingNeeded, [
-    ValuableContext? valuableContext = const ValuableContext(),
+    ValuableContext? valuableContext,
   ]) {
     bool test = false;
     late Output value;
