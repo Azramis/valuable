@@ -100,6 +100,46 @@ Whenever ``a`` or ``b`` change, ``equality`` is notified, and notify itself all 
 
 It also works, but ``equality`` notifies only on ``a`` changes.
 
+#### Dispose it
+
+As a `ChangeNotifier` a _Valuable_ should be dispose to avoid memory leakage.  
+You often have to call `Valuable.dispose()` explicitly in order to free resources, but _Valuable_ could be disposed in chain.  
+In fact, when a _Valuable_ watches a sibling, it listens to its sibling's disposal event too. Then if the sibling is disposed, our _Valuable_ may dispose too in order to avoid depending on a disposed _Valuable_.
+
+But, even if a _Valuable_ could be auto-disposed due to a watched sibling, it's not always true !  
+Look at this case :
+
+```dart
+final a = Valuable<bool>.value(true);
+final b = Valuable<String>.value("ez");
+final c = Valuable<String>.value("pz");
+final d = Valuable<String>.computed((watch, {valuableContext}) {
+    return watch(a) ? watch(b) : watch(c);
+});
+
+c.dispose();
+```
+
+As it was said before, we could imagine that `d` will auto-dispose due to `c` disposal, however this is not the case.  
+Behind the hood, `d` **never** watches `c` because of `watch(a)` always equals to `true`, so it never registers to its disposal event too !  
+
+It's for this reason `dispose` must be called at least once on each instanciate _Valuable_. Especially since the method can be called multiple times without any issues.
+
+#### Watch for memory leaks
+
+The package provide a singleton class `ValuableDebugSession` in order to get some informations on current _Valuables_ usage.
+
+Even if this singleton is available in any mode, it only works during debug mode. In other case, it do nothing (to avoid consuming performance).  
+
+On it you access to :
+
+- `mountedValuablesCount` that is the current number of mounted _Valuable_
+- `totalValuablesCount` that is the ever existed number of _Valuable_
+- `mountedCallablesCount` that is the current number of mounted `ValuableCallback`
+- `totalCallablesCount` that is the ever existed number of `ValuableCallback`
+- `eventsAwareCallablesCount` that is the current number of `ValuableCallback` in their reacting-to-event phase
+- `printDebugInfo()` that print all these values into the console using Flutter `printDebug`
+
 ### ``StatefulValuable<T>``
 
 As it was said, ``StatefulValuable<T>`` are the most used _Valuable_ as it's the only one we can directly affect.  
@@ -266,6 +306,109 @@ The ``historize()`` is available on the ``Valuable`` base type.
 - ``redoToCurrent()``, that set the value to latest value (current) in the history
 
 Take a look to the great example in [sample_history.dart](example/lib/src/sample_history.dart)
+
+### Valuable Scope
+
+`ValuableScope` was introduced in order to simplify disposal of _Valuable_ created on the place.  
+Before, each _Valuable_ should be disposed manually, so when we create to much _Valuable_ at the same place it could be easy to dispose one or more...
+
+`ValuableScope` defines methods to instanciate each kind of _Valuable_
+
+- `Valuable value(...)` &rarr; `Valuable.value`
+- `Valuable computed(...)` &rarr; `Valuable.computed`
+- `Valuable listenable(...)` &rarr; `Valuable.listenable`
+- `Valuable listenableComputed(...)` &rarr; `Valuable.listenableComputed`
+- `StateValuable stateful(...)` &rarr; `StatefulValuable`
+- `Valuable<bool> groupAnd(...)` &rarr; `ValuableBoolGroup.and`
+- `Valuable<bool> groupOr(...)` &rarr; `ValuableBoolGroup.or`
+- `Valuable future(...)` &rarr; `FutureValuable`
+- `Valuable futureToValues(...)` &rarr; `FutureValuable.values`
+- `Valuable<ValuableAsyncValue> futureToAsyncVal(...)` &rarr; `FutureValuable.asyncVal`
+- `Valuable stream(...)` &rarr; `StreamValuable`
+- `Valuable streamToValues(...)` &rarr; `StreamValuable.values`
+- `Valuable<ValuableAsyncValue>(...)` &rarr; `StreamValuable.asyncVal`
+- `Valuable ifThen(...)` &rarr; `ValuableIf`
+- `Valuable ifThenValue(...)` &rarr; `ValuableIf.value`
+- `Valuable switchCase(...)` &rarr; `ValuableSwitch`
+- `Valuable switchCaseValue(...)` &rarr; `ValuableSwitch.value`
+- `ValuableCallback callback(...)` &rarr; `ValuableCallback.immediate`
+- `ValuableCallback futureCallback(...)` &rarr; `ValuableCallback.future`
+- `ValuableCallback microtaskCallback(...)` &rarr; `ValuableCallback.microtask`
+- `ValuableLinker linker(...)` &rarr; `ValuableLinker`
+  
+`nestedScope()` is a defined method of `ValuableScope` useful to define sub-scope that might be disposed before the entire parent scope. But if the parent scope is disposed, it dispose its children too.
+
+Scope can be used directly by creating an instance of it, then use its methods to create wanted _Valuable_ and finally dispose it when need to.
+
+Most of the time, _Valuables_ will be declared as member of a `State` instance, to be used by children Widgets. To avoid this boilerplate, a mixin for `State` is present into this package, `StateValuableScopeMixin`.
+
+### `StateValuableScopeMixin`
+
+As says in the previous part, this mixin avoid some boilerplate to get a `ValuableScope` directly inside a `State`.  
+It give access to `vScope` member, whose is a final `ValuableScope`. With this member, you now be able to create scoped _Valuable_ to use.  
+`vScope` will be automatically disposed at `State` disposal, ensuring that all scoped _Valuable_ will be disposed too.  
+With that mixin, you don't bother to dispose _Valuable_ anymore, just declare and use them !
+
+But, there is another twist with this mixin...  
+
+It may happen that you pass a `Valuable` as parameter to a `StatefulWidget`.  
+By the way, you might watch it by local _Valuables_ in your `State`.  
+For example :
+
+```dart
+class MyWidget extends StatefulWidget {
+    MyWidget({
+        required this.total,
+        super.key,
+    });
+
+    final Valuable<double> total;
+
+    @override
+    State<MyWidget> createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> with StateValuableScopeMixin<MyWidget> {
+
+    late final color = widget.total.map((total) => total > 0.0 ? Colors.green : Colors.red);
+    
+    ...
+}
+```
+
+This works most of time, but there is a problem.  
+What happens if `MyWidget.total` change ?
+
+Answer is &rarr; Nothing !  
+While `color` doesn't need to compute, it will not register to the new `total` changes, leading to state loss.  
+In order to resolve this situation, it is necessary to check for `MyWidget.total` instance change in `didUpdateWidget` then force `color.marToReevaluate`.  
+With one or two dependent _Valuables_ it could be acceptable, but for more it will become more and more complex.
+
+This is for this reason that `StateValuableScopeMixin` came with the `interopValuableArg` method.  
+This protected method allows to create a **proxy _Valuable_** for a Widget _Valuable_ parameter to manage changes and boilerplate describe before.
+
+Updated code :
+
+```dart
+class MyWidget extends StatefulWidget {
+    MyWidget({
+        required this.total,
+        super.key,
+    });
+
+    final Valuable<double> total;
+
+    @override
+    State<MyWidget> createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> with StateValuableScopeMixin<MyWidget> {
+    late final total = interopValuableArg((widget) => widget.total);
+    late final color = total.map((total) => total > 0.0 ? Colors.green : Colors.red);
+
+    ...
+}
+```
 
 ## Valuable and the Widget tree
 
