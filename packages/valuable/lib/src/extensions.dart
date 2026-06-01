@@ -506,8 +506,13 @@ extension FutureExtension<T> on Future<T> {
     ValuableScope? scope,
   }) {
     final v = scope?.value(this) ?? Valuable.value(this);
+    final asyncVal = scope?.futureToAsyncVal(v) ?? FutureValuable.asyncVal(v);
 
-    return scope?.futureToAsyncVal(v) ?? FutureValuable.asyncVal(v);
+    if (scope == null) {
+      asyncVal.listenDispose(v.dispose);
+    }
+
+    return asyncVal;
   }
 }
 
@@ -521,7 +526,12 @@ extension StreamExtension<T> on Stream<T> {
     ValuableScope? scope,
   }) {
     final v = scope?.value(this) ?? Valuable.value(this);
+    final asyncVal = scope?.streamToAsyncVal(v) ?? StreamValuable.asyncVal(v);
 
-    return scope?.streamToAsyncVal(v) ?? StreamValuable.asyncVal(v);
+    if (scope == null) {
+      asyncVal.listenDispose(v.dispose);
+    }
+
+    return asyncVal;
   }
 }
