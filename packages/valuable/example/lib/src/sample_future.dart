@@ -61,7 +61,7 @@ class ValuableDurationSlider extends ValuableWidget {
 }
 
 class ValuableText extends ValuableWidget {
-  final FutureValuable<ValuableAsyncValue<String>, String> textValuable;
+  final Valuable<ValuableAsyncValue<String>> textValuable;
 
   const ValuableText(this.textValuable, {super.key});
 
