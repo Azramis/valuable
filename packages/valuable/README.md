@@ -102,9 +102,9 @@ It also works, but ``equality`` notifies only on ``a`` changes.
 
 #### Dispose it
 
-As a `ChangeNotifier` a _Valuable_ should be dispose to avoid memory leakage.  
-You often have to call `Valuable.dispose()` explicitly in order to free resources, but _Valuable_ could be disposed in chain.  
-In fact, when a _Valuable_ watches a sibling, it listens to its sibling's disposal event too. Then if the sibling is disposed, our _Valuable_ may dispose too in order to avoid depending on a disposed _Valuable_.
+As a `ChangeNotifier`, a _Valuable_ should be disposed to avoid memory leaks.  
+You often have to call `Valuable.dispose()` explicitly in order to free resources, but _Valuables_ can also be disposed in a chain.  
+In fact, when a _Valuable_ watches a sibling, it listens to its sibling's disposal event too. If the sibling is disposed, the dependent _Valuable_ may dispose itself to avoid depending on a disposed _Valuable_.
 
 But, even if a _Valuable_ could be auto-disposed due to a watched sibling, it's not always true !  
 Look at this case :
@@ -123,13 +123,13 @@ c.dispose();
 As it was said before, we could imagine that `d` will auto-dispose due to `c` disposal, however this is not the case.  
 Behind the hood, `d` **never** watches `c` because of `watch(a)` always equals to `true`, so it never registers to its disposal event too !  
 
-It's for this reason `dispose` must be called at least once on each instanciate _Valuable_. Especially since the method can be called multiple times without any issues.
+For this reason, `dispose` must be called at least once on each instantiated _Valuable_. Especially since the method can be called multiple times without any issues.
 
 #### Watch for memory leaks
 
-The package provide a singleton class `ValuableDebugSession` in order to get some informations on current _Valuables_ usage.
+The package provides a singleton class `ValuableDebugSession` in order to get information on current _Valuable_ usage.
 
-Even if this singleton is available in any mode, it only works during debug mode. In other case, it do nothing (to avoid consuming performance).  
+Even if this singleton is available in any mode, it only works during debug mode. Otherwise, it does nothing (to avoid consuming performance).
 
 On it you access to :
 
@@ -138,7 +138,7 @@ On it you access to :
 - `mountedCallablesCount` that is the current number of mounted `ValuableCallback`
 - `totalCallablesCount` that is the ever existed number of `ValuableCallback`
 - `eventsAwareCallablesCount` that is the current number of `ValuableCallback` in their reacting-to-event phase
-- `printDebugInfo()` that print all these values into the console using Flutter `printDebug`
+- `printDebugInfo()` that prints all these values into the console using Flutter `debugPrint`
 
 ### ``StatefulValuable<T>``
 
@@ -309,10 +309,10 @@ Take a look to the great example in [sample_history.dart](example/lib/src/sample
 
 ### Valuable Scope
 
-`ValuableScope` was introduced in order to simplify disposal of _Valuable_ created on the place.  
-Before, each _Valuable_ should be disposed manually, so when we create to much _Valuable_ at the same place it could be easy to dispose one or more...
+`ValuableScope` was introduced in order to simplify disposal of _Valuables_ created locally.  
+Before, each _Valuable_ had to be disposed manually, so when we create too many _Valuables_ at the same place it can be easy to forget to dispose one or more...
 
-`ValuableScope` defines methods to instanciate each kind of _Valuable_
+`ValuableScope` defines methods to instantiate each kind of _Valuable_
 
 - `Valuable value(...)` &rarr; `Valuable.value`
 - `Valuable computed(...)` &rarr; `Valuable.computed`
@@ -326,7 +326,7 @@ Before, each _Valuable_ should be disposed manually, so when we create to much _
 - `Valuable<ValuableAsyncValue> futureToAsyncVal(...)` &rarr; `FutureValuable.asyncVal`
 - `Valuable stream(...)` &rarr; `StreamValuable`
 - `Valuable streamToValues(...)` &rarr; `StreamValuable.values`
-- `Valuable<ValuableAsyncValue>(...)` &rarr; `StreamValuable.asyncVal`
+- `Valuable<ValuableAsyncValue> streamToAsyncVal(...)` rarr `StreamValuable.asyncVal`
 - `Valuable ifThen(...)` &rarr; `ValuableIf`
 - `Valuable ifThenValue(...)` &rarr; `ValuableIf.value`
 - `Valuable switchCase(...)` &rarr; `ValuableSwitch`
@@ -336,7 +336,7 @@ Before, each _Valuable_ should be disposed manually, so when we create to much _
 - `ValuableCallback microtaskCallback(...)` &rarr; `ValuableCallback.microtask`
 - `ValuableLinker linker(...)` &rarr; `ValuableLinker`
   
-`nestedScope()` is a defined method of `ValuableScope` useful to define sub-scope that might be disposed before the entire parent scope. But if the parent scope is disposed, it dispose its children too.
+`nestedScope()` is a defined method of `ValuableScope` useful to define sub-scope that might be disposed before the entire parent scope. But if the parent scope is disposed, it disposes its children too.
 
 Scope can be used directly by creating an instance of it, then use its methods to create wanted _Valuable_ and finally dispose it when need to.
 
@@ -381,7 +381,7 @@ What happens if `MyWidget.total` change ?
 
 Answer is &rarr; Nothing !  
 While `color` doesn't need to compute, it will not register to the new `total` changes, leading to state loss.  
-In order to resolve this situation, it is necessary to check for `MyWidget.total` instance change in `didUpdateWidget` then force `color.marToReevaluate`.  
+In order to resolve this situation, it is necessary to check for `MyWidget.total` instance change in `didUpdateWidget` then force `color.markToReevaluate`.
 With one or two dependent _Valuables_ it could be acceptable, but for more it will become more and more complex.
 
 This is for this reason that `StateValuableScopeMixin` came with the `interopValuableArg` method.  
