@@ -414,7 +414,7 @@ abstract class Valuable<Output> extends ChangeNotifier
     Other Function(Output) toElement, {
     ValuableScope? scope,
   }) {
-    Other computation(ValuableWatcher watch, {valuableContext}) =>
+    Other computation(ValuableWatcher watch, {ValuableContext? valuableContext}) =>
         toElement(watch(this, valuableContext: valuableContext));
 
     return scope?.computed(computation) ?? Valuable.computed(computation);
