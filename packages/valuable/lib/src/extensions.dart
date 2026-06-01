@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:valuable/src/async.dart';
 import 'package:valuable/src/base.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/scope.dart';
@@ -17,7 +18,8 @@ extension BoolOperators on Valuable<bool> {
       ValuableBoolGroup.or([this, other]);
 
   /// Create a new [Valuable<bool>] that depends on the current, but with the negated value
-  Valuable<bool> negation() => map((value) => !value);
+  Valuable<bool> negation({ValuableScope? scope}) =>
+      map((value) => !value, scope: scope);
 
   /// Get a new Valuable whose value depends on the current Valuable value.
   ///
@@ -26,22 +28,30 @@ extension BoolOperators on Valuable<bool> {
   Valuable<Output> then<Output>(
     Valuable<Output> value, {
     required Valuable<Output> elseValue,
+    ValuableScope? scope,
   }) {
-    return ValuableIf<Output>(
-      this,
-      (watch, {valuableContext}) =>
-          watch(value, valuableContext: valuableContext),
-      elseCase: (watch, {valuableContext}) =>
-          watch(elseValue, valuableContext: valuableContext),
-    );
+    Output thenCompute(
+      ValuableWatcher watch, {
+      ValuableContext? valuableContext,
+    }) => watch(value, valuableContext: valuableContext);
+
+    Output elseCompute(
+      ValuableWatcher watch, {
+      ValuableContext? valuableContext,
+    }) => watch(elseValue, valuableContext: valuableContext);
+
+    return scope?.ifThen(this, thenCompute, elseCase: elseCompute) ??
+        ValuableIf<Output>(this, thenCompute, elseCase: elseCompute);
   }
 
   /// Same as [then] function, but with direct value as parameters
   Valuable<Output> thenValue<Output>(
     Output value, {
     required Output elseValue,
+    ValuableScope? scope,
   }) {
-    return ValuableIf<Output>.value(this, value, elseValue: elseValue);
+    return scope?.ifThenValue(this, value, elseValue: elseValue) ??
+        ValuableIf<Output>.value(this, value, elseValue: elseValue);
   }
 }
 
@@ -487,21 +497,31 @@ extension ValuableWatcherExtension on ValuableWatcher {
 }
 
 extension ValuableFutureExtension<T> on Valuable<Future<T>> {
-  FutureValuableAsyncValue<T> toFutureAsyncValue() =>
-      FutureValuable.asyncVal(this);
+  Valuable<ValuableAsyncValue<T>> toFutureAsyncValue({ValuableScope? scope}) =>
+      scope?.futureToAsyncVal(this) ?? FutureValuable.asyncVal(this);
 }
 
 extension FutureExtension<T> on Future<T> {
-  FutureValuableAsyncValue<T> toValuableFutureAsyncValue() =>
-      FutureValuable.asyncVal(Valuable.value(this));
+  Valuable<ValuableAsyncValue<T>> toValuableFutureAsyncValue({
+    ValuableScope? scope,
+  }) {
+    final v = scope?.value(this) ?? Valuable.value(this);
+
+    return scope?.futureToAsyncVal(v) ?? FutureValuable.asyncVal(v);
+  }
 }
 
 extension ValuableStreamExtension<T> on Valuable<Stream<T>> {
-  StreamValuableAsyncValue<T> toStreamAsyncValue() =>
-      StreamValuable.asyncVal(this);
+  Valuable<ValuableAsyncValue<T>> toStreamAsyncValue({ValuableScope? scope}) =>
+      scope?.streamToAsyncVal(this) ?? StreamValuable.asyncVal(this);
 }
 
 extension StreamExtension<T> on Stream<T> {
-  StreamValuableAsyncValue<T> toValuableStreamAsyncValue() =>
-      StreamValuable.asyncVal(Valuable.value(this));
+  Valuable<ValuableAsyncValue<T>> toValuableStreamAsyncValue({
+    ValuableScope? scope,
+  }) {
+    final v = scope?.value(this) ?? Valuable.value(this);
+
+    return scope?.streamToAsyncVal(v) ?? StreamValuable.asyncVal(v);
+  }
 }

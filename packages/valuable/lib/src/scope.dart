@@ -333,6 +333,71 @@ final class ValuableScope with VDisposableMixin {
   ValuableLinker<T> linker<T>(T defaultValue) =>
       _scope(ValuableLinker<T>(defaultValue));
 
+  /// See [ValuableCompare]
+  Valuable<bool> compare<T>(
+    Valuable<T> operand1,
+    CompareOperator operator,
+    Valuable<T> operand2,
+  ) => _scope(ValuableCompare(operand1, operator, operand2));
+
+  /// See [ValuableCompare.equals]
+  Valuable<bool> eq<T>(Valuable<T> operand1, Valuable<T> operand2) =>
+      compare(operand1, CompareOperator.equals, operand2);
+
+  /// See [ValuableCompare.greaterThan]
+  Valuable<bool> gt<T>(Valuable<T> operand1, Valuable<T> operand2) =>
+      compare(operand1, CompareOperator.greaterThan, operand2);
+
+  /// See [ValuableCompare.greaterOrEquals]
+  Valuable<bool> gte<T>(Valuable<T> operand1, Valuable<T> operand2) =>
+      compare(operand1, CompareOperator.greaterOrEquals, operand2);
+
+  /// See [ValuableCompare.smallerThan]
+  Valuable<bool> lt<T>(Valuable<T> operand1, Valuable<T> operand2) =>
+      compare(operand1, CompareOperator.smallerThan, operand2);
+
+  /// See [ValuableCompare.smallerOrEquals]
+  Valuable<bool> lte<T>(Valuable<T> operand1, Valuable<T> operand2) =>
+      compare(operand1, CompareOperator.smallerOrEquals, operand2);
+
+  /// See [ValuableCompare.different]
+  Valuable<bool> neq<T>(Valuable<T> operand1, Valuable<T> operand2) =>
+      compare(operand1, CompareOperator.different, operand2);
+
+  /// See [ValuableNumOperation.sum]
+  Valuable<num> sum(Valuable<num> operand1, Valuable<num> operand2) =>
+      _scope(ValuableNumOperation.sum(operand1, operand2));
+
+  /// See [ValuableNumOperation.substract]
+  Valuable<num> substract(Valuable<num> operand1, Valuable<num> operand2) =>
+      _scope(ValuableNumOperation.substract(operand1, operand2));
+
+  /// See [ValuableNumOperation.multiply]
+  Valuable<num> multiply(Valuable<num> operand1, Valuable<num> operand2) =>
+      _scope(ValuableNumOperation.multiply(operand1, operand2));
+
+  /// See [ValuableNumOperation.divide]
+  Valuable<num> divide(Valuable<num> operand1, Valuable<num> operand2) =>
+      _scope(ValuableNumOperation.divide(operand1, operand2));
+
+  /// See [ValuableNumOperation.truncDivide]
+  Valuable<int> truncDivide(Valuable<num> operand1, Valuable<num> operand2) =>
+      _scope(ValuableNumOperation.truncDivide(operand1, operand2));
+
+  /// See [ValuableNumOperation.modulo]
+  Valuable<num> modulo(Valuable<num> operand1, Valuable<num> operand2) =>
+      _scope(ValuableNumOperation.modulo(operand1, operand2));
+
+  /// See [ValuableNumOperation.negate]
+  Valuable<num> negate(Valuable<num> operand1) =>
+      _scope(ValuableNumOperation.negate(operand1));
+
+  /// See [ValuableStringOperation.concate]
+  Valuable<String> concatenate(
+    Valuable<String> operand1,
+    Valuable<String> operand2,
+  ) => _scope(ValuableStringOperation.concate(operand1, operand2));
+
   /// Build a nested scope, that will be automatically disposed when the parent scope is disposed
   ///
   /// See [ValuableScope] for more details about scopes
