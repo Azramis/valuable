@@ -133,8 +133,8 @@ Even if this singleton is available in any mode, it only works during debug mode
 
 On it you access to :
 
-- `mountedValuablesCount` that is the current number of mounted _Valuable_
-- `totalValuablesCount` that is the ever existed number of _Valuable_
+- `mountedValuablesCount` that is the current number of mounted _Valuables_
+- `totalValuablesCount` that is the ever existed number of _Valuables_
 - `mountedCallablesCount` that is the current number of mounted `ValuableCallback`
 - `totalCallablesCount` that is the ever existed number of `ValuableCallback`
 - `eventsAwareCallablesCount` that is the current number of `ValuableCallback` in their reacting-to-event phase
@@ -318,7 +318,7 @@ Before, each _Valuable_ had to be disposed manually, so when we create too many 
 - `Valuable computed(...)` &rarr; `Valuable.computed`
 - `Valuable listenable(...)` &rarr; `Valuable.listenable`
 - `Valuable listenableComputed(...)` &rarr; `Valuable.listenableComputed`
-- `StateValuable stateful(...)` &rarr; `StatefulValuable`
+- `StatefulValuable stateful(...)` &rarr; `StatefulValuable`
 - `Valuable<bool> groupAnd(...)` &rarr; `ValuableBoolGroup.and`
 - `Valuable<bool> groupOr(...)` &rarr; `ValuableBoolGroup.or`
 - `Valuable future(...)` &rarr; `FutureValuable`
@@ -326,7 +326,7 @@ Before, each _Valuable_ had to be disposed manually, so when we create too many 
 - `Valuable<ValuableAsyncValue> futureToAsyncVal(...)` &rarr; `FutureValuable.asyncVal`
 - `Valuable stream(...)` &rarr; `StreamValuable`
 - `Valuable streamToValues(...)` &rarr; `StreamValuable.values`
-- `Valuable<ValuableAsyncValue> streamToAsyncVal(...)` rarr `StreamValuable.asyncVal`
+- `Valuable<ValuableAsyncValue> streamToAsyncVal(...)` &rarr; `StreamValuable.asyncVal`
 - `Valuable ifThen(...)` &rarr; `ValuableIf`
 - `Valuable ifThenValue(...)` &rarr; `ValuableIf.value`
 - `Valuable switchCase(...)` &rarr; `ValuableSwitch`
