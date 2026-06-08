@@ -90,18 +90,6 @@ final class ValuableCompare<T> extends Valuable<bool> {
 /// Calculus operators for num operands
 enum NumOperator {
   sum,
-  substract,
-  multiply,
-  divide,
-  modulo,
-  truncDivide,
-  negate;
-
-  @Deprecated('Use .truncDivide instead')
-  // ignore: constant_identifier_names
-  static const NumOperator trunc_divide = NumOperator.truncDivide;
-enum NumOperator {
-  sum,
   subtract,
   multiply,
   divide,
