@@ -352,9 +352,9 @@ Before, each _Valuable_ had to be disposed manually, so when we create too many 
   
 `nestedScope()` is a defined method of `ValuableScope` useful to define sub-scope that might be disposed before the entire parent scope. But if the parent scope is disposed, it disposes its children too.
 
-Scope can be used directly by creating an instance of it, then use its methods to create wanted _Valuable_ and finally dispose it when need to.
+Scope can be used directly by creating an instance of it, then using its methods to create the desired _Valuables_ and finally disposing it when needed.
 
-Most of the time, _Valuables_ will be declared as member of a `State` instance, to be used by children Widgets. To avoid this boilerplate, a mixin for `State` is present into this package, `StateValuableScopeMixin`.
+Most of the time, _Valuables_ will be declared as members of a `State` instance, to be used by child widgets. To avoid this boilerplate, a mixin for `State` is present in this package: `StateValuableScopeMixin`.
 
 ### `StateValuableScopeMixin`
 
@@ -390,16 +390,16 @@ class _MyWidgetState extends State<MyWidget> with StateValuableScopeMixin<MyWidg
 }
 ```
 
-This works most of time, but there is a problem.  
-What happens if `MyWidget.total` change ?
+This works most of the time, but there is a problem.  
+What happens if `MyWidget.total` changes?
 
 Answer is &rarr; Nothing !  
 While `color` doesn't need to compute, it will not register to the new `total` changes, leading to state loss.  
-In order to resolve this situation, it is necessary to check for `MyWidget.total` instance change in `didUpdateWidget` then force `color.markToReevaluate`.
+In order to resolve this situation, it is necessary to check for `MyWidget.total` instance changes in `didUpdateWidget` then force `color.markToReevaluate()`.
 With one or two dependent _Valuables_ it could be acceptable, but for more it will become more and more complex.
 
 This is for this reason that `StateValuableScopeMixin` came with the `interopValuableArg` method.  
-This protected method allows to create a **proxy _Valuable_** for a Widget _Valuable_ parameter to manage changes and boilerplate describe before.
+This protected method allows to create a **proxy _Valuable_** for a Widget _Valuable_ parameter to manage changes and the boilerplate described above.
 
 Updated code :
 
