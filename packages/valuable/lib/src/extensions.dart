@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:valuable/src/async.dart';
 import 'package:valuable/src/base.dart';
+import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/scope.dart';
 import 'package:valuable/src/stateful.dart';
@@ -14,8 +15,10 @@ extension ValuableScopeHelpers<Output> on Valuable<Output> {
     Other Function(Output) toElement, {
     ValuableScope? scope,
   }) {
-    Other computation(ValuableWatcher watch, {ValuableContext? valuableContext}) =>
-        toElement(watch(this, valuableContext: valuableContext));
+    Other computation(
+      ValuableWatcher watch, {
+      ValuableContext? valuableContext,
+    }) => toElement(watch(this, valuableContext: valuableContext));
 
     return scope?.computed(computation) ?? Valuable.computed(computation);
   }
@@ -51,7 +54,8 @@ extension ValuableScopeHelpers<Output> on Valuable<Output> {
       throw UnmatchTypeValuableError(this, other?.runtimeType ?? Null);
     }
 
-    return scope?.compare(this, ope, compare) ?? ValuableCompare(this, ope, compare);
+    return scope?.compare(this, ope, compare) ??
+        ValuableCompare(this, ope, compare);
   }
 }
 
