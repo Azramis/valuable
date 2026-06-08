@@ -6,12 +6,20 @@ import 'package:valuable/valuable.dart';
 void main() {
   group('subtraction API spelling', () {
     test('ValuableNumOperation provides subtract and substract alias', () {
-      final Valuable<num> left = Valuable.value(8);
-      final Valuable<num> right = Valuable.value(3);
+      final scope = ValuableScope();
+      addTearDown(scope.dispose);
+      final Valuable<num> left = scope.value(8);
+      final Valuable<num> right = scope.value(3);
+      final subtractionOpe = left - right;
+      final subtractionLegacy = ValuableNumOperation.substract(left, right);
+      final subtraction = ValuableNumOperation.subtract(left, right);
+      addTearDown(subtractionOpe.dispose);
+      addTearDown(subtractionLegacy.dispose);
+      addTearDown(subtraction.dispose);
 
-      expect((left - right).getValue(), 5);
-      expect(ValuableNumOperation.subtract(left, right).getValue(), 5);
-      expect(ValuableNumOperation.substract(left, right).getValue(), 5);
+      expect(subtractionOpe.getValue(), 5);
+      expect(subtraction.getValue(), 5);
+      expect(subtractionLegacy.getValue(), 5);
     });
 
     test('ValuableScope provides subtract', () {
