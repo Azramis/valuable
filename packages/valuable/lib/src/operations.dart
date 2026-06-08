@@ -90,7 +90,7 @@ final class ValuableCompare<T> extends Valuable<bool> {
 /// Calculus operators for num operands
 enum NumOperator {
   sum,
-  substract,
+  subtract,
   multiply,
   divide,
   modulo,
@@ -100,6 +100,9 @@ enum NumOperator {
   @Deprecated('Use .truncDivide instead')
   // ignore: constant_identifier_names
   static const NumOperator trunc_divide = NumOperator.truncDivide;
+
+  @Deprecated('Use .subtract instead')
+  static const NumOperator substract = NumOperator.subtract;
 }
 
 /// Class to do calculus with numeric operands, and obtain a [Valuable<num>].
@@ -125,11 +128,18 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
     Valuable<num> operand2,
   ) => ValuableNumOperation._(operand1, NumOperator.sum, operand2);
 
-  /// Substraction operation
+  /// Subtraction operation
+  static ValuableNumOperation<num> subtract(
+    Valuable<num> operand1,
+    Valuable<num> operand2,
+  ) => ValuableNumOperation._(operand1, NumOperator.subtract, operand2);
+
+  /// Subtraction operation
+  @Deprecated('Use subtract instead')
   static ValuableNumOperation<num> substract(
     Valuable<num> operand1,
     Valuable<num> operand2,
-  ) => ValuableNumOperation._(operand1, NumOperator.substract, operand2);
+  ) => subtract(operand1, operand2);
 
   /// Multiplication operation
   static ValuableNumOperation<num> multiply(
@@ -177,7 +187,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
           NumOperator.sum => ope1 + ope2,
           NumOperator.modulo => ope1 % ope2,
           NumOperator.multiply => ope1 * ope2,
-          NumOperator.substract => ope1 - ope2,
+          NumOperator.subtract => ope1 - ope2,
           NumOperator.negate => -ope1,
           _ => throw UnimplementedError(
             'Operator $_operator is not implemented for ValuableNumOperation<Output> with Output = $Output',

@@ -408,13 +408,6 @@ abstract class Valuable<Output> extends ChangeNotifier
     }
   }
 
-  /// A method to map a Valuable from [Output] to [Other]
-  Valuable<Other> map<Other>(Other Function(Output) toElement) =>
-      Valuable.computed(
-        (watch, {valuableContext}) =>
-            toElement(watch(this, valuableContext: valuableContext)),
-      );
-
   Valuable<bool> _getCompare(dynamic other, CompareOperator ope) {
     Valuable compare;
 
@@ -459,22 +452,6 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// is thrown
   Valuable<bool> operator <=(dynamic other) {
     return _getCompare(other, CompareOperator.smallerOrEquals);
-  }
-
-  /// Compare with a value that type is [Output] or another [Valuable]
-  ///
-  /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
-  /// is thrown
-  Valuable<bool> equals(dynamic other) {
-    return _getCompare(other, CompareOperator.equals);
-  }
-
-  /// Compare with a value that type is [Output] or another [Valuable]
-  ///
-  /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
-  /// is thrown
-  Valuable<bool> notEquals(dynamic other) {
-    return _getCompare(other, CompareOperator.different);
   }
 }
 
