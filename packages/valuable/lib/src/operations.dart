@@ -100,6 +100,21 @@ enum NumOperator {
   @Deprecated('Use .truncDivide instead')
   // ignore: constant_identifier_names
   static const NumOperator trunc_divide = NumOperator.truncDivide;
+enum NumOperator {
+  sum,
+  subtract,
+  multiply,
+  divide,
+  modulo,
+  truncDivide,
+  negate;
+
+  @Deprecated('Use .truncDivide instead')
+  // ignore: constant_identifier_names
+  static const NumOperator trunc_divide = NumOperator.truncDivide;
+
+  @Deprecated('Use .subtract instead')
+  static const NumOperator substract = NumOperator.subtract;
 }
 
 /// Class to do calculus with numeric operands, and obtain a [Valuable<num>].
