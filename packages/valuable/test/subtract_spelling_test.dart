@@ -34,7 +34,7 @@ void main() {
 
     test('Stateful num operations provide subtract and substract alias', () {
       final StatefulValuable<num> value = StatefulValuable<num>(10);
-
+      addTearDown(value.dispose);
       value.subtract(3);
       expect(value.getValue(), 7);
 
