@@ -313,27 +313,27 @@ Take a look to the great example in [sample_history.dart](example/lib/src/sample
 Before, each _Valuable_ had to be disposed manually, so when we create too many _Valuables_ at the same place it can be easy to forget to dispose one or more...
 
 `ValuableScope` defines factory methods to instantiate many kinds of _Valuable_ (and related helpers), including:
-- `Valuable value(...)` &rarr; `Valuable.value`
-- `Valuable computed(...)` &rarr; `Valuable.computed`
-- `Valuable listenable(...)` &rarr; `Valuable.listenable`
-- `Valuable listenableComputed(...)` &rarr; `Valuable.listenableComputed`
-- `StatefulValuable stateful(...)` &rarr; `StatefulValuable`
+- `Valuable<T> value(...)` &rarr; `Valuable.value`
+- `Valuable<T> computed(...)` &rarr; `Valuable.computed`
+- `Valuable<T> listenable(...)` &rarr; `Valuable.listenable`
+- `Valuable<T> listenableComputed(...)` &rarr; `Valuable.listenableComputed`
+- `StatefulValuable<T> stateful(...)` &rarr; `StatefulValuable`
 - `Valuable<bool> groupAnd(...)` &rarr; `ValuableBoolGroup.and`
 - `Valuable<bool> groupOr(...)` &rarr; `ValuableBoolGroup.or`
-- `Valuable future(...)` &rarr; `FutureValuable`
-- `Valuable futureToValues(...)` &rarr; `FutureValuable.values`
-- `Valuable<ValuableAsyncValue> futureToAsyncVal(...)` &rarr; `FutureValuable.asyncVal`
-- `Valuable stream(...)` &rarr; `StreamValuable`
-- `Valuable streamToValues(...)` &rarr; `StreamValuable.values`
-- `Valuable<ValuableAsyncValue> streamToAsyncVal(...)` &rarr; `StreamValuable.asyncVal`
-- `Valuable ifThen(...)` &rarr; `ValuableIf`
-- `Valuable ifThenValue(...)` &rarr; `ValuableIf.value`
-- `Valuable switchCase(...)` &rarr; `ValuableSwitch`
-- `Valuable switchCaseValue(...)` &rarr; `ValuableSwitch.value`
+- `Valuable<T> future(...)` &rarr; `FutureValuable`
+- `Valuable<T> futureToValues(...)` &rarr; `FutureValuable.values`
+- `Valuable<ValuableAsyncValue<T>> futureToAsyncVal(...)` &rarr; `FutureValuable.asyncVal`
+- `Valuable<T> stream(...)` &rarr; `StreamValuable`
+- `Valuable<T> streamToValues(...)` &rarr; `StreamValuable.values`
+- `Valuable<ValuableAsyncValue<T>> streamToAsyncVal(...)` &rarr; `StreamValuable.asyncVal`
+- `Valuable<T> ifThen(...)` &rarr; `ValuableIf`
+- `Valuable<T> ifThenValue(...)` &rarr; `ValuableIf.value`
+- `Valuable<T> switchCase(...)` &rarr; `ValuableSwitch`
+- `Valuable<T> switchCaseValue(...)` &rarr; `ValuableSwitch.value`
 - `ValuableCallback callback(...)` &rarr; `ValuableCallback.immediate`
 - `ValuableCallback futureCallback(...)` &rarr; `ValuableCallback.future`
 - `ValuableCallback microtaskCallback(...)` &rarr; `ValuableCallback.microtask`
-- `ValuableLinker linker(...)` → `ValuableLinker`
+- `ValuableLinker<T> linker(...)` → `ValuableLinker`
 - `Valuable<bool> compare(...)` → `ValuableCompare`
 - `Valuable<bool> eq(...)` → `ValuableCompare.equals`
 - `Valuable<bool> gt(...)` → `ValuableCompare.greaterThan`
