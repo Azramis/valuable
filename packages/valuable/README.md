@@ -131,7 +131,7 @@ The package provides a singleton class `ValuableDebugSession` in order to get in
 
 Even if this singleton is available in any mode, it only works during debug mode. Otherwise, it does nothing (to avoid consuming performance).
 
-On it you access to :
+It provides access to:
 
 - `mountedValuablesCount` that is the current number of mounted _Valuables_
 - `totalValuablesCount` that is the ever existed number of _Valuables_
@@ -342,7 +342,7 @@ Before, each _Valuable_ had to be disposed manually, so when we create too many 
 - `Valuable<bool> lte(...)` → `ValuableCompare.smallerOrEquals`
 - `Valuable<bool> neq(...)` → `ValuableCompare.different`
 - `Valuable<num> sum(...)` → `ValuableNumOperation.sum`
-- `Valuable<num> substract(...)` → `ValuableNumOperation.substract`
+- `Valuable<num> subtract(...)` → `ValuableNumOperation.subtract`
 - `Valuable<num> multiply(...)` → `ValuableNumOperation.multiply`
 - `Valuable<double> divide(...)` → `ValuableNumOperation.divide`
 - `Valuable<int> truncDivide(...)` → `ValuableNumOperation.truncDivide`
