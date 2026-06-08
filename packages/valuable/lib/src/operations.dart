@@ -131,8 +131,8 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
     Valuable<num> operand2,
   ) => ValuableNumOperation._(operand1, NumOperator.substract, operand2);
 
-  @Deprecated('Use subtract instead')
   /// Subtraction operation
+  @Deprecated('Use subtract instead')
   static ValuableNumOperation<num> substract(
     Valuable<num> operand1,
     Valuable<num> operand2,
