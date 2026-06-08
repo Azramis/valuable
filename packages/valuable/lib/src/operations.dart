@@ -125,11 +125,18 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
     Valuable<num> operand2,
   ) => ValuableNumOperation._(operand1, NumOperator.sum, operand2);
 
-  /// Substraction operation
-  static ValuableNumOperation<num> substract(
+  /// Subtraction operation
+  static ValuableNumOperation<num> subtract(
     Valuable<num> operand1,
     Valuable<num> operand2,
   ) => ValuableNumOperation._(operand1, NumOperator.substract, operand2);
+
+  @Deprecated('Use subtract instead')
+  /// Subtraction operation
+  static ValuableNumOperation<num> substract(
+    Valuable<num> operand1,
+    Valuable<num> operand2,
+  ) => subtract(operand1, operand2);
 
   /// Multiplication operation
   static ValuableNumOperation<num> multiply(
