@@ -106,7 +106,7 @@ extension BoolOperators on Valuable<bool> {
   }
 }
 
-/// Extension to define operators for [Valuable<bool>]
+/// Extension to define operators for [Valuable] where `T extends num`
 extension NumOperators<T extends num> on Valuable<T> {
   /// Addition operator.
   Valuable<num> operator +(Valuable<num> other) =>
