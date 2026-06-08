@@ -426,7 +426,7 @@ extension NumStateOperations<T extends num> on StatefulValuable<T> {
     setValue((getValue() - other) as T);
   }
 
-  /// Reassign the state value by subtracting another number
+  /// Deprecated misspelling of [subtract]; forwards to [subtract].
   @Deprecated('Use subtract instead')
   void substract(num other) {
     subtract(other);
