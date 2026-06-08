@@ -3,11 +3,62 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:valuable/src/async.dart';
 import 'package:valuable/src/base.dart';
+import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/operations.dart';
 import 'package:valuable/src/scope.dart';
 import 'package:valuable/src/stateful.dart';
 
-/// Extension to define operators for [Valuable<bool>]
+/// Extension providing scope-aware helpers for [Valuable]
+extension ValuableScopeHelpers<Output> on Valuable<Output> {
+  /// A method to map a Valuable from [Output] to [Other]
+  Valuable<Other> map<Other>(
+    Other Function(Output) toElement, {
+    ValuableScope? scope,
+  }) {
+    Other computation(
+      ValuableWatcher watch, {
+      ValuableContext? valuableContext,
+    }) => toElement(watch(this, valuableContext: valuableContext));
+
+    return scope?.computed(computation) ?? Valuable.computed(computation);
+  }
+
+  /// Compare with a value that type is [Output] or another [Valuable]
+  ///
+  /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
+  /// is thrown
+  Valuable<bool> equals(dynamic other, {ValuableScope? scope}) {
+    return _scopedCompare(other, CompareOperator.equals, scope: scope);
+  }
+
+  /// Compare with a value that type is [Output] or another [Valuable]
+  ///
+  /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
+  /// is thrown
+  Valuable<bool> notEquals(dynamic other, {ValuableScope? scope}) {
+    return _scopedCompare(other, CompareOperator.different, scope: scope);
+  }
+
+  Valuable<bool> _scopedCompare(
+    dynamic other,
+    CompareOperator ope, {
+    ValuableScope? scope,
+  }) {
+    Valuable compare;
+
+    if (other is Output) {
+      compare = scope?.value(other) ?? Valuable.value(other);
+    } else if (other is Valuable) {
+      compare = other;
+    } else {
+      throw UnmatchTypeValuableError(this, other?.runtimeType ?? Null);
+    }
+
+    return scope?.compare(this, ope, compare) ??
+        ValuableCompare(this, ope, compare);
+  }
+}
+
 extension BoolOperators on Valuable<bool> {
   /// Logical AND between Valuable/boolean value
   Valuable<bool> operator &(Valuable<bool> other) =>

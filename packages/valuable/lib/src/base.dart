@@ -10,7 +10,6 @@ import 'package:valuable/src/errors.dart';
 import 'package:valuable/src/history.dart';
 import 'package:valuable/src/mixins.dart';
 import 'package:valuable/src/operations.dart';
-import 'package:valuable/src/scope.dart';
 
 part 'exceptions.dart';
 
@@ -409,34 +408,18 @@ abstract class Valuable<Output> extends ChangeNotifier
     }
   }
 
-  /// A method to map a Valuable from [Output] to [Other]
-  Valuable<Other> map<Other>(
-    Other Function(Output) toElement, {
-    ValuableScope? scope,
-  }) {
-    Other computation(ValuableWatcher watch, {ValuableContext? valuableContext}) =>
-        toElement(watch(this, valuableContext: valuableContext));
-
-    return scope?.computed(computation) ?? Valuable.computed(computation);
-  }
-
-  Valuable<bool> _getCompare(
-    dynamic other,
-    CompareOperator ope, {
-    ValuableScope? scope,
-  }) {
+  Valuable<bool> _getCompare(dynamic other, CompareOperator ope) {
     Valuable compare;
 
     if (other is Output) {
-      compare = scope?.value(other) ?? Valuable.value(other);
+      compare = Valuable.value(other);
     } else if (other is Valuable) {
       compare = other;
     } else {
       throw UnmatchTypeValuableError(this, other?.runtimeType ?? Null);
     }
 
-    return scope?.compare(this, ope, compare) ??
-        ValuableCompare(this, ope, compare);
+    return ValuableCompare(this, ope, compare);
   }
 
   /// Compare with a value that type is [Output] or another [Valuable]
@@ -469,22 +452,6 @@ abstract class Valuable<Output> extends ChangeNotifier
   /// is thrown
   Valuable<bool> operator <=(dynamic other) {
     return _getCompare(other, CompareOperator.smallerOrEquals);
-  }
-
-  /// Compare with a value that type is [Output] or another [Valuable]
-  ///
-  /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
-  /// is thrown
-  Valuable<bool> equals(dynamic other, {ValuableScope? scope}) {
-    return _getCompare(other, CompareOperator.equals, scope: scope);
-  }
-
-  /// Compare with a value that type is [Output] or another [Valuable]
-  ///
-  /// If [other] type is not [Output] or [Valuable] then an [UnmatchTypeValuableError]
-  /// is thrown
-  Valuable<bool> notEquals(dynamic other, {ValuableScope? scope}) {
-    return _getCompare(other, CompareOperator.different, scope: scope);
   }
 }
 
