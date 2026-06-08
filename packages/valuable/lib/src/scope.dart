@@ -372,11 +372,6 @@ final class ValuableScope with VDisposableMixin {
   Valuable<num> subtract(Valuable<num> operand1, Valuable<num> operand2) =>
       _scope(ValuableNumOperation.subtract(operand1, operand2));
 
-  @Deprecated('Use subtract instead')
-  /// See [ValuableNumOperation.subtract]
-  Valuable<num> substract(Valuable<num> operand1, Valuable<num> operand2) =>
-      subtract(operand1, operand2);
-
   /// See [ValuableNumOperation.multiply]
   Valuable<num> multiply(Valuable<num> operand1, Valuable<num> operand2) =>
       _scope(ValuableNumOperation.multiply(operand1, operand2));

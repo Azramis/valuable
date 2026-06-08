@@ -11,13 +11,12 @@ void main() {
       expect(ValuableNumOperation.substract(left, right).getValue(), 5);
     });
 
-    test('ValuableScope provides subtract and substract alias', () {
+    test('ValuableScope provides subtract', () {
       final ValuableScope scope = ValuableScope();
       final Valuable<num> left = scope.value(12);
       final Valuable<num> right = scope.value(4);
 
       expect(scope.subtract(left, right).getValue(), 8);
-      expect(scope.substract(left, right).getValue(), 8);
 
       scope.dispose();
     });
