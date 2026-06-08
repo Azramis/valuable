@@ -14,13 +14,13 @@ void main() {
     });
 
     test('ValuableScope provides subtract', () {
-      final ValuableScope scope = ValuableScope();
+      final scope = ValuableScope();
+      addTearDown(scope.dispose);
+
       final Valuable<num> left = scope.value(12);
       final Valuable<num> right = scope.value(4);
 
       expect(scope.subtract(left, right).getValue(), 8);
-
-      scope.dispose();
     });
 
     test('Stateful num operations provide subtract and substract alias', () {
