@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-06-08
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - [`valuable` - `v2.0.0`](#valuable---v200)
+
+Packages with other changes:
+
+ - There are no other changes in this release.
+
+---
+
+#### `valuable` - `v2.0.0`
+
+ - **BREAKING** **FEAT**: Upgrade dependencies, Flutter and SDK. Fix and improve codebase.
+ - **FEAT**: Enhance _Valuables_ disposal
+ - **FEAT**: Introduce `ValuableScope`
+
+
 ## 2023-06-24
 
 ### Changes

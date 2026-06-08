@@ -1,3 +1,11 @@
+## 2.0.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **FEAT**: Upgrade dependencies, Flutter and SDK. Fix and improve codebase.
+ - **FEAT**: Enhance _Valuables_ disposal
+ - **FEAT**: Introduce `ValuableScope`
+
 # CHANGELOG
 
 ## 1.3.0
