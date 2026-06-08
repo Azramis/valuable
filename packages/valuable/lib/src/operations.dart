@@ -187,7 +187,7 @@ class ValuableNumOperation<Output extends num> extends Valuable<Output> {
           NumOperator.sum => ope1 + ope2,
           NumOperator.modulo => ope1 % ope2,
           NumOperator.multiply => ope1 * ope2,
-          NumOperator.substract => ope1 - ope2,
+          NumOperator.subtract => ope1 - ope2,
           NumOperator.negate => -ope1,
           _ => throw UnimplementedError(
             'Operator $_operator is not implemented for ValuableNumOperation<Output> with Output = $Output',
