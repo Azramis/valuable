@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:valuable/valuable.dart';
 
@@ -11,6 +9,7 @@ void main() {
       final Valuable<num> left = scope.value(8);
       final Valuable<num> right = scope.value(3);
       final subtractionOpe = left - right;
+      // ignore: deprecated_member_use
       final subtractionLegacy = ValuableNumOperation.substract(left, right);
       final subtraction = ValuableNumOperation.subtract(left, right);
       addTearDown(subtractionOpe.dispose);
@@ -38,6 +37,7 @@ void main() {
       value.subtract(3);
       expect(value.getValue(), 7);
 
+      // ignore: deprecated_member_use
       value.substract(2);
       expect(value.getValue(), 5);
     });
