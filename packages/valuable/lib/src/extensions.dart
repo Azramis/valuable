@@ -63,7 +63,7 @@ extension NumOperators<T extends num> on Valuable<T> {
 
   /// Subtraction operator.
   Valuable<num> operator -(Valuable<num> other) =>
-      ValuableNumOperation.substract(this, other);
+      ValuableNumOperation.subtract(this, other);
 
   /// Multiplication operator.
   Valuable<num> operator *(Valuable<num> other) =>
@@ -416,17 +416,23 @@ extension NumStateOperations<T extends num> on StatefulValuable<T> {
     setValue((getValue() * -1) as T);
   }
 
-  /// Reassign the state value by adding an other number
+  /// Reassign the state value by adding another number
   void add(num other) {
     setValue((getValue() + other) as T);
   }
 
-  /// Reassign the state value by substracting an other number
-  void substract(num other) {
+  /// Reassign the state value by subtracting another number
+  void subtract(num other) {
     setValue((getValue() - other) as T);
   }
 
-  /// Reassign the state value by mutiplying with an other number
+  /// Deprecated misspelling of [subtract]; forwards to [subtract].
+  @Deprecated('Use subtract instead')
+  void substract(num other) {
+    subtract(other);
+  }
+
+  /// Reassign the state value by multiplying with another number
   void multiply(num other) {
     setValue((getValue() * other) as T);
   }
