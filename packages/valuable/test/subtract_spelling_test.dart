@@ -9,6 +9,7 @@ void main() {
       final Valuable<num> left = Valuable.value(8);
       final Valuable<num> right = Valuable.value(3);
 
+      expect((left - right).getValue(), 5);
       expect(ValuableNumOperation.subtract(left, right).getValue(), 5);
       expect(ValuableNumOperation.substract(left, right).getValue(), 5);
     });
