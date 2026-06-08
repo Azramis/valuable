@@ -377,7 +377,7 @@ final class ValuableScope with VDisposableMixin {
       _scope(ValuableNumOperation.multiply(operand1, operand2));
 
   /// See [ValuableNumOperation.divide]
-  Valuable<num> divide(Valuable<num> operand1, Valuable<num> operand2) =>
+  Valuable<double> divide(Valuable<num> operand1, Valuable<num> operand2) =>
       _scope(ValuableNumOperation.divide(operand1, operand2));
 
   /// See [ValuableNumOperation.truncDivide]
