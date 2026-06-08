@@ -106,8 +106,8 @@ As a `ChangeNotifier`, a _Valuable_ should be disposed to avoid memory leaks.
 You often have to call `Valuable.dispose()` explicitly in order to free resources, but _Valuables_ can also be disposed in a chain.  
 In fact, when a _Valuable_ watches a sibling, it listens to its sibling's disposal event too. If the sibling is disposed, the dependent _Valuable_ may dispose itself to avoid depending on a disposed _Valuable_.
 
-But, even if a _Valuable_ could be auto-disposed due to a watched sibling, it's not always true !  
-Look at this case :
+However, even if a _Valuable_ could be auto-disposed because it watches a sibling, this isn't always true.
+Look at this case:
 
 ```dart
 final a = Valuable<bool>.value(true);
@@ -120,8 +120,8 @@ final d = Valuable<String>.computed((watch, {valuableContext}) {
 c.dispose();
 ```
 
-As it was said before, we could imagine that `d` will auto-dispose due to `c` disposal, however this is not the case.  
-Behind the hood, `d` **never** watches `c` because of `watch(a)` always equals to `true`, so it never registers to its disposal event too !  
+As mentioned above, we could imagine that `d` will auto-dispose due to `c`'s disposal; however, this is not the case.  
+Under the hood, `d` **never** watches `c` because `watch(a)` is always `true`, so it never registers to `c`'s disposal event either!
 
 For this reason, `dispose` must be called at least once on each instantiated _Valuable_. Especially since the method can be called multiple times without any issues.
 
@@ -312,8 +312,7 @@ Take a look to the great example in [sample_history.dart](example/lib/src/sample
 `ValuableScope` was introduced in order to simplify disposal of _Valuables_ created locally.  
 Before, each _Valuable_ had to be disposed manually, so when we create too many _Valuables_ at the same place it can be easy to forget to dispose one or more...
 
-`ValuableScope` defines methods to instantiate each kind of _Valuable_
-
+`ValuableScope` defines factory methods to instantiate many kinds of _Valuable_ (and related helpers), including:
 - `Valuable value(...)` &rarr; `Valuable.value`
 - `Valuable computed(...)` &rarr; `Valuable.computed`
 - `Valuable listenable(...)` &rarr; `Valuable.listenable`
@@ -334,7 +333,22 @@ Before, each _Valuable_ had to be disposed manually, so when we create too many 
 - `ValuableCallback callback(...)` &rarr; `ValuableCallback.immediate`
 - `ValuableCallback futureCallback(...)` &rarr; `ValuableCallback.future`
 - `ValuableCallback microtaskCallback(...)` &rarr; `ValuableCallback.microtask`
-- `ValuableLinker linker(...)` &rarr; `ValuableLinker`
+- `ValuableLinker linker(...)` → `ValuableLinker`
+- `Valuable<bool> compare(...)` → `ValuableCompare`
+- `Valuable<bool> eq(...)` → `ValuableCompare.equals`
+- `Valuable<bool> gt(...)` → `ValuableCompare.greaterThan`
+- `Valuable<bool> gte(...)` → `ValuableCompare.greaterOrEquals`
+- `Valuable<bool> lt(...)` → `ValuableCompare.smallerThan`
+- `Valuable<bool> lte(...)` → `ValuableCompare.smallerOrEquals`
+- `Valuable<bool> neq(...)` → `ValuableCompare.different`
+- `Valuable<num> sum(...)` → `ValuableNumOperation.sum`
+- `Valuable<num> substract(...)` → `ValuableNumOperation.substract`
+- `Valuable<num> multiply(...)` → `ValuableNumOperation.multiply`
+- `Valuable<double> divide(...)` → `ValuableNumOperation.divide`
+- `Valuable<int> truncDivide(...)` → `ValuableNumOperation.truncDivide`
+- `Valuable<num> modulo(...)` → `ValuableNumOperation.modulo`
+- `Valuable<num> negate(...)` → `ValuableNumOperation.negate`
+- `Valuable<String> concatenate(...)` → `ValuableStringOperation.concate`
   
 `nestedScope()` is a defined method of `ValuableScope` useful to define sub-scope that might be disposed before the entire parent scope. But if the parent scope is disposed, it disposes its children too.
 
@@ -344,10 +358,10 @@ Most of the time, _Valuables_ will be declared as member of a `State` instance, 
 
 ### `StateValuableScopeMixin`
 
-As says in the previous part, this mixin avoid some boilerplate to get a `ValuableScope` directly inside a `State`.  
-It give access to `vScope` member, whose is a final `ValuableScope`. With this member, you now be able to create scoped _Valuable_ to use.  
-`vScope` will be automatically disposed at `State` disposal, ensuring that all scoped _Valuable_ will be disposed too.  
-With that mixin, you don't bother to dispose _Valuable_ anymore, just declare and use them !
+As mentioned in the previous part, this mixin avoids some boilerplate by providing a `ValuableScope` directly inside a `State`.  
+It gives access to a `vScope` member, which is a final `ValuableScope`. With it, you can create scoped _Valuables_ to use.  
+`vScope` will be automatically disposed when the `State` is disposed, ensuring that all scoped _Valuables_ are disposed too.  
+With this mixin, you no longer need to dispose _Valuables_ manually; just declare and use them!
 
 But, there is another twist with this mixin...  
 
