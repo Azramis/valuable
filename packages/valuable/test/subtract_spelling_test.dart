@@ -8,15 +8,15 @@ void main() {
       addTearDown(scope.dispose);
       final Valuable<num> left = scope.value(8);
       final Valuable<num> right = scope.value(3);
-      final subtractionOpe = left - right;
+      final subtractionOperation = left - right;
       // ignore: deprecated_member_use
       final subtractionLegacy = ValuableNumOperation.substract(left, right);
       final subtraction = ValuableNumOperation.subtract(left, right);
-      addTearDown(subtractionOpe.dispose);
+      addTearDown(subtractionOperation.dispose);
       addTearDown(subtractionLegacy.dispose);
       addTearDown(subtraction.dispose);
 
-      expect(subtractionOpe.getValue(), 5);
+      expect(subtractionOperation.getValue(), 5);
       expect(subtraction.getValue(), 5);
       expect(subtractionLegacy.getValue(), 5);
     });
